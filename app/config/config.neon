@@ -21,13 +21,13 @@ nette:
 		expiration: 14 days
 
 extensions:
-    skautis: SkautIS\Nette\SkautisExtension22 # yourNameOfExtension : SkautIS\Nette\SkautisExtension22
+    skautis: Skautis\Nette\SkautisExtension # yourNameOfExtension : SkautIS\Nette\SkautisExtension22
 
 services:
 #		- App\Model\UserManager
 	- App\RouterFactory
 	router: @App\RouterFactory::createRouter
-#	authenticator: Authenticator
+	authenticator: Authenticator
 #	database: @nette.database.default
 #	ZavodFormFactory : ZavodFormFactory
 #	HlidkaFormFactory : HlidkaFormFactory

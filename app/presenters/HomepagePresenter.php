@@ -14,7 +14,27 @@ class HomepagePresenter extends BasePresenter
 
 	public function renderDefault()
 	{
-		$this->template->anyVariable = 'any value';
+		$post = $this->request->post;		
+		if ($post) {
+			if (!isset($post['skautIS_Token'])) {				
+				$this->redirect('Homepage:');
+			} else {
+				$this->skautIS->setLoginData($post);
+				$this->user->login($this->skautIS->user->UserDetail());
+				if(isset($_GET['ReturnUrl'])) {
+					$this->redirectUrl($_GET['ReturnUrl']);
+				}
+			}	
+		}
+		
+		$this->template->token = $this->skautIS->getUser()->getLoginId();
+	}
+	
+	public function actionLogout() {
+		$this->user->logout(TRUE);
+		$url = $this->skautIS->getLogoutUrl();
+		$this->skautIS->getUser()->resetLoginData();
+		$this->redirectUrl($url);
 	}
 
 }
