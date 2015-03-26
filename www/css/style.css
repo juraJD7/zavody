@@ -17,7 +17,7 @@ h1 {
 	font-size: 0;
 	z-index: 123456;
 	display: none;
-}
+}*/
 
 div.flash {
 	color: black;
@@ -27,6 +27,7 @@ div.flash {
 	margin: 1em 0;
 }
 
+/*
 a[href^="#error:"] {
 	background: red;
 	color: white;

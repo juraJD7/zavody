@@ -38,16 +38,17 @@ class Authenticator extends Nette\Object implements Nette\Security\IAuthenticato
 	{
 		if ($this->skautIS->getUser()->isLoggedIn()) {
 			$userID = $credentials[0]->ID;
-			$admin = $this->database->table('administrators')
-				->get($userID);
+			$admin = $this->database->table('user')
+					->where('is_admin', TRUE)
+					->get($userID);
 
 			if ($admin) {
-				return new NS\Identity($admin->id, "admin");
+				return new NS\Identity($admin->id_user, "admin");
 			}
 
-			$raceManagers = $this->database->table('editors_races')
+			$raceManagers = $this->database->table('editor_race')
 					->where('user_id',$userID);
-			if ($raceManagers) {
+			if ($raceManagers->fetch()) {
 				$races = array();
 				foreach ($raceManagers as $manager) {
 					$races[] = $manager->race_id;

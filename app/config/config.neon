@@ -26,12 +26,14 @@ extensions:
 services:
 #		- App\Model\UserManager
 	- App\RouterFactory
+	- App\Forms\ArticleFormFactory
 	router: @App\RouterFactory::createRouter
 	authenticator: Authenticator
-#	database: @nette.database.default
+#	database: @nette.database.default	
 #	ZavodFormFactory : ZavodFormFactory
 #	HlidkaFormFactory : HlidkaFormFactory
-#	JednotkaManager: JednotkaManager #(@skautis, @database)
+	ArticleManager: ArticleManager
+	UserManager: UserManager
 #	HlidkaManager: HlidkaManager #(@skautis, @database)
 
 
