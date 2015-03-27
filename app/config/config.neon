@@ -27,12 +27,14 @@ services:
 #		- App\Model\UserManager
 	- App\RouterFactory
 	- App\Forms\ArticleFormFactory
+	- App\Forms\CommentFormFactory
 	router: @App\RouterFactory::createRouter
 	authenticator: Authenticator
 #	database: @nette.database.default	
 #	ZavodFormFactory : ZavodFormFactory
 #	HlidkaFormFactory : HlidkaFormFactory
 	ArticleManager: ArticleManager
+	CommentManager: CommentManager
 	UserManager: UserManager
 #	HlidkaManager: HlidkaManager #(@skautis, @database)
 

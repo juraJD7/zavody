@@ -1,0 +1,22 @@
+{block comment}
+
+<h4>
+	<strong>{$comment->title}</strong>
+	
+	<small>{$comment->authorName}, {$comment->posted|date:'d.m.Y H:i'}
+	
+	{if $comment->modified}
+		, upraveno: {$comment->modified|date:'d.m.Y H:i'}
+	{/if}
+	
+	{if $user->id == $comment->author || $user->isInRole('admin')}
+		<a n:href="editComment! $article->id, $comment->id">Upravit</a>
+		<a n:href="deleteComment! $article->id, $comment->id">Smazat</a>
+	{/if}
+	
+	</small>
+</h4>
+	
+<p>{$comment->text}</p>
+
+{/block}

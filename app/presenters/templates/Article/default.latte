@@ -1,0 +1,44 @@
+{block content}
+
+<h2>Aktuality</h2>
+
+{if $user->isInRole('admin')}
+	<a n:href="Article:create">>>Přidat článek</a>	
+{/if}
+
+{include 'pagination.latte'}
+
+{foreach $articles as $article}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title"><a n:href="Article:detail $article->id">{$article->title}</a></h3>
+		</div>
+		<div class="panel-body">
+			<div class="media-body">
+			<a n:href="Article:detail $article->id">
+				<img class="media-object thumbnail pull-left" src="{$basePath}/images/articles/default.jpg" height="180" width="171">			
+			</a>
+			<h4 class="media-heading">Vydal: {$article->getAuthorName()}</h4>
+			<h4 class="media-heading"><small><em>
+			Vydáno: {$article->published|date:'d.m.Y H:i'}
+				{if ($article->published < $article->modified)}
+					, aktualizováno: {$article->modified|date:'d.m.Y H:i'}
+				{/if}
+				</em>
+				<br />
+				{if $user->id == $article->author || $user->isInRole('admin')}
+					<a n:href="Article:edit $article->id">Upravit</a> <a n:href="delete! $article->id">Smazat</a>
+				{/if}
+			</small></h4>
+				{$article->lead}<br /> <br />
+				<a class="btn btn-primary" n:href="Article:detail  $article->id" role="button">Celý článek</a>
+				<a n:href="Article:detail#comments  $article->id">Přejít na komentáře ({$article->getNumComments()})</a>
+			</div>
+		</div>
+	</div>	
+    <hr />
+{/foreach}
+
+{include 'pagination.latte'}
+
+{/block}

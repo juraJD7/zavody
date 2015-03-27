@@ -1,0 +1,104 @@
+{block content}
+
+<div class="panel panel-default">
+	<h3>{$article->title}</h3>
+	<div>
+	<img src="{$basePath}/images/articles/default.jpg" class="pull-left img-thumbnail">
+	<h4 class="media-heading">Vydal: {$article->getAuthorName()}</h4>
+	<h4 class="media-heading"><small><em>
+		Vydáno: {$article->published|date:'d.m.Y H:i'}
+			{if ($article->published < $article->modified)}
+				, aktualizováno: {$article->modified|date:'d.m.Y H:i'}
+			{/if}
+	</em>
+	<br />
+	{if $user->id == $article->author || $user->isInRole('admin')}
+		<a n:href="Article:edit $article->id">Upravit</a> <a n:href="delete! $article->id">Smazat</a>
+	{/if}	
+	</small></h4>
+	<strong>{$article->lead}</strong>
+	</div>
+	<div style="clear: both;"></div>
+	<div>
+		{$article->text|noescape}
+	</div>
+</div>
+
+<h3 id="comments">Komentáře</h3>
+
+{include 'pagination.latte'}
+
+<div class="panel panel-default">
+{snippet comments}
+	{foreach $comments as $comment}
+		{snippet comment-$comment->id}
+		
+			{ifset $edit}
+				{if $edit == $comment->id}
+					{control editComment}
+				{else}
+					{include comment, comment => $comment}	
+				{/if}
+			{else}
+				{include comment, comment => $comment}					
+			{/ifset}
+			
+		<hr />
+		{/snippet}
+	{/foreach}
+	
+	{if empty($comments)}
+		<p><em>Článek nemá žádné komentáře</em></p>
+	{/if}
+	
+{/snippet}
+</div>
+
+{include 'pagination.latte'}
+
+{if $user->isLoggedIn()}
+<div class="panel panel-default">
+	<h3>Přidat nový komentář</h3>
+  {control commentForm}
+</div>
+{/if}
+
+<!-- SCROLL SNEAK JS: you can change `location.hostname` to any unique string or leave it as is -->
+<script>
+(function() {
+	var sneaky = new ScrollSneak(location.hostname), tabs = document.getElementById('snippet--comments').getElementsByTagName('div'), i = 0, len = tabs.length;
+	for (; i < len; i++) {
+		tabs[i].onclick = sneaky.sneak;
+	}		
+})();
+</script>
+<!-- END OF SCROLL SNEAK JS -->
+
+
+{/block}
+
+
+
+{block comment}
+
+<h4>
+	<strong>{$comment->title}</strong>
+	
+	<small>{$comment->authorName}, {$comment->posted|date:'d.m.Y H:i'}
+	
+	{if $comment->modified}
+		, upraveno: {$comment->modified|date:'d.m.Y H:i'}
+	{/if}
+	
+	{if $user->id == $comment->author || $user->isInRole('admin')}
+		<a n:href="editComment! $comment->id">Upravit</a>
+		<a n:href="deleteComment! $article->id, $comment->id">Smazat</a>
+	{/if}
+	
+	</small>
+</h4>
+	
+<p>{$comment->text}</p>
+
+{/block}
+

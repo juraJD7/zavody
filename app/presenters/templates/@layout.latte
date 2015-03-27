@@ -12,7 +12,15 @@
 	<meta name="description" content="Web skautských závodů">
     <meta name="author" content="Jiri Dousek">
 	<title>{ifset title}{include title|striptags} | {/ifset}Web skautských závodů</title>
-
+	<script type="text/javascript" src="{$basePath}/tinymce/tinymce.min.js"></script>
+	<script type="text/javascript" src="{$basePath}/js/scroll-sneak.js"></script>
+	<script type="text/javascript">
+	tinyMCE.init({
+    mode: "specific_textareas",
+    editor_selector: "mceEditor"    
+});
+	</script>
+	
 	<link rel="stylesheet" href="{$basePath}/css/style.css">
 	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
 	<!-- Bootstrap -->
@@ -37,7 +45,7 @@
       <div class="container">
         <nav class="blog-nav">
 			<a class="blog-nav-item active" n:href="Homepage:default">Úvod</a>
-			<a class="blog-nav-item" n:href="Homepage:default">Zpravy</a>
+			<a class="blog-nav-item" n:href="Article:default">Články</a>
 			<a class="blog-nav-item" n:href="Homepage:default">Závody</a>
 			<a class="blog-nav-item" n:href="Homepage:default">Hlídky</a>
 			<a class="blog-nav-item" n:href="Homepage:default">Otázky a odpoědi</a>
@@ -97,7 +105,7 @@
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="{$basePath}/bootstrap/js/bootstrap.min.js"></script>
 	{/block}
 </body>
 </html>
