@@ -28,14 +28,16 @@ services:
 	- App\RouterFactory
 	- App\Forms\ArticleFormFactory
 	- App\Forms\CommentFormFactory
+	- App\Forms\FileFormFactory
+	- FileDbMapper
+	- FileRepository
 	router: @App\RouterFactory::createRouter
-	authenticator: Authenticator
-#	database: @nette.database.default	
+	authenticator: Authenticator	
 #	ZavodFormFactory : ZavodFormFactory
 #	HlidkaFormFactory : HlidkaFormFactory
 	ArticleManager: ArticleManager
 	CommentManager: CommentManager
-	UserManager: UserManager
+	UserManager: UserManager	
 #	HlidkaManager: HlidkaManager #(@skautis, @database)
 
 

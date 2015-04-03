@@ -45,7 +45,7 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 * @inject
 	 */
 	public $userManager;
-	
+		
 	public function startup() {
 		parent::startup();			
 				

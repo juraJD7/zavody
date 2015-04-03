@@ -1,2 +1,4 @@
-Order Allow,Deny
-Deny from all
+RewriteEngine On
+#RewriteRule ^$ /www [L]
+RewriteCond %{REQUEST_URI} !^/www/
+RewriteRule ^(.*)$ /www/$1 [QSA]

@@ -1,0 +1,29 @@
+{block content}
+
+{if $user->isLoggedIn()}
+	<p>
+		<a n:href="File:upload">Nahrát nový soubor</a>
+	</p>
+{/if}
+
+<table class="table">
+	<tr>
+		<th>&nbsp;</th>
+		<th>Název</th>
+		<th>Krátký popis</th>
+		<th>Velikost</th>
+		<th>Nahrál</th>
+		<th>Kategorie</th>
+	</tr>
+{foreach $files as $file}
+	<tr>
+		<td><img src="{$file->getIconPath()}" title="{$file->type}"></td>
+		<td><a href="{$file->path}">{$file->name}</a></td>
+		<td>{$file->description}</td>
+		<td>{$file->getFormattedSize()}</td>
+		<td>{$file->author->userName}</td>
+		<td>TODO</td>
+	</tr>
+{/foreach}
+</table>
+{/block}

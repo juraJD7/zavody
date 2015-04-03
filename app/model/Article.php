@@ -45,7 +45,7 @@ class Article extends Nette\Object {
 	}
 
 	public function getAuthor() {
-		if(is_int($this->author)) {
+		if(is_int($this->author)) { //nemusim
 			return $this->author;
 		}
 		return null;
