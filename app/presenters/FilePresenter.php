@@ -2,10 +2,8 @@
 
 namespace App\Presenters;
 
-use Nette,
-	\App\Forms\ArticleFormFactory,
-	\App\Forms\CommentFormFactory;
-
+use Nette;
+	
 
 /**
  * Description of FilePresenter

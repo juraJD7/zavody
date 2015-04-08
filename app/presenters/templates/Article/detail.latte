@@ -26,7 +26,7 @@
 
 <h3 id="comments">Komentáře</h3>
 
-{include 'pagination.latte'}
+{include '../pagination.latte'}
 
 <div class="panel panel-default">
 {snippet comments}
@@ -54,7 +54,7 @@
 {/snippet}
 </div>
 
-{include 'pagination.latte'}
+{include '../pagination.latte'}
 
 {if $user->isLoggedIn()}
 <div class="panel panel-default">

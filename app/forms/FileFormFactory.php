@@ -80,8 +80,7 @@ class FileFormFactory extends BaseFormFactory {
 					unlink(\FileRepository::BASEDIR . $file->path);
 				}
 				$subPath = $this->getSubPath($values->file);								
-				$path = \FileRepository::BASEDIR . "$subPath";
-				//var_dump($path);exit;
+				$path = \FileRepository::BASEDIR . "$subPath";				
 				$values->file->move($path);
 				$data = array(
 					'path' => $subPath,
