@@ -1,0 +1,23 @@
+{if $paginator->getLastPage() > 1}
+<nav>
+	<ul class="pagination">
+	  <li>
+		  {dump $params}
+		  {php $params['page'] = $paginator->firstPage}
+		<a n:href="{$presenter->name}:$actionPaginator (expand) $params" aria-label="Previous">
+		  <span aria-hidden="true">&laquo; Nejnovější</span>
+		</a>
+	  </li>	 
+	  {for $i = $paginator->firstPage; $i <= $paginator->lastPage; $i++}
+		{php $params['page'] = $i}
+		<li><a n:href="{$presenter->name}:$actionPaginator (expand) $params">{$i}</a></li>		
+	  {/for}
+	  <li>
+		  {php $params['page'] = $paginator->lastPage}
+		<a n:href="{$presenter->name}:$actionPaginator (expand) $params" aria-label="Next">
+		  <span aria-hidden="true">Nejstarší &raquo;</span>
+		</a>
+	  </li>
+	</ul>
+</nav>
+{/if}

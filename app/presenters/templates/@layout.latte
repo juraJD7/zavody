@@ -18,7 +18,7 @@
 	tinyMCE.init({
     mode: "specific_textareas",
     editor_selector: "mceEditor"    
-});
+	});
 	</script>
 	
 	<link rel="stylesheet" href="{$basePath}/css/style.css">
@@ -100,11 +100,11 @@
     </footer>
 
 	{block scripts}
-	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-	<script src="//nette.github.io/resources/js/netteForms.min.js"></script>
-	<script src="{$basePath}/js/main.js"></script>
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="{$basePath}/js/nette.ajax.js"></script>
+	<script src="//nette.github.io/resources/js/netteForms.min.js"></script>
+	<script src="{$basePath}/js/main.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{$basePath}/bootstrap/js/bootstrap.min.js"></script>
 	{/block}

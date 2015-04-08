@@ -20,6 +20,9 @@ class File extends Nette\Object {
 	private $size;
 	private $author;
 	
+	private $iconPath;
+	private $categories;
+	
 	public function __construct($id) {
 		if(!is_int($id)) {
 			throw new \Nette\MemberAccessException("Parametr id musí být integer.");
@@ -100,6 +103,16 @@ class File extends Nette\Object {
 	}
 	
 	public function getIconPath() {
-		return $this->repository->getIconPath($this->type);
+		if (!isset($this->iconPath)) {
+			$this->iconPath = $this->repository->getIconPath($this->type);
+		}
+		return $this->iconPath;
+	}
+	
+	public function getCategories() {
+		if (empty($this->categories)) {
+			$this->categories = $this->repository->getCategoriesByFile($this->id);
+		}
+		return $this->categories;
 	}
 }

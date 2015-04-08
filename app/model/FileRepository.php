@@ -25,8 +25,8 @@ class FileRepository {
 		return $file;
 	}
 	
-	public function getFiles() {
-		return $this->dbMapper->getFiles($this);
+	public function getFiles($paginator, $category = NULL) {
+		return $this->dbMapper->getFiles($this, $paginator, $category);
 	}
 	
 	public function getWhiteList() {
@@ -38,6 +38,20 @@ class FileRepository {
 		return "/images/icons/" . $file;
 	}
 	
+	public function getCategoriesByFile($id) {
+		return $this->dbMapper->getCatogoriesByFile($id);
+	}
 	
+	public function getAllCategories() {
+		return $this->dbMapper->getAllCategories();
+	}
+	
+	public function deleteFile($id) {
+		$this->dbMapper->deleteFile($id);
+	}
+	
+	public function countAll($category = NULL) {
+		return $this->dbMapper->countAll($category);
+	}
 	
 }

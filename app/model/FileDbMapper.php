@@ -34,14 +34,20 @@ class FileDbMapper extends BaseDbMapper {
 		return $file;
 	}
 	
-	public function getFiles($repository) {
-		$table = $this->database->table('file');
+	public function getFiles($repository, $paginator, $category = null) {	
+		
+		if (!is_null($category) && !empty($category)) {
+			return $this->getFilesByCategory($repository, $paginator, $category);
+		}
+		$table = $this->database->table('file')
+				->order('id DESC')
+				->limit($paginator->getLength(), $paginator->getOffset());	
 		$files = array();
 		foreach ($table as $row) {
 			$file = $this->getFile($row->id);
 			$file->repository = $repository;
 			$files[] = $file;
-		}
+		}		
 		return $files;
 	}
 
@@ -58,5 +64,55 @@ class FileDbMapper extends BaseDbMapper {
 		return $this->database->table('whitelist')
 				->get($type)
 				->path;
+	}
+	
+	public function getCatogoriesByFile($id) {
+		$join =  $this->database->table('file')
+				->get($id)
+				->related('category_file');
+		$categories = array();
+		foreach ($join as $category) {			
+			$categories[] = $this->database->table('category')
+					->where($category->category_id)
+					->fetch();
+		}
+		return $categories;
+	}
+	
+	public function getFilesByCategory($repository,  $paginator, $id) {
+		$join =  $this->database->table('category')
+				->get($id)
+				->related('category_file')
+				->limit($paginator->getLength(), $paginator->getOffset());
+		$files = array();
+		foreach ($join as $row) {			
+			$file = $this->getFile($row->file_id);
+			$file->repository = $repository;
+			$files[] = $file;
+		}
+		return $files;
+	}
+	
+	public function getAllCategories() {
+		return $this->database->table('category');
+	}
+	
+	public function deleteFile($id) {
+		$this->database->table('category_file')
+				->where('file_id', $id)
+				->delete();
+		$this->database->table('file')
+				->where('id', $id)
+				->delete();
+	}
+	
+	public function countAll($category) {
+		if (!is_null($category) && !empty($category)) {
+			return $this->database->table('category_file')
+					->where('category_id',$category)
+					->count();
+		}		
+		return $this->database->table('file')
+				->count();
 	}
 }

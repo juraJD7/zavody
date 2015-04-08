@@ -20,7 +20,7 @@
 		"dg/adminer-custom": "~1.6",
 		"skautis/skautis": "2.*@dev",
 		"skautis/nette": "2.*@dev",
-		"jkuchar/filedownloader": "1.2.1"
+		"jkuchar/filedownloader": "~1.2"
 	},
 	"require-dev": {	
 		"nette/tester": "~1.3"

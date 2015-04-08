@@ -39,10 +39,20 @@ class FileFormFactory extends BaseFormFactory {
 	 * @return Form
 	 */
 	public function create()
-	{		
-		$form = new Form;
+	{
+		$items = array(
+			1 => 'Pravidla',
+			2 => 'Stanoviště'
+		);
+		
+		$form = new Form;	
+		
 		$form->addText('name', 'Název:')
 			->setRequired('Je nutné vyplnit název souboru.');
+		
+		$form->addCheckboxList('categories', 'Zobrazovat v kategoriích', $items)
+				->setAttribute('class', 'inline');
+		
 		$form->addTextArea('description', 'Krátký popis:', 30, 5);		
 
 		$form->addUpload('file', 'Soubor:');			
@@ -58,7 +68,7 @@ class FileFormFactory extends BaseFormFactory {
 	}
 	
 	public function formSucceeded(Form $form, $values)
-	{			
+	{
 		if($values->file->isOk()) {
 			$whiteList = $this->fileRepository->getWhiteList();
 			$user = $this->skautIS->usr->UserDetail()->ID;	
@@ -82,10 +92,11 @@ class FileFormFactory extends BaseFormFactory {
 					'author' => $user
 				);
 				if (!is_null($this->id)) {
-					$file->update($data);
+					$file->update($data);					
 				} else {
-					$this->database->table('file')->insert($data);
-				}
+					$file = $this->database->table('file')->insert($data);
+				}				
+				$this->updateCategories($values->categories, $file);
 			} else {
 				$form->addError("Nelze nahrát souboru typu $type");
 			}
@@ -97,10 +108,26 @@ class FileFormFactory extends BaseFormFactory {
 					'name' => $values->name,
 					'description' => $values->description,
 				));
+				$this->updateCategories($values->categories, $file);
 			} else {
 				$form->addError("Při nahrávání se objevila chyba. Kod: $error");
 			}
 		}	
+	}
+	
+	private function updateCategories($categories, $file) {
+		if (!is_null($this->id)) {
+			$this->database->table('category_file')
+				->where('file_id',  $this->id)
+				->delete();
+		}
+		foreach ($categories as $category) {
+			$this->database->table('category_file')
+				->insert(array(
+					'category_id' => $category,
+					'file_id' => $file->id
+				));
+		}
 	}
 	
 	private function getSubPath($name) {		

@@ -6,7 +6,7 @@
 	<a n:href="Article:create">>>Přidat článek</a>	
 {/if}
 
-{include 'pagination.latte'}
+{include '../pagination.latte'}
 
 {foreach $articles as $article}
 	<div class="panel panel-default">
@@ -39,6 +39,6 @@
     <hr />
 {/foreach}
 
-{include 'pagination.latte'}
+{include '../pagination.latte'}
 
 {/block}

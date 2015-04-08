@@ -27,6 +27,18 @@ class FilePresenter extends BasePresenter {
 	 */
 	public $fileFormFactory;
 	
+	/**
+	 *
+	 * @var \Nette\Utils\Paginator
+	 * @inject
+	 */
+	public $paginator;
+	
+	private $actionPaginator;
+	protected $params = array();
+	private $files;
+	private $category;
+	
 	protected function createComponentFileForm()
 	{
 		$form = $this->fileFormFactory->create();
@@ -56,6 +68,7 @@ class FilePresenter extends BasePresenter {
 		}				
 		$this['fileForm']['name']->setDefaultValue($file->name);
 		$this['fileForm']['description']->setDefaultValue($file->description);
+		$this['fileForm']['categories']->setDefaultValue($this->fileRepository->getCategoriesByFile($file->id));
 	}
 	
 	public function renderUpload() {
@@ -65,10 +78,73 @@ class FilePresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
 		}
 	}
+	
+	public function actionDownload($id) {
+		try {			
+			$file = $this->fileRepository->getFile($id);
+			if (!($this->user->isInRole('admin') || ($this->user->id == $file->author))) {
+				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");
+			}
+		} catch (\InvalidArgumentException $ex) {
+			$this->error($ex);
+		} catch (Nette\Security\AuthenticationException $ex) {
+			$this->error($ex);
+			$this->redirect("File:default");
+		}	
+		$filedownload = new \FileDownloader\FileDownload();	
+		$filedownload->sourceFile = \FileRepository::BASEDIR . $file->path;
+		$filedownload->download();
+	}
+	
+	public function actionDelete($id) {
+		$this->fileRepository->deleteFile($id);
+		$this->redirect('this');
+	}
 
-	public function renderDefault() {		
-		$this->template->files = $this->fileRepository->getFiles();	
-		$this->template->message = "mess";
+	public function renderDefault($category) {		
+		
+		$page = $this->getParameter('page');
+		
+		if (is_null($this->category)) {
+			$this->category = $this->getParameter('category');
+		}
+		
+		if ($this->paginator->itemCount === NULL) {		
+			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator->setItemCount($this->fileRepository->countAll($this->category));
+			$this->paginator->setItemsPerPage(5); 
+			$this->paginator->setPage($page);			
+		}
+		
+		if (is_null($this->actionPaginator)) {
+			$this->actionPaginator = "default";
+		}		
+				
+		if (is_null($this->files)) {			
+			$this->files = $this->fileRepository->getFiles($this->paginator, $this->category);
+		}		
+		$this->params['category'] = $this->category;		
+		
+		$this->template->paginator = $this->paginator;
+		$this->template->actionPaginator = $this->actionPaginator;
+		$this->template->params = $this->params;		
+		$this->template->files = $this->files;
+		
+		$this->template->categories = $this->fileRepository->getAllCategories();
+	}
+	
+	public function handleChangeCategory() {
+		if($this->isAjax()) {				
+			$httpRequest = $this->context->getByType('Nette\Http\Request');
+			$this->category = $httpRequest->getPost('category');
+			$page = $this->getParameter('page');
+			$this->paginator->setItemCount($this->fileRepository->countAll($this->category));			
+			$this->paginator->setItemsPerPage(5); 
+			$this->paginator->setPage($page);			
+			$this->actionPaginator = "default";					
+			$this->files = $this->fileRepository->getFiles($this->paginator, $this->category);			
+			$this->redrawControl('category');
+		}			
 	}
 	
 }

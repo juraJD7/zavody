@@ -5,6 +5,19 @@
 		<a n:href="File:upload">Nahrát nový soubor</a>
 	</p>
 {/if}
+<form>
+<p>	Zobrazované kategorie: 
+	<select id="categorySelect" onchange="changeCategory();">
+		<option value="">-- Vše --</option>
+		{foreach $categories as $category}
+			<option value="{$category->id}" n:attr="selected => $params['category'] == $category->id">{$category->name}</option>
+		{/foreach}
+	</select>  
+</p>
+</form>
+{snippet category}
+	
+{include '../pagination.latte'}
 
 <table class="table">
 	<tr>
@@ -14,16 +27,45 @@
 		<th>Velikost</th>
 		<th>Nahrál</th>
 		<th>Kategorie</th>
+		<th>&nbsp;</th>
 	</tr>
 {foreach $files as $file}
 	<tr>
 		<td><img src="{$file->getIconPath()}" title="{$file->type}"></td>
-		<td><a href="{$file->path}">{$file->name}</a></td>
+		<td><a n:href="File:download $file->id">{$file->name}</a></td>
 		<td>{$file->description}</td>
 		<td>{$file->getFormattedSize()}</td>
 		<td>{$file->author->userName}</td>
-		<td>TODO</td>
+		<td>
+			{foreach $file->categories as $category}
+				{$category->name}
+				{sep}, {/sep}
+			{/foreach}
+		</td>
+		<td>
+		{if $user->isLoggedIn() && ($user->isInRole('admin') || $user->data['id'] == $file->author)}
+			<a n:href="File:edit $file->id">Upravit</a>
+			<a n:href="File:delete $file->id">Smazat</a>
+		{/if}
+		</td>
 	</tr>
 {/foreach}
 </table>
+
+{include '../pagination.latte'}
+
+{/snippet}
+
+<script type="text/javascript">
+	function changeCategory() {
+		$.nette.ajax({
+			url: {link changeCategory!},
+			type: "POST",
+			data: {
+				category: $('#categorySelect').val()
+			}
+		});
+	}
+</script>
+
 {/block}
