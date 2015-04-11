@@ -31,8 +31,12 @@ services:
 	- App\Forms\FileFormFactory
 	- App\Forms\QuestionFormFactory
 	- App\Forms\AnswerFormFactory
+	- App\Forms\PhotoUploadFormFactory
+	- App\Forms\PhotoDescriptionFormFactory
 	- FileDbMapper
 	- FileRepository
+	- PhotoRepository
+	- PhotoDbMapper
 	- QuestionRepository
 	- QuestionDbMapper
 	- Nette\Utils\Paginator

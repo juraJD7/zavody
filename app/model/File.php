@@ -15,7 +15,7 @@ class File extends Nette\Object {
 	private $id;
 	private $path;
 	private $name;
-	private $descrtiption;
+	private $description;
 	private $type;
 	private $size;
 	private $author;
@@ -55,11 +55,11 @@ class File extends Nette\Object {
 	}
 	
 	public function getDescription() {
-		return $this->descrtiption;
+		return $this->description;
 	}
 	
 	public function setDescription($description) {
-		$this->descrtiption = $description;
+		$this->description = $description;
 	}
 	
 	public function getType() {
@@ -71,7 +71,7 @@ class File extends Nette\Object {
 	}
 	
 	public function getSize() {
-		return $this->id;
+		return $this->size;
 	}
 	
 	public function setSize($size) {

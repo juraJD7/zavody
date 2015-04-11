@@ -96,7 +96,7 @@ class FilePresenter extends BasePresenter {
 	
 	public function actionDelete($id) {
 		$this->fileRepository->deleteFile($id);
-		$this->redirect('this');
+		$this->redirect("File:");
 	}
 
 	public function renderDefault($category) {		
@@ -138,7 +138,7 @@ class FilePresenter extends BasePresenter {
 			$page = $this->getParameter('page');
 			$this->paginator->setItemCount($this->fileRepository->countAll($this->category));			
 			$this->paginator->setItemsPerPage(5); 
-			$this->paginator->setPage($page);			
+			$this->paginator->setPage($page); //vzdy nastavit na 1?			
 			$this->actionPaginator = "default";					
 			$this->files = $this->fileRepository->getFiles($this->paginator, $this->category);			
 			$this->redrawControl('category');

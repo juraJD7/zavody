@@ -43,7 +43,7 @@
 			{/foreach}
 		</td>
 		<td>
-		{if $user->isLoggedIn() && ($user->isInRole('admin') || $user->data['id'] == $file->author)}
+		{if $user->isLoggedIn() && ($user->isInRole('admin') || $user->data['id'] == $file->author->id)}
 			<a n:href="File:edit $file->id">Upravit</a>
 			<a n:href="File:delete $file->id">Smazat</a>
 		{/if}

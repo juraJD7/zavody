@@ -47,11 +47,17 @@ class FileRepository {
 	}
 	
 	public function deleteFile($id) {
+		unlink($this->getPath($id));
 		$this->dbMapper->deleteFile($id);
 	}
 	
 	public function countAll($category = NULL) {
 		return $this->dbMapper->countAll($category);
+	}
+	
+	public function getPath($id) {
+		$path = $this->getFile($id)->getPath();
+		return self::BASEDIR . $path;
 	}
 	
 }
