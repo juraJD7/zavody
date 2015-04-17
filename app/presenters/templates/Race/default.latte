@@ -1,0 +1,58 @@
+{block content}
+
+<h1>Závody</h1>
+
+{if $user->isLoggedIn()}
+	<a n:href="Race:create">Založit nový závod</a>
+{/if}
+
+<h3>Celostátní kolo</h3>
+
+<table class="table table-striped table-hover">
+	<thead>
+	<tr>
+		<th>Termín</th><th>Název<br />Pořadatel</th><th>Místo</th><th>Popis</th>
+		<th>Web<br />Email</th><th>Přihlášky/<br />kapacita</th><th>Přihlášky do</th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr>
+		{if $statewide}
+			<td>{$statewide->date|date:'d.m.Y'}</td><td><a n:href="Race:detail $statewide->id">{$statewide->name}<br />{$statewide->organizer->displayName}</a></td><td><a n:href="Race:detail $statewide->id">{$statewide->place}</a></td><td>{$statewide->description}</td>
+			<td>{$statewide->web}<br />{$statewide->email}</td><td>-/{$statewide->capacity}</td><td>{$statewide->applicationDeadline|date:'d.m.Y'}</td>
+		{else}
+			<td colspan="7" class="empty"><em>Celostátní kolo ještě nebylo založeno</em></td>
+		{/if}
+	</tr>
+	</tbody>
+</table>
+
+
+{foreach $regions as $region}
+<h3>{$region->name}</h3>
+
+<table class="table table-striped table-hover">
+	<thead>
+		<tr>
+			<th>Typ<br />kola</th><th>Termín</th><th>Název<br />Pořadatel</th><th>Místo</th><th>Popis</th><th>Web<br />Email</th>
+			<th>Přihlášky/<br />kapacita</th><th>Přihlášky do</th>
+		</tr>
+	</thead>
+	<tbody>
+	{foreach $races as $race}
+		{if $race->region->id == $region->id}			
+			<tr n:class="$race->round == 'K' ? kraj">						
+				<td>{$race->round->short}</td><td>{$race->date|date:'d.m.Y'}</td><td><a n:href="Race:detail $race->id">{$race->name}<br />{$race->organizer->displayName}</a></td><td><a n:href="Race:detail $race->id">{$race->place}</a></td><td>{$race->description}</td>
+				<td>{$race->web}<br />{$race->email}</td><td>-/{$race->capacity}</td><td>{$race->applicationDeadline|date:'d.m.Y'}</td>
+			</tr>		
+		{/if}
+	{/foreach}
+	</tbody>
+</table>	
+
+{/foreach}
+
+
+
+
+{/block}

@@ -24,6 +24,8 @@ extensions:
     skautis: Skautis\Nette\SkautisExtension # yourNameOfExtension : SkautIS\Nette\SkautisExtension22
 
 services:
+	user:
+		class: Nette\Security\LoggedUser
 #		- App\Model\UserManager
 	- App\RouterFactory
 	- App\Forms\ArticleFormFactory
@@ -33,10 +35,16 @@ services:
 	- App\Forms\AnswerFormFactory
 	- App\Forms\PhotoUploadFormFactory
 	- App\Forms\PhotoDescriptionFormFactory
+	- App\Forms\RaceFormFactory
 	- FileDbMapper
 	- FileRepository
 	- PhotoRepository
+	- RaceRepository
+	- RaceDbMapper
 	- PhotoDbMapper
+	- UnitRepository
+	- UnitISMapper
+	- UnitDbMapper
 	- QuestionRepository
 	- QuestionDbMapper
 	- Nette\Utils\Paginator
@@ -48,12 +56,3 @@ services:
 	CommentManager: CommentManager
 	UserManager: UserManager	
 #	HlidkaManager: HlidkaManager #(@skautis, @database)
-
-
-skautis:
-    applicationId : 9902f743-b534-487d-9644-9172b8151ecf #ID_Aplication assigned by skautis administrator
-    testMode : true #using http://test-is.skaut.cz/
-    profiler: false
-
-# using in presenter: $this->context->skautis->... , where skautis is your name of extension(yourNameOfExtension) => $this->context->yourNameOfExtension->...
-

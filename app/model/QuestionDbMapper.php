@@ -5,19 +5,7 @@
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
-class QuestionDbMapper extends BaseDbMapper {
-	
-	private $userManager;
-	
-	/**
-	 * 
-	 * @param \Nette\Database\Context $database
-	 * @param UserManager $userManager
-	 */
-	public function __construct(\Nette\Database\Context $database, UserManager $userManager) {
-		parent::__construct($database);
-		$this->userManager = $userManager;
-	}
+class QuestionDbMapper extends BaseDbMapper {	
 	
 	public function getAllCategories() {
 		$table = $this->database->table('category')

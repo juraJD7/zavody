@@ -1,0 +1,45 @@
+{block content}
+
+<h3>Přidání nového závodu</h3>
+
+{control raceForm}
+
+<script>
+function addHidden(theForm, name, value) {	
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+	input.id = value;
+    theForm.appendChild(input);
+}
+
+function addSpan(selectName) {
+	var span = document.createElement('span');
+	var br = document.createElement('br');
+	span.setAttribute('class', 'label label-default spanName');
+	span.id = "span" + selectName.value;
+	span.innerHTML = selectName.options[selectName.selectedIndex].text;	
+	
+	selectName.parentNode.insertBefore(span, selectName.nextSibling);
+	selectName.parentNode.insertBefore(br, selectName.nextSibling);
+}
+
+var form = document.getElementById('frm-raceForm');
+
+$('#frm-raceForm-editors_input').on('change', function() {
+	var check = document.getElementById(this.value);	
+	if (check === null && this.value !== '') {
+		addHidden(form, 'editors[]', (this).value );
+		addSpan(this);
+	}
+});
+
+$(document).on('click', '.spanName' , function() {
+	 var id = this.id.substr(4);
+	 document.getElementById(id).remove();
+     this.parentNode.removeChild(this);
+});
+</script>
+
+{/block}

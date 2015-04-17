@@ -1,0 +1,17 @@
+parameters:
+
+
+database:
+	dsn: 'mysql:host=127.0.0.1;dbname=zavody'
+	user: zavody
+	password: ***
+	options:
+		lazy: yes
+
+skautis:
+    applicationId : 9902f743-b534-487d-9644-9172b8151ecf #ID_Aplication assigned by skautis administrator
+    testMode : true #using http://test-is.skaut.cz/
+    profiler: false
+
+# using in presenter: $this->context->skautis->... , where skautis is your name of extension(yourNameOfExtension) => $this->context->yourNameOfExtension->...
+

@@ -12,18 +12,38 @@
 	<meta name="description" content="Web skautských závodů">
     <meta name="author" content="Jiri Dousek">
 	<title>{ifset title}{include title|striptags} | {/ifset}Web skautských závodů</title>
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="{$basePath}/tinymce/tinymce.min.js"></script>
 	<script type="text/javascript" src="{$basePath}/js/scroll-sneak.js"></script>
+	<script type="text/javascript" src="{$basePath}/js/multiselect.js"></script>
+	<script type="text/javascript" src="{$basePath}/js/multiselect.filter.js"></script>
 	<script type="text/javascript">
 	tinyMCE.init({
     mode: "specific_textareas",
     editor_selector: "mceEditor"    
 	});
+	$(document).ready(function() {
+		$(".js-example-basic-single").select2();
+	});
+	$(function(){
+		$(".multiselect").multiselect({
+			checkAllText: "Vybrat vše",
+			uncheckAllText: "Zrušit výběr",
+			noneSelectedText: "-- vybrat --",
+			selectedText: "vybrány # položky"
+		}).multiselectfilter(); 
+	 });
 	</script>
 	
 	<link rel="stylesheet" href="{$basePath}/css/style.css">
+	<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.css" />
 	<link href="{$basePath}/css/lightbox.css" rel="stylesheet" />
 	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
+	<!-- Select 2 - search in select -->
+	<link href="{$basePath}/select2/select2.css" rel="stylesheet" />
+	<link href="{$basePath}/css/multiselect.css" rel="stylesheet" />
 	<!-- Bootstrap -->
     <link href="{$basePath}/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	
@@ -45,14 +65,14 @@
 	    <div class="blog-masthead">
       <div class="container">
         <nav class="blog-nav">
-			<a class="blog-nav-item active" n:href="Homepage:default">Úvod</a>
-			<a class="blog-nav-item" n:href="Article:default">Články</a>
-			<a class="blog-nav-item" n:href="Homepage:default">Závody</a>
+			<a class="blog-nav-item{if $presenter->getName() == "Homepage"} active{/if}" n:href="Homepage:default">Úvod</a>
+			<a class="blog-nav-item{if $presenter->getName() == "Article"} active{/if}" n:href="Article:default">Články</a>
+			<a class="blog-nav-item{if $presenter->getName() == "Race"} active{/if}" n:href="Race:default">Závody</a>
 			<a class="blog-nav-item" n:href="Homepage:default">Hlídky</a>
-			<a class="blog-nav-item" n:href="Question:default">Otázky a odpoědi</a>
+			<a class="blog-nav-item{if $presenter->getName() == "Question"} active{/if}" n:href="Question:default">Otázky a odpoědi</a>
 			<a class="blog-nav-item" n:href="Homepage:default">Pro organizátory</a>
-			<a class="blog-nav-item" n:href="File:default">Ke stažení</a>
-			<a class="blog-nav-item" n:href="Photo:default">Fotogalerie</a>
+			<a class="blog-nav-item{if $presenter->getName() == "File"} active{/if}" n:href="File:default">Ke stažení</a>
+			<a class="blog-nav-item{if $presenter->getName() == "Photo"} active{/if}" n:href="Photo:default">Fotogalerie</a>
 			<a class="blog-nav-item" n:href="Homepage:default">Administrace</a>    
 			<a class="blog-nav-item" href="{$url}">{$text}</a>
         </nav>
@@ -74,13 +94,33 @@
         </div><!-- /.blog-main -->
 
         <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+			<div class="sidebar-module">
+				{form seasonForm}
+				{label season /} <br />
+				{input season}
+				{/form}
+			</div>
           <div class="sidebar-module sidebar-module-inset">
             <h4>O aplikaci</h4>
             <p>Web zřízený pro administraci skautských závodů,
 			především Svojsíkova závodu a Závodu vlčat a světlušek</p>
           </div>
 		  <div class="sidebar-module">
-			  <h4><a href="{$url}">{$text}</a></h4>
+			{if $user->isLoggedIn()}
+				<div class="sidebar-module sidebar-module-inset">
+				<h4>Přihlášen: {$user->userName}</h4>
+				<p>
+					{form roleForm}
+						{label skautISRoles /} <br />
+						{input skautISRoles}						
+					{/form}
+				</p>
+				<a href="{$url}">Odhlásit se</a>
+				</div>  
+			{else}
+				<h4><a href="{$url}">Přihlásit se</a></h4>	  
+			{/if}
+			  
             
           </div>  
           <div class="sidebar-module">
@@ -102,14 +142,25 @@
     </footer>
 
 	{block scripts}
-	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script src="{$basePath}/select2/select2.min.js"></script>
+	<script src="{$basePath}/js/jquery.cookie.js"></script>
 	<script src="{$basePath}/js/lightbox.min.js"></script>
 	<script type="text/javascript" src="{$basePath}/js/nette.ajax.js"></script>
 	<script src="//nette.github.io/resources/js/netteForms.min.js"></script>
 	<script src="{$basePath}/js/main.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{$basePath}/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript">
+		$("#frm-roleForm-skautISRoles").on('change',function(event) {			
+			$.nette.ajax({
+            url: {link changeISRole!},
+			type: "POST",
+            data: {
+                roleId: $('#frm-roleForm-skautISRoles').val()
+            }
+        });				
+		});
+	</script>
 	{/block}
 </body>
 </html>

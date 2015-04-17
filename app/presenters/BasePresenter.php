@@ -3,7 +3,8 @@
 namespace App\Presenters;
 
 use Nette,
-	App\Model;
+	App\Model,
+	Nette\Application\UI\Form;
 
 
 /**
@@ -45,6 +46,8 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 * @inject
 	 */
 	public $userManager;
+	
+	protected $season;
 		
 	public function startup() {
 		parent::startup();			
@@ -55,10 +58,75 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 			$id = $this->skautIS->getUser()->getLoginId();
 			$this->skautIS->usr->LoginUpdateRefresh(array("ID" => $id));
 		} else {
+			$this->user->logout(TRUE);
 			$this->template->url = $this->skautIS->getLoginUrl($this->link('//this'));
 			$this->template->text = "Přihlásit se";
 			$this->template->role="guest";
 			$this->template->login="guest";		
+		}			
+		$this->setSeason();
+		
+	}
+	
+	/**
+	 * @return \Form
+	 */
+	public function createComponentSeasonForm() {
+		
+		$form = new Form;
+		
+		$table = $this->database->table('season');
+		$seasons = array();
+		foreach ($table as $row) {
+			$race = $this->database->table('competition')->get($row->competition)->name;
+			$seasons[$row->id] = "$race $row->year";
 		}
+		
+		$form->addSelect('season', "Aktuální závod:", $seasons)
+				->setDefaultValue($this->season)
+				->setAttribute('class','form-control');
+		return $form;
+	}
+	
+	/**
+	 * @return \Form
+	 */
+	public function createComponentRoleForm() {
+		
+		$form = new Form;
+		
+		$roles = $this->user->getAllSkautISRoles();
+		$list = array();
+		foreach ($roles as $role) {
+			$list[$role->ID] = $role->DisplayName;
+		}
+		
+		$form->addSelect('skautISRoles', "Role ve SkautISu:", $list)
+				->setDefaultValue($this->user->getSkautISRole())
+				->setAttribute('class', 'form-control');	
+		return $form;
+	}
+	
+	private function setSeason() {
+		$defaultSeason = $this->database->table('setting')->get('season')->value;
+		if (!isset($_COOKIE['season'])) {				
+			setcookie("season", $defaultSeason, time() + 7776000); // 3 months
+			$this->season = $defaultSeason;
+		} else {			
+			$season = $this->database->table('season')->get($_COOKIE['season']);			
+			if (!$season) {
+				setcookie("season", $defaultSeason, time() + 7776000); // 3 months
+				$this->season = $defaultSeason;
+			} else {
+				setcookie("season", $season->id, time() + 7776000); // 3 months
+				$this->season = $season->id;
+			}	
+		}
+	}
+	
+	public function handleChangeISRole() {
+		$roleId = $this->getHttpRequest()->getPost('roleId');		
+		$this->user->updateSkautISRole($roleId);
+		$this->redirect('this');
 	}
 }

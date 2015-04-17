@@ -1,0 +1,60 @@
+{block content}
+
+<h3>Úprava závodu {$race->name}</h3>
+
+{control raceForm}
+
+<script>
+	
+var form = document.getElementById('frm-raceForm');
+var editors_input = document.getElementById('frm-raceForm-editors_input');
+
+function addHidden(theForm, name, value) {	
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+	input.id = value;
+    theForm.appendChild(input);
+}
+
+function addSpan(value, text) {
+	var span = document.createElement('span');
+	var br = document.createElement('br');
+	span.setAttribute('class', 'label label-default spanName');
+	span.id = "span" + value;
+	span.innerHTML = text;	
+	
+	editors_input.parentNode.insertBefore(span, editors_input.nextSibling);
+	editors_input.parentNode.insertBefore(br, editors_input.nextSibling);
+}
+
+
+
+$('#frm-raceForm-editors_input').on('change', function() {
+	var check = document.getElementById(this.value);	
+	if (check === null && this.value !== '') {
+		addHidden(form, 'editors[]', this.value );
+		addSpan(this.value, this.options[this.selectedIndex].text);
+	}
+});
+
+$(document).on('click', '.spanName' , function() {
+	 var id = this.id.substr(4);
+	 document.getElementById(id).remove();
+     this.parentNode.removeChild(this);
+});
+
+</script>
+
+{foreach $editors as $editor}
+	<script>
+	var check = document.getElementById({$editor->id});	
+	if (check === null) {
+		addHidden(form, 'editors[]', {$editor->id} );
+		addSpan({$editor->id}, {$editor->displayName()});
+	}
+	</script>	
+{/foreach}
+
+{/block}

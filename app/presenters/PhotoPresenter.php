@@ -46,7 +46,7 @@ class PhotoPresenter extends BasePresenter {
 	{
 		$form = $this->photoUploadFormFactory->create();		
 		$form->onSuccess[] = function ($form) {
-			$this->flashMessage("Fotka byla nahrána byl uložen.");			
+			$this->flashMessage("Fotka byla nahrána.");			
 			$link = $this->link("Photo:");
 			$form->getPresenter()->redirectUrl($link);
 		};
@@ -103,6 +103,7 @@ class PhotoPresenter extends BasePresenter {
 				$this->page = $page;				
 				$this->edit = $id;			
 				$this->template->photos = $this->photoRepository->getPublicPhotos($this->paginator);
+				$this["photoDescriptionForm"]["description"]->setDefaultValue($photo->description);
 				$this->redrawControl("photos");
 			} else {
 				throw new Nette\Security\AuthenticationException("Nemáte potřebná oprávnění");

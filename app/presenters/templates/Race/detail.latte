@@ -1,0 +1,87 @@
+{block content}
+
+<h3>{$race->name}<small><br />{$race->title}</small></h3>
+{if $race->canEdit($user->id) || $user->isInRole('admin')}
+	<a n:href="Race:edit $race->id">Editovat závod</a>
+{/if}
+
+<table>
+	<tr>
+		<th>Druh kola:</th><td>{$race->round->name}</td>
+	</tr>
+	<tr>
+		<th>Kraj:</th><td>{$race->region->name}</td>
+	</tr>
+	<tr>
+		<th>Nadřazené kolo:</th><td>
+			{if $race->advance}
+			<a n:href="Race:detail $race->advance->id">{$race->advance->name}<br />{$race->advance->title}</a>
+			{else}
+			-
+			{/if}
+			
+			</td>
+	</tr>
+	<script>
+	$(function () {
+		$('[data-toggle="popover"]').popover()
+	  })	
+	</script>
+	<tr>
+		<th>Pořadatel:</th>
+			<td>
+			<a tabindex="0" role="button" onlick="$('#example').popover(options)" data-html="true" data-toggle="popover" data-trigger="focus" title="{$race->organizer->displayName}" 
+			data-content="Typ jednotky: {$race->organizer->unitType} <br />
+						  Reč. č.: {$race->organizer->registrationNumber} <br /><br />
+						  <strong> Kontakt: </strong>  <br />
+						  Email: {$race->organizer->email}  <br />
+						  Tel.: {$race->organizer->telephone}"> 
+			{$race->organizer->displayName}
+			</a>
+			</td>
+	</tr>
+	<tr>
+		<th>Místo:</th><td>{$race->place} ( GPS: N: {$race->getGpsY()}, E: {$race->getGpsX()})</td>
+	</tr>
+	<tr>
+		<th>Termín:</th><td>{$race->date|date:'d.m.Y'}</td>
+	</tr>
+	<tr>
+		<th>Velitel závodu:</th><td>{$race->commander}</td>
+	</tr>
+	<tr>
+		<th>Hlavní rozhodčí:</th><td>{$race->referee}</td>
+	</tr>
+	<tr>
+		<th>Kontaktní telefon:</th><td>{$race->telephone}</td>
+	</tr>
+	<tr>
+		<th>Kontaktní mail:</th><td>{$race->email}</td>
+	</tr>
+	<tr>
+		<th>Web:</th><td><a href="http://www.cz.cz" n:tag-if="$race->web">{$race->web}</a></td>
+	</tr>
+	<tr>
+		<th>Cílová skupina:</th><td>{$race->targetGroup}</td>
+	</tr>
+	<tr>
+		<th>Uzávěrka přihlášek:</th><td>{$race->applicationDeadline|date:'d.m.Y'}</td>
+	</tr>
+	<tr>
+		<th>Povolený počet členů družiny:</th><td>{$race->membersRange->name}</td>
+	</tr>
+	<tr>
+		<th>Přihlášené družiny / kapacita:</th>
+		<td>{$race->getNumWatchs()} / {$race->capacity} 
+			{if $race->getNumWatchs('nesoutěžní') > 0}
+				Z toho celkem {$race->getNumWatchs('nesoutěžní')} v kategorii nesoutěžní
+			{/if}
+		</td>
+	</tr>
+	<tr>
+		<th>Počet postupujících <br /> v kategorii dívčí / chlapecká:</th><td>{$race->getNumAdvance('dívčí')} / {$race->getNumAdvance('chlapecká')}</td>
+	</tr>
+</table>
+	<hr />
+<h3>Seznam přihlášených družin:</h3>
+

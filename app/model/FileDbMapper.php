@@ -6,18 +6,6 @@
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class FileDbMapper extends BaseDbMapper {
-	
-	private $userManager;
-	
-	/**
-	 * 
-	 * @param \Nette\Database\Context $database
-	 * @param UserManager $userManager
-	 */
-	public function __construct(\Nette\Database\Context $database, UserManager $userManager) {
-		parent::__construct($database);
-		$this->userManager = $userManager;
-	}
 
 	public function getFile($id) {
 		$row = $this->database->table('file')->get((int)$id);

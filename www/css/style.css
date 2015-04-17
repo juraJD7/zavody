@@ -62,3 +62,7 @@ form .error {
 .panel {
 	padding: 10px;
 }
+
+.empty {
+	text-align: center;
+}

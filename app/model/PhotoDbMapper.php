@@ -7,18 +7,6 @@
  */
 class PhotoDbMapper extends BaseDbMapper {
 	
-	private $userManager;
-	
-	/**
-	 * 
-	 * @param \Nette\Database\Context $database
-	 * @param UserManager $userManager
-	 */
-	public function __construct(\Nette\Database\Context $database, UserManager $userManager) {
-		parent::__construct($database);
-		$this->userManager = $userManager;
-	}
-
 	public function getPhoto($id) {
 		$row = $this->database->table('photo')->get((int)$id);
 		if(!$row) {
