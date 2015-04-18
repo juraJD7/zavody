@@ -26,6 +26,21 @@ class ArticlePresenter extends BasePresenter {
 	 */
 	public $commentFactory;
 	
+	/**
+	 *
+	 * @var \ArticleRepository
+	 * @inject
+	 */
+	public $articleRepository;
+	
+	/**
+	 *
+	 * @var \CommentRepository
+	 * @inject
+	 */
+	public $commentRepository;
+
+
 	private $commentId;
 	
 	/**
@@ -89,24 +104,24 @@ class ArticlePresenter extends BasePresenter {
 		
 		$page = $this->getParameter('page');
 		$paginator = new Nette\Utils\Paginator;
-		$paginator->setItemCount($this->articleManager->countAll());
+		$paginator->setItemCount($this->articleRepository->countAll());
 		$paginator->setItemsPerPage(2); 
 		$paginator->setPage($page);
 		$this->template->paginator = $paginator;
 		$this->template->actionPaginator = "default";
 		$this->template->params = array();
 		
-		$this->template->articles = $this->articleManager->loadAllPublished($paginator);
+		$this->template->articles = $this->articleRepository->getArticles($paginator, \Article::PUBLISHED);
 	}
 	
 	public function handleDelete($articleId) {
 		try {
-			$article = $this->articleManager->load($articleId);
+			$article = $this->articleRepository->getArticle($articleId);
 		} catch (Nette\InvalidArgumentException $ex) {
 			$this->error("Článek neexistuje");
 		}
 		if ($article->author == $this->user->id || $this->user->isInRole('admin')) {
-			$result = $this->articleManager->delete($articleId);
+			$result = $this->articleRepository->delete($articleId);
 			if(!$result) {
 				$this->error("Článek se nepodařilo smazat!");
 			}
@@ -117,12 +132,12 @@ class ArticlePresenter extends BasePresenter {
 	
 	public function handleDeleteComment($article, $commentId) {
 		try {
-			$comment = $this->commentManager->load($commentId);
+			$comment = $this->commentRepository->getComment($commentId);
 		} catch (Nette\InvalidArgumentException $ex) {
 			$this->error("Komentář neexistuje");
 		}
 		if ($comment->author == $this->user->id || $this->user->isInRole('admin')) {
-			$result = $this->commentManager->delete($commentId);
+			$result = $this->commentRepository->delete($commentId);
 			if(!$result) {
 				$this->error("Komentář se nepodařilo smazat!");
 			}
@@ -133,7 +148,7 @@ class ArticlePresenter extends BasePresenter {
 	
 	public function handleEditComment($commentId) {
 		try {
-			$comment = $this->commentManager->load($commentId);
+			$comment = $this->commentRepository->getComment($commentId);
 		} catch (Nette\InvalidArgumentException $ex) {
 			$this->error("Komentář neexistuje");
 		}
@@ -148,7 +163,7 @@ class ArticlePresenter extends BasePresenter {
 	
 	public function actionDetail($articleId) {		
 		try {
-			$article = $this->articleManager->load($articleId);
+			$article = $this->articleRepository->getArticle($articleId);
 			if (($article->status != \Article::PUBLISHED) &&
 				!($this->user->isInRole('admin') || ($this->user->id == $article->author))) {
 				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");
@@ -156,7 +171,7 @@ class ArticlePresenter extends BasePresenter {
 			
 			$page = $this->getParameter('page');
 			$paginator = new Nette\Utils\Paginator;
-			$paginator->setItemCount($this->commentManager->countAll($articleId));
+			$paginator->setItemCount($this->commentRepository->countAll($articleId));
 			$paginator->setItemsPerPage(3); 
 			$paginator->setPage($page);
 			$this->template->paginator = $paginator;
@@ -164,7 +179,7 @@ class ArticlePresenter extends BasePresenter {
 			$this->template->params = array($articleId);
 			
 			$this->template->article = $article;	
-			$this->template->comments = $this->commentManager->loadAll($paginator, $articleId);			
+			$this->template->comments = $this->commentRepository->getComments($paginator, $articleId);			
 		} catch (\InvalidArgumentException $ex) {
 			$this->error($ex);
 		} catch (Nette\Security\AuthenticationException $ex) {
@@ -175,7 +190,7 @@ class ArticlePresenter extends BasePresenter {
 	
 	public function actionEdit($articleId) {
 		try {
-			$article = $this->articleManager->load($articleId);
+			$article = $this->articleRepository->getArticle($articleId);
 			if (!($this->user->isInRole('admin') || ($this->user->id == $article->author))) {
 				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");
 			}

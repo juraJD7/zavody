@@ -4,7 +4,7 @@
 	<h3>{$article->title}</h3>
 	<div>
 	<img src="{$basePath}/images/articles/default.jpg" class="pull-left img-thumbnail">
-	<h4 class="media-heading">Vydal: {$article->getAuthorName()}</h4>
+	<h4 class="media-heading">Vydal: {$article->author->userName}</h4>
 	<h4 class="media-heading"><small><em>
 		Vydáno: {$article->published|date:'d.m.Y H:i'}
 			{if ($article->published < $article->modified)}
@@ -12,7 +12,7 @@
 			{/if}
 	</em>
 	<br />
-	{if $user->id == $article->author || $user->isInRole('admin')}
+	{if $user->id == $article->author->id || $user->isInRole('admin')}
 		<a n:href="Article:edit $article->id">Upravit</a> <a n:href="delete! $article->id">Smazat</a>
 	{/if}	
 	</small></h4>

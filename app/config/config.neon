@@ -26,7 +26,6 @@ extensions:
 services:
 	user:
 		class: Nette\Security\LoggedUser
-#		- App\Model\UserManager
 	- App\RouterFactory
 	- App\Forms\ArticleFormFactory
 	- App\Forms\CommentFormFactory
@@ -36,6 +35,10 @@ services:
 	- App\Forms\PhotoUploadFormFactory
 	- App\Forms\PhotoDescriptionFormFactory
 	- App\Forms\RaceFormFactory
+	- ArticleRepository
+	- ArticleDbMapper
+	- CommentRepository
+	- CommentDbMapper
 	- FileDbMapper
 	- FileRepository
 	- PhotoRepository
@@ -45,6 +48,9 @@ services:
 	- UnitRepository
 	- UnitISMapper
 	- UnitDbMapper
+	- UserRepository
+	- UserIsMapper
+	- UserDbMapper
 	- QuestionRepository
 	- QuestionDbMapper
 	- Nette\Utils\Paginator
@@ -54,5 +60,5 @@ services:
 #	HlidkaFormFactory : HlidkaFormFactory
 	ArticleManager: ArticleManager
 	CommentManager: CommentManager
-	UserManager: UserManager	
+#	UserManager: UserManager	
 #	HlidkaManager: HlidkaManager #(@skautis, @database)

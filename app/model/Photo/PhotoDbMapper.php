@@ -21,7 +21,7 @@ class PhotoDbMapper extends BaseDbMapper {
 		$photo->width = $row->width;
 		$photo->size = $row->size;
 		$photo->type = $row->type;
-		$photo->author = $this->userManager->load($row->author);
+		$photo->author = $this->userRepository->getUser($row->author);
 		return $photo;
 	}
 	

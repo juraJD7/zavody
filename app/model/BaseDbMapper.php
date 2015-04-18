@@ -14,20 +14,20 @@ class BaseDbMapper {
 	protected $database;
 	
 	/**
-	 * @var \UserManager
+	 * @var \UserRepository
 	 */
-	protected $userManager;
+	protected $userRepository;
 	
 	/**
 	 * 
 	 * @param \Nette\Database\Context $database
 	 * @param UnitRepository $unitRepository
-	 * @param UserManager $userManager
+	 * @param UserRepository $userRepository
 	 */ 
-	public function __construct(\Nette\Database\Context $database, UserManager $userManager) {
+	public function __construct(\Nette\Database\Context $database, UserRepository $userRepository) {
 		
-		$this->database = $database;
-		$this->userManager = $userManager;
+		$this->database = $database;		
+		$this->userRepository = $userRepository;
 		
 	}
 }

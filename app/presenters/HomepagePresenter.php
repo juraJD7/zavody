@@ -32,10 +32,7 @@ class HomepagePresenter extends BasePresenter
 	private function login($post) {
 		$this->skautIS->setLoginData($post);
 		$this->user->login($this->skautIS->user->UserDetail());
-		$this->user->setExpiration('30 minutes', TRUE);
-		if ($this->user->isLoggedIn()) {
-			$user = $this->userManager->load($this->user->id);			
-		}
+		$this->user->setExpiration('30 minutes', TRUE);		
 	}
 
 

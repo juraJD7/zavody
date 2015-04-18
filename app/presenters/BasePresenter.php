@@ -28,24 +28,10 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	
 	/**
 	 *
-	 * @var \ArticleManager
+	 * @var \UserRepository
 	 * @inject
 	 */
-	public $articleManager;
-	
-	/**
-	 *
-	 * @var \CommentManager
-	 * @inject
-	 */
-	public $commentManager;
-	
-	/**
-	 *
-	 * @var \UserManager
-	 * @inject
-	 */
-	public $userManager;
+	public $userRepository;
 	
 	protected $season;
 		

@@ -28,7 +28,7 @@ class QuestionDbMapper extends BaseDbMapper {
 		}
 		$question = new Question($id);
 		$question->text = $row->text;
-		$question->author = $this->userManager->load($row->author);
+		$question->author = $this->userRepository->getUser($row->author);
 		$question->season = $row->season;
 		$question->race = $row->race;
 		$question->posted = $row->posted;		
@@ -105,7 +105,7 @@ class QuestionDbMapper extends BaseDbMapper {
 		foreach ($table as $row) {
 			$answer = new Answer($row->id);
 			$answer->text = $row->text;
-			$answer->author = $this->userManager->load($row->author);
+			$answer->author = $this->userRepository->getUser($row->author);
 			$answer->posted = $row->posted;
 			$answer->question = $row->question;
 			$answers[] = $answer;

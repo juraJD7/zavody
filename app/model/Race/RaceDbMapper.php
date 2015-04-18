@@ -13,10 +13,10 @@ class RaceDbMapper extends BaseDbMapper {
 	 * 
 	 * @param \Nette\Database\Context $database
 	 * @param \UnitRepository $unitRepository
-	 * @param \UserManager $userManager
+	 * @param \UserRepository $userRepository
 	 */	
-	public function __construct(\Nette\Database\Context $database, \UnitRepository $unitRepository, \UserManager $userManager) {
-		parent::__construct($database, $userManager);
+	public function __construct(\Nette\Database\Context $database, \UnitRepository $unitRepository, \UserRepository $userRepository) {
+		parent::__construct($database, $userRepository);
 		
 		$this->unitRepository = $unitRepository;
 	}
@@ -136,14 +136,14 @@ class RaceDbMapper extends BaseDbMapper {
 		$result = $this->database->table('editor_race')->where('race_id', $id);
 		$editors = array();
 		foreach ($result as $row) {
-			$editors[] = $this->userManager->load($row->user_id);
+			$editors[] = $this->userRepository->getUser($row->user_id);
 		}
 		return $editors;
 	}
 	
 	public function getAuthor($id) {
 		$userId = $this->database->table('race')->get($id)->author;
-		return $this->userManager->load($userId);
+		return $this->userRepository->getUser($userId);
 	}
 
 	/**

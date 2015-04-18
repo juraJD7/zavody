@@ -18,7 +18,7 @@ class FileDbMapper extends BaseDbMapper {
 		$file->description = $row->description;
 		$file->type = $row->type;
 		$file->path = $row->path;
-		$file->author = $this->userManager->load($row->author);
+		$file->author = $this->userRepository->getUser($row->author);
 		return $file;
 	}
 	
