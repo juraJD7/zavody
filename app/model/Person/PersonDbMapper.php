@@ -14,11 +14,11 @@ class PersonDbMapper extends BaseDbMapper {
 	 * @param \Nette\Database\Context $database
 	 * @param \UserRepository $userRepository
 	 * @param \UnitRepository $unitRepository
-	 * @param \WatchRepository $watchRepository
+	 * @param \LazyContainer $container
 	 */
-	public function __construct(\Nette\Database\Context $database, \UserRepository $userRepository, \UnitRepository $unitRepository, \WatchRepository $watchRepository) {
+	public function __construct(\Nette\Database\Context $database, \UserRepository $userRepository, \UnitRepository $unitRepository, \LazyContainer $container) {
 		parent::__construct($database, $userRepository, $unitRepository);
-		$this->watchRepository = $watchRepository;
+		$this->watchRepository = $container->getWatchRepository();
 	}
 
 	public function getRole($systemId, $raceId) {

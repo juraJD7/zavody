@@ -44,7 +44,7 @@ services:
 	- FileDbMapper
 	- FileRepository
 	- PersonRepository
-	- PersonDbMapper
+#	- PersonDbMapper
 	- PersonIsMapper
 	- PhotoRepository
 	- RaceRepository
@@ -56,11 +56,12 @@ services:
 	- UserRepository
 	- UserIsMapper
 	- UserDbMapper
-	- WatchRepository
+#	- WatchRepository
 	- WatchIsMapper
 	- WatchDbMapper
 	- QuestionRepository
 	- QuestionDbMapper
+	- LazyContainer
 	- Nette\Utils\Paginator
 	router: @App\RouterFactory::createRouter
 	authenticator: Authenticator
