@@ -38,4 +38,17 @@ class UnitRepository {
 		return $this->isMapper->getTelephone($id);
 	}
 	
+	/**
+	 * 
+	 * @param string $type Typ jednotek, které se mají zobrazit, null zobrazí všechny
+	 * @return int $parentUnit ID nadřízené jednotky, null použije jako default ID jednotky přihlášeného uživatele
+	 */
+	public function getUnits($type = NULL, $parentUnit = NULL) {
+		return $this->isMapper->getUnits($this, $type, $parentUnit);
+	}
+	
+	public function save(Unit $unit) {
+		return $this->dbMapper->save($unit);
+	}
+	
 }

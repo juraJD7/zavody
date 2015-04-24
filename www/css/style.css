@@ -66,3 +66,11 @@ form .error {
 .empty {
 	text-align: center;
 }
+
+.table-non-lined td {
+    border-top: none !important;
+}
+
+.table-non-lined th {
+    border-top: none !important;
+}

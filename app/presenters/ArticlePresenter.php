@@ -42,6 +42,7 @@ class ArticlePresenter extends BasePresenter {
 
 
 	private $commentId;
+	private $page;
 	
 	/**
 	 * Article form factory
@@ -80,7 +81,7 @@ class ArticlePresenter extends BasePresenter {
 	protected function createComponentEditComment()
 	{
 		if($this->skautIS->getUser()->isLoggedIn()) {
-			$this->commentFactory->setId($this->commentId);		
+			$this->commentFactory->setId($this->getParameter('commentId'));		
 			$form = $this->commentFactory->create();				
 			$this->commentFactory->setArticle($this->getParameter('articleId'));			
 			$form->onSuccess[] = function ($form) {					
@@ -120,7 +121,7 @@ class ArticlePresenter extends BasePresenter {
 		} catch (Nette\InvalidArgumentException $ex) {
 			$this->error("Článek neexistuje");
 		}
-		if ($article->author == $this->user->id || $this->user->isInRole('admin')) {
+		if ($article->author->id == $this->user->id || $this->user->isInRole('admin')) {
 			$result = $this->articleRepository->delete($articleId);
 			if(!$result) {
 				$this->error("Článek se nepodařilo smazat!");
@@ -130,13 +131,13 @@ class ArticlePresenter extends BasePresenter {
 		}
 	}
 	
-	public function handleDeleteComment($article, $commentId) {
+	public function handleDeleteComment($article, $commentId, $page) {
 		try {
 			$comment = $this->commentRepository->getComment($commentId);
 		} catch (Nette\InvalidArgumentException $ex) {
 			$this->error("Komentář neexistuje");
 		}
-		if ($comment->author == $this->user->id || $this->user->isInRole('admin')) {
+		if ($comment->author->id == $this->user->id || $this->user->isInRole('admin')) {
 			$result = $this->commentRepository->delete($commentId);
 			if(!$result) {
 				$this->error("Komentář se nepodařilo smazat!");
@@ -146,29 +147,28 @@ class ArticlePresenter extends BasePresenter {
 		}
 	}
 	
-	public function handleEditComment($commentId) {
+	public function handleEditComment($commentId, $page) {
 		try {
 			$comment = $this->commentRepository->getComment($commentId);
 		} catch (Nette\InvalidArgumentException $ex) {
 			$this->error("Komentář neexistuje");
 		}
 		$this->commentId = $commentId;
-		if ($comment->author == $this->user->id) {
+		if ($comment->author->id == $this->user->id) {
 			$this->redrawControl("comment-$comment->id");
-		}
+		}		
 		$this->template->edit=$commentId;		
 		$this['editComment']['title']->setDefaultValue($comment->title);
 		$this['editComment']['text']->setDefaultValue($comment->text);
 	}
 	
-	public function actionDetail($articleId) {		
+	public function actionDetail($articleId, $commentId) {		
 		try {
 			$article = $this->articleRepository->getArticle($articleId);
 			if (($article->status != \Article::PUBLISHED) &&
-				!($this->user->isInRole('admin') || ($this->user->id == $article->author))) {
+				!($this->user->isInRole('admin') || ($this->user->id == $article->author->id))) {
 				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");
 			}				
-			
 			$page = $this->getParameter('page');
 			$paginator = new Nette\Utils\Paginator;
 			$paginator->setItemCount($this->commentRepository->countAll($articleId));
@@ -177,6 +177,7 @@ class ArticlePresenter extends BasePresenter {
 			$this->template->paginator = $paginator;
 			$this->template->actionPaginator = "detail#comments";
 			$this->template->params = array($articleId);
+			$this->template->page = $page;
 			
 			$this->template->article = $article;	
 			$this->template->comments = $this->commentRepository->getComments($paginator, $articleId);			
@@ -191,7 +192,7 @@ class ArticlePresenter extends BasePresenter {
 	public function actionEdit($articleId) {
 		try {
 			$article = $this->articleRepository->getArticle($articleId);
-			if (!($this->user->isInRole('admin') || ($this->user->id == $article->author))) {
+			if (!($this->user->isInRole('admin') || ($this->user->id == $article->author->id))) {
 				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");
 			}
 			

@@ -21,6 +21,10 @@ class Comment extends Nette\Object {
 		$this->id = $id;
 	}
 	
+	public function getId() {
+		return $this->id;
+	}
+
 	public function setRepository($repository) {
 		$this->repository = $repository;
 	}	
@@ -69,7 +73,7 @@ class Comment extends Nette\Object {
 		return $this->modified;
 	}
 	
-	public function setModified(DateTime $modified) {		
+	public function setModified(DateTime $modified = NULL) {		
 		$this->modified = $modified;		
 	}	
 }

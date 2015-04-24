@@ -18,6 +18,7 @@
 	<script type="text/javascript" src="{$basePath}/tinymce/tinymce.min.js"></script>
 	<script type="text/javascript" src="{$basePath}/js/scroll-sneak.js"></script>
 	<script type="text/javascript" src="{$basePath}/js/multiselect.js"></script>
+	<script type="text/javascript" src="{$basePath}/js/nette.ajax.js"></script>
 	<script type="text/javascript" src="{$basePath}/js/multiselect.filter.js"></script>
 	<script type="text/javascript">
 	tinyMCE.init({
@@ -68,7 +69,7 @@
 			<a class="blog-nav-item{if $presenter->getName() == "Homepage"} active{/if}" n:href="Homepage:default">Úvod</a>
 			<a class="blog-nav-item{if $presenter->getName() == "Article"} active{/if}" n:href="Article:default">Články</a>
 			<a class="blog-nav-item{if $presenter->getName() == "Race"} active{/if}" n:href="Race:default">Závody</a>
-			<a class="blog-nav-item" n:href="Homepage:default">Hlídky</a>
+			<a class="blog-nav-item{if $presenter->getName() == "Watch"} active{/if}" n:href="Watch:default">Hlídky</a>
 			<a class="blog-nav-item{if $presenter->getName() == "Question"} active{/if}" n:href="Question:default">Otázky a odpoědi</a>
 			<a class="blog-nav-item" n:href="Homepage:default">Pro organizátory</a>
 			<a class="blog-nav-item{if $presenter->getName() == "File"} active{/if}" n:href="File:default">Ke stažení</a>
@@ -145,7 +146,6 @@
 	<script src="{$basePath}/select2/select2.min.js"></script>
 	<script src="{$basePath}/js/jquery.cookie.js"></script>
 	<script src="{$basePath}/js/lightbox.min.js"></script>
-	<script type="text/javascript" src="{$basePath}/js/nette.ajax.js"></script>
 	<script src="//nette.github.io/resources/js/netteForms.min.js"></script>
 	<script src="{$basePath}/js/main.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->

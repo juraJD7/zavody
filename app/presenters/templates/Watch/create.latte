@@ -1,0 +1,60 @@
+{block content}
+
+<h1>Přihlášení nové hlídky</h1>
+
+{form watchForm}
+	
+<fieldset>
+<legend>Krok 1 - základní nastavení</legend>	
+	
+<table>
+<tr>
+	<th>{label race /}</th>
+	<td>{input race}</td>
+</tr>
+<tr>
+	<th>{label name /}</th>
+	<td>{input name}</td>
+</tr>
+<tr>
+	<th>{label troop /}</th>
+	<td>{input troop}</td>
+</tr>
+
+<tr>
+	<th>{label group /}</th>
+	<td>{snippet group}{input group}{/snippet}</td>
+</tr>
+
+<tr>
+	<th>{label town /}</th>
+	<td>{input town}</td>
+</tr>
+<tr>
+	<th>{label email_leader /}</th>
+	<td>{input email_leader}</td>
+</tr>
+<tr>
+	<th>{label email_guide /}</th>
+	<td>{input email_guide}</td>
+</tr>
+<tr>
+	<th></th>
+	<td>{input send}</td>
+</tr>
+</table>
+{/form}
+
+<script>
+$("#frm-watchForm-troop").on('change',function(event) {		
+	$.nette.ajax({
+		url: {link troop!},
+		type: "POST",
+		data: {
+			unitID: $('#frm-watchForm-troop').val()
+		}
+	});
+});
+</script>
+
+{/block}

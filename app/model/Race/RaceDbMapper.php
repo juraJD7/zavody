@@ -6,21 +6,22 @@
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class RaceDbMapper extends BaseDbMapper {
+	/*
 	
-	private $unitRepository;
-
+	private $watchRepository;
+	
 	/**
 	 * 
 	 * @param \Nette\Database\Context $database
-	 * @param \UnitRepository $unitRepository
 	 * @param \UserRepository $userRepository
-	 */	
-	public function __construct(\Nette\Database\Context $database, \UnitRepository $unitRepository, \UserRepository $userRepository) {
-		parent::__construct($database, $userRepository);
-		
-		$this->unitRepository = $unitRepository;
+	 * @param \UnitRepository $unitRepository
+	 * @param WatchRepository $watchRepository
+	 *//*
+	public function __construct(\Nette\Database\Context $database, \UserRepository $userRepository, \UnitRepository $unitRepository, WatchRepository $watchRepository) {
+		parent::__construct($database, $userRepository, $unitRepository);
+		$this->watchRepository = $watchRepository;
 	}
-
+*/
 	/**
 	 * 
 	 * @param int $id
@@ -55,7 +56,6 @@ class RaceDbMapper extends BaseDbMapper {
 		$race->web = $row->web;
 		$race->capacity = $row->capacity;
 		$race->applicationDeadline = $row->application_deadline;
-		$race->key = $row->key;
 		$race->targetGroup = $row->target_group;		
 		return $race;
 	}
@@ -96,7 +96,6 @@ class RaceDbMapper extends BaseDbMapper {
 	public function getRaces($repository, $season) {
 		$result = $this->database->table('race')
 				->where('season', $season)
-				->where('date >', date('Y-m-d'))
 				->order('round, date');
 		$races = array();
 		foreach ($result as $row) {				
@@ -107,6 +106,39 @@ class RaceDbMapper extends BaseDbMapper {
 		return $races;
 	}
 	
+	public function getRacesByWatch(RaceRepository $repository, $watchId) {
+		$result = $this->database->table('race_watch')
+				->where('watch_id', $watchId);
+		$races = array();
+		foreach ($result as $row) {
+			$raceRow = $this->database->table('race')
+					->get($row->race_id);
+			$race = $this->loadFromActiveRow($raceRow);
+			$race->repository = $repository;
+			$races[$row->id] = $race;
+		}
+		return $races;
+	}
+	
+	/**
+	 * 
+	 * @param RaceRepository $repository
+	 * @param int $season
+	 * @return Race[]
+	 */
+	public function getRacesToLogIn(RaceRepository $repository, $season) {
+		$result = $this->database->table('race')
+				->where('season', $season)
+				->where('application_deadline >', date('Y-m-d'));
+		$races = array();
+		foreach ($result as $row) {			
+			$race = $this->loadFromActiveRow($row);
+			$race->repository = $repository;
+			$races[$row->id] = $race;
+		}
+		return $races;
+	}
+
 	/**
 	 * 
 	 * @param int $id
@@ -156,6 +188,16 @@ class RaceDbMapper extends BaseDbMapper {
 	}
 	
 	/**
+	 * 
+	 * @param int $raceId
+	 * @return \Nette\Database\ActiveRow
+	 */
+	public function getKey($raceId) {
+		$keyId = $this->database->table('race')->get($id)->key;
+		return $this->database->table('key')->get($keyId);
+	}
+
+	/**
 	 * Vrátí parametry závodu ve formě, která lze načíst jako default values pro formulář
 	 * 
 	 * @param int $id id závodu
@@ -179,4 +221,44 @@ class RaceDbMapper extends BaseDbMapper {
 		return $this->unitRepository->getUnit($unitId);
 	}
 	
+	public function getGuideAge($season) {
+		return $this->database->table('season')
+				->get($season)
+				->guide_age;
+	}
+	
+	public function getRunnerAge($season) {
+		return $this->database->table('season')
+				->get($season)
+				->runner_age;
+	}
+	
+	public function getMinRunner($membersRange) {
+		return $this->database->table('members_range')
+				->get($membersRange)
+				->min;
+	}
+	
+	public function getMaxRunner($membersRange) {
+		return $this->database->table('members_range')
+				->get($membersRange)
+				->max;
+	}
+	/*
+	public function getNumWatchs($raceId, $category) {
+		$rows = $this->database->table('race_watch')
+				->where('race_id', $raceId);
+		if (is_null($category)) {
+			return $rows->count();
+		} else {
+			$counter = 0;
+			foreach ($rows as $row) {
+				$watch = $this->watchRepository->getWatch($row->watch_id);
+				if ($watch->getCategory() == $category) {
+					$counter++;
+				}
+			}
+			return $counter;
+		}
+	}*/
 }

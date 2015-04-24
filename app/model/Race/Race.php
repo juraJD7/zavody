@@ -216,14 +216,10 @@ class Race extends \Nette\Object {
 	}
 	
 	public function getKey() {
-		return $this->key;
-	}
-
-	public function setKey($key) {
-		if(!is_int($key)) {
-			throw new \Nette\MemberAccessException("Parametr key musí round integer.");
+		if (is_null($this->key)) {
+			$this->key = $this->repository->getKey($this->id);
 		}
-		$this->key = $key;
+		return $this->key;
 	}
 	
 	public function getApplicationDeadline() {
@@ -266,17 +262,42 @@ class Race extends \Nette\Object {
 	
 	public function getTitle() {
 		$round = $this->getRound();		
-		return " ($round->name kolo pořádané jednotkou " . $this->getOrganizer()->displayName . ")";		
+		return "$round->name kolo pořádané jednotkou " . $this->getOrganizer()->displayName;		
 	}
 	
+	public function getGuideAge() {
+		return $this->repository->getGuideAge($this->season);
+	}
+	
+	public function getRunnerAge() {
+		return $this->repository->getRunnerAge($this->season);
+	}
+	
+	public function getMinRunner() {
+		return $this->repository->getMinRunner($this->getMembersRange());
+	}
+	
+	public function getMaxRunner() {
+		return $this->repository->getMaxRunner($this->getMembersRange());
+	}
+
 	public function getNumWatchs($category = NULL) {
-		//not implemented
-		return 0;
+		return $this->repository->getNumWatchs($this->id, $category);
 	}
 	
-	public function getNumAdvance($category = NULL) {
-		//not implemented
-		return 0;
+	public function getNumAdvance($category) {
+		if ($this->getRound()->short == 'C') {
+			return 0;
+		} else if ($this->getRound()->short == 'K') {
+			return 1;
+		} else {
+			$numWatchs = $this->getNumWatchs($category);
+			if ($numWatchs > 20) {
+				$numWatchs = 20;
+			}
+			$key = $this->getKey();
+			return $key[$numWatchs];			
+		}
 	}
 	
 	public function canEdit($userId) {		

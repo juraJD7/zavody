@@ -94,7 +94,7 @@ class User extends Nette\Object {
 		}
 	}
 
-		public function getPersonName() {
+	public function getPersonName() {
 		$name = "$this->firstName $this->lastName";
 		if (!is_null($this->nickName)) {
 			$name .= $this->nickName;

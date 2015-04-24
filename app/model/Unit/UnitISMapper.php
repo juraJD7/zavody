@@ -5,8 +5,21 @@
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
-class UnitISMapper extends BaseISMapper {
+class UnitISMapper {
 	
+	/**
+	 *
+	 * @var \Skautis\Skautis 
+	 */
+	protected $skautIS;	
+	
+	/**
+	 * 
+	 * @param \Skautis\Skautis $skautIS
+	 */
+	public function __construct(\Skautis\Skautis $skautIS) {
+		$this->skautIS = $skautIS;
+	}
 	
 	/**
 	 * @return Unit
@@ -60,6 +73,22 @@ class UnitISMapper extends BaseISMapper {
 		if(is_array($telephone)) {										
 			return $telephone{0}->Value;	
 		}
+	}
+	
+	public function getUnits(UnitRepository $repository, $type, $parent) {
+		if (is_null($parent)) {
+			$parent = $this->skautIS->getUser()->getUnitId();
+		}
+		$units = $this->skautIS->org->UnitAllUnit(array("ID_Unit" => $parent));		
+		$unitType = array();
+		foreach ($units as $unit) {
+			if($unit->ID_UnitType == $type || is_null($type)) {
+				$tmp = $this->getUnit($unit->ID);
+				$tmp->repository = $repository;
+				$unitType[$unit->ID] = $tmp;
+			}
+		}
+		return $unitType;	
 	}
 	
 }

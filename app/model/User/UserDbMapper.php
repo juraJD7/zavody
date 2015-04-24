@@ -20,7 +20,7 @@ class UserDbMapper {
 	public function getUser($id) {
 		$row = $this->database->table('user')->get($id);
 		if(!$row) {
-			throw new DatabaseNotStoredException("User $id není uložen v databázi");
+			throw new DbNotStoredException("User $id není uložen v databázi");
 		}
 		$user = new User($id);
 		$user->userName = $row->username;

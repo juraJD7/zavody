@@ -1,0 +1,61 @@
+{block content}
+
+
+<h1>Dokončení přihlášení hlídky</h1>
+<fieldset>
+<legend>Základní údaje</legend>
+
+<table class="table table-non-lined">
+	<tr><th>Jméno: </th><td>{$watch->name}</td></tr>
+	<tr><th>Středisko: </th><td>{$watch->troop->displayName}</td></tr>
+	<tr><th>Oddíl: </th><td>{$watch->group->displayName}</td></tr>
+	<tr><th>Obec: </th><td>{$watch->town}</td></tr>
+	<tr><th>Email na vůdce: </th><td>{$watch->emailLeader}</td></tr>
+	<tr><th>Email na rádce: </th><td>{$watch->emailGuide}</td></tr>
+	<tr><th>Kategorie: </th> <td>{$watch->category}</td></tr>
+</table>
+	{ifset $comment}
+	<p>
+		{$comment}
+	</p>
+	{/ifset}
+</fieldset>
+
+<fieldset>
+	<legend>Účastníci <small>({$watch->races[0]->title})</small></legend>
+	
+	<table class="table">
+		<thead>
+			<th>Jméno</th>
+			<th>Datum narození</th>
+			<th>Pohlaví</th>
+			<th>Role v závodě</th>
+		</thead>
+		<tbody>
+			{foreach $watch->getMembers($watch->races[0]->id) as $member}
+			<tr>
+				{dump $member}
+				<td>{$member['member']->displayName}</td>
+				<td>{$member['member']->birthday|date:'d.m.Y'}</td>
+				<td>{$member['member']->sex}</td>
+				<td>{$member['role']}</td>
+			</tr>
+			{/foreach}
+		</tbody>
+	</table>
+</fieldset>
+	
+	<table style="width: 100%">
+		<tr>
+			<td style="text-align: left">
+	<a class="btn btn-default active" n:href="Watch:members">&lt;&lt; Zpět na editaci členů</a>
+	</td><td style="text-align: right">
+	<a class="btn btn-default active" n:href="save!">Vytvořit hlídku</a>
+	</td>
+		</tr>
+	</table>
+
+<br />
+<br />
+
+{/block}

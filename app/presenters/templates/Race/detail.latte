@@ -73,15 +73,46 @@
 	<tr>
 		<th>Přihlášené družiny / kapacita:</th>
 		<td>{$race->getNumWatchs()} / {$race->capacity} 
-			{if $race->getNumWatchs('nesoutěžní') > 0}
+			{if $race->getNumWatchs(Watch::CATEGORY_NONCOMPETIVE) > 0}
 				Z toho celkem {$race->getNumWatchs('nesoutěžní')} v kategorii nesoutěžní
 			{/if}
 		</td>
 	</tr>
 	<tr>
-		<th>Počet postupujících <br /> v kategorii dívčí / chlapecká:</th><td>{$race->getNumAdvance('dívčí')} / {$race->getNumAdvance('chlapecká')}</td>
+		<th>Počet postupujících <br /> v kategorii dívčí / chlapecká:</th><td>{$race->getNumAdvance(Watch::CATEGORY_FEMALE)} / {$race->getNumAdvance(Watch::CATEGORY_MALE)}</td>
 	</tr>
 </table>
-	<hr />
-<h3>Seznam přihlášených družin:</h3>
+<hr />
+{if $user->isLoggedIn()}
+	<h3>Seznam přihlášených družin:</h3>
+	
+	<table class="table">
+		<thead>
+			<tr>
+				<td>Jméno hlídky</td>
+				<td>Středisko</td>
+				<td>Oddíl</td>
+				<td>Počet členů</td>
+				<td>Kategorie</td>
+				<td>Počet bodů</td>
+				<td>Pořadí</td>
+				<td>Postup</td>
+			</tr>
+		</thead>
+		<tbody>
+	{foreach $watchs as $watch}
+		<tr>
+			<td>{$watch->name}</td>
+			<td>{$watch->troop->displayName}</td>
+			<td>{$watch->group->displayName}</td>
+			<td>{$watch->getNumRunners($race)}</td>
+			<td>{$watch->getCategory($race)}</td>
+			<td>{$watch->getPoints($race->id)}</td>
+			<td>{$watch->getOrder($race->id)}</td>
+			<td>{$watch->getAdvance($race)}</td>
+		</tr>
+	{/foreach}
+		</tbody>
+	</table>
+{/if}
 

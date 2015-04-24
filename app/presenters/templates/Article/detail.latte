@@ -84,15 +84,15 @@
 <h4>
 	<strong>{$comment->title}</strong>
 	
-	<small>{$comment->authorName}, {$comment->posted|date:'d.m.Y H:i'}
+	<small>{$comment->author->userName}, {$comment->posted|date:'d.m.Y H:i'}
 	
 	{if $comment->modified}
 		, upraveno: {$comment->modified|date:'d.m.Y H:i'}
 	{/if}
 	
-	{if $user->id == $comment->author || $user->isInRole('admin')}
-		<a n:href="editComment! $comment->id">Upravit</a>
-		<a n:href="deleteComment! $article->id, $comment->id">Smazat</a>
+	{if $user->id == $comment->author->id || $user->isInRole('admin')}
+		<a n:href="editComment! $comment->id, $page">Upravit</a>
+		<a n:href="deleteComment! $article->id, $comment->id, $page">Smazat</a>
 	{/if}
 	
 	</small>

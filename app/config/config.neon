@@ -35,12 +35,17 @@ services:
 	- App\Forms\PhotoUploadFormFactory
 	- App\Forms\PhotoDescriptionFormFactory
 	- App\Forms\RaceFormFactory
+	- App\Forms\WatchFormFactory
+	- App\Forms\MembersFormFactory
 	- ArticleRepository
 	- ArticleDbMapper
 	- CommentRepository
 	- CommentDbMapper
 	- FileDbMapper
 	- FileRepository
+	- PersonRepository
+	- PersonDbMapper
+	- PersonIsMapper
 	- PhotoRepository
 	- RaceRepository
 	- RaceDbMapper
@@ -51,14 +56,11 @@ services:
 	- UserRepository
 	- UserIsMapper
 	- UserDbMapper
+	- WatchRepository
+	- WatchIsMapper
+	- WatchDbMapper
 	- QuestionRepository
 	- QuestionDbMapper
 	- Nette\Utils\Paginator
 	router: @App\RouterFactory::createRouter
-	authenticator: Authenticator	
-#	ZavodFormFactory : ZavodFormFactory
-#	HlidkaFormFactory : HlidkaFormFactory
-	ArticleManager: ArticleManager
-	CommentManager: CommentManager
-#	UserManager: UserManager	
-#	HlidkaManager: HlidkaManager #(@skautis, @database)
+	authenticator: Authenticator

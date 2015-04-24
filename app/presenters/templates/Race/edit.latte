@@ -52,7 +52,7 @@ $(document).on('click', '.spanName' , function() {
 	var check = document.getElementById({$editor->id});	
 	if (check === null) {
 		addHidden(form, 'editors[]', {$editor->id} );
-		addSpan({$editor->id}, {$editor->displayName()});
+		addSpan({$editor->id}, {$editor->displayName});
 	}
 	</script>	
 {/foreach}

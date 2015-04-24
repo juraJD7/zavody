@@ -33,6 +33,7 @@ class CommentFormFactory extends BaseFormFactory {
 	 */
 	public function create()
 	{
+		
 		$form = new Form;
 		$form->addText('title', 'Předmět:', 20, 255)
 			->setRequired('Je nutné vyplnit předmět.');
@@ -49,7 +50,7 @@ class CommentFormFactory extends BaseFormFactory {
 	}
 
 	public function formSucceeded($form, $values)
-	{			
+	{
 		$user = $this->skautIS->usr->UserDetail()->ID;		
 		$data = array(			
 			'author' => $user,

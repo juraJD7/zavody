@@ -35,6 +35,14 @@ class RaceRepository {
 		return $this->dbMapper->getRaces($this, $season);
 	}
 	
+	public function getRacesByWatch($watchId) {
+		return $this->dbMapper->getRacesByWatch($this, $watchId);
+	}
+	
+	public function getRacesToLogIn($season) {
+		return $this->dbMapper->getRacesToLogIn($this, $season);
+	}
+
 	public function getRound($id) {
 		return $this->dbMapper->getRound($id);
 	}
@@ -47,7 +55,7 @@ class RaceRepository {
 		return $this->dbMapper->getMembersRange($id);
 	}
 
-		public function getAdvance($id) {
+	public function getAdvance($id) {
 		$advanceId = $this->dbMapper->getAdvance($id);
 		if ($advanceId) {
 			return $this->getRace($advanceId);
@@ -55,6 +63,10 @@ class RaceRepository {
 		return null;
 	}
 	
+	public function getKey($raceId) {
+		return $this->dbMapper->getKey($raceId);
+	}
+
 	public function getAuthor($id) {
 		return $this->dbMapper->getAuthor($id);
 	}
@@ -70,5 +82,29 @@ class RaceRepository {
 	
 	public function getDataForForm($id) {
 		return $this->dbMapper->getDataForForm($id);
+	}
+	
+	public function getGuideAge($season) {
+		return $this->dbMapper->getGuideAge($season);
+	}
+	
+	public function getRunnerAge($season) {
+		return $this->dbMapper->getRunnerAge($season);
+	}
+	
+	public function getMinRunner($membersRange) {
+		return $this->dbMapper->getMinRunner($membersRange);
+	}
+	
+	public function getMaxRunner($membersRange) {
+		return $this->dbMapper->getMaxRunner($membersRange);
+	}
+	
+	public function getNumWatchs($raceId, $category = NULL) {
+		return $this->dbMapper->getNumWatchs($raceId, $category);
+	}
+	
+	public function getNumAdvance($raceId, $category) {
+		return $this->dbMapper->getNumAdvance($raceId, $category);
 	}
 }

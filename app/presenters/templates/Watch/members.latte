@@ -1,0 +1,82 @@
+{block content}
+
+
+
+{form membersForm, class => ajax}
+
+<fieldset>
+<legend>Krok 2 - přidávání členů</legend>	
+
+<table>
+	<tr>
+		<td>{label units/} </td>
+		<td>{input units} </td>
+	</tr>
+</table>
+<hr />
+
+<table class="table table-bordered">
+<tr>
+	<th style="text-align: center" width="50%">Výběr členů</th>
+	<th style="text-align: center" width="50%">Vybraní členové</th>
+</tr>
+<tr>
+	<td>
+		{snippet persons}
+		<table class="table">
+
+				<tr><th>&nbsp;</th><th>Jméno</th><th>Role</th></tr>
+
+			{ifset $persons}
+				{foreach $persons as $person}
+				<tr>
+					<td><input type="checkbox" name="members[]" value="{$person->personId}"></td>
+					<td>{$person->displayName}</td>
+					<td><select name="roles[{$person->personId}]">
+							{foreach $roles as $role}
+							<option value="{$role->id}">
+								{$role->name}
+							</option>
+							{/foreach}
+						</select>
+					</td>
+				</tr>
+				{/foreach}
+			{else}
+				<tr><td colspan="3"><em>Výběr neobsahuje žádné členy</td></tr>
+			{/ifset}
+		</table>
+		{/snippet}
+	</td>
+	<td style="text-align: center">
+		{snippet members}
+		{foreach $members as $key => $member}
+			<small>{$member} - {$rolesPicked[$key]} <a class="ajax" n:href="deleteMember! $key">X</a></small><br>
+		{/foreach}
+		{if members}
+		<a class="ajax" n:href="deleteAllMembers!">Odstranit všechny členy hlídky</a>
+		{/if}
+		{/snippet}
+	</td>
+</tr>
+</table>
+		{input preview}
+		{input addMembers}
+		{input send}
+{/form}
+
+<script type="text/javascript">		
+	
+	$("#frm-membersForm-units").on('change',function(event) {		
+		$.nette.ajax({
+            url: {link loadPersons!},
+			type: "POST",
+            data: {
+                unitID: $('#frm-membersForm-units').val()
+            }
+        });
+	});	
+
+</script>
+
+{/block}

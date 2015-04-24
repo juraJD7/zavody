@@ -33,6 +33,13 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 */
 	public $userRepository;
 	
+	/**
+	 *
+	 * @var \UnitRepository
+	 * @inject
+	 */
+	public $unitRepository;
+	
 	protected $season;
 		
 	public function startup() {
