@@ -4,18 +4,26 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $configurator = new Nette\Configurator;
 
-$configurator->setDebugMode(array('88.100.187.117', '89.177.146.97', '2001:718:801:22e:c5db:9e9a:a24f:e6f2'));
+$configurator->setDebugMode(TRUE);
 $configurator->enableDebugger(__DIR__ . '/../log');
 
 $configurator->setTempDirectory(__DIR__ . '/../temp');
 
 $configurator->createRobotLoader()
-	->addDirectory(__DIR__)
+	->addDirectory(__DIR__) 
 	->register();
 
 $configurator->addConfig(__DIR__ . '/config/config.neon');
 $configurator->addConfig(__DIR__ . '/config/config.local.neon');
 
 $container = $configurator->createContainer();
+
+foreach(['WatchRepository', 'PersonRepository'] as $name){
+       $container->addService($name, function($container) use ($name) {
+               return $container->getService('lazyContainer')->{$name};
+       });
+};
+
+
 
 return $container;

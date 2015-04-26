@@ -15,13 +15,13 @@ class WatchRepository {
 	/**
 	 * 
 	 * @param RaceRepository $raceRepository
-	 * @param PersonRepository $personRepository
+	 * @param $personRepositoryFactory
 	 * @param UnitRepository $unitRepository
 	 * @param WatchDbMapper $dbMapper
 	 */
-	public function __construct(RaceRepository $raceRepository, PersonRepository $personRepository, UnitRepository $unitRepository, WatchDbMapper $dbMapper) {
+	public function __construct(RaceRepository $raceRepository, $personRepositoryFactory, UnitRepository $unitRepository, WatchDbMapper $dbMapper) {
 		$this->raceRepository = $raceRepository;
-		$this->personRepository = $personRepository;
+		$this->personRepository = $personRepositoryFactory;
 		$this->unitRepository = $unitRepository;
 		$this->dbMapper = $dbMapper;
 	}

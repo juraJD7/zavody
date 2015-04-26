@@ -26,6 +26,13 @@ extensions:
 services:
 	user:
 		class: Nette\Security\LoggedUser
+	lc: LazyContainer
+	WatchRepository:
+		factory: @lc::getWatchRepository()
+		class: WatchRepository
+	PersonRepository:
+		factory: @lc::getPersonRepository()
+		class: PersonRepository
 	- App\RouterFactory
 	- App\Forms\ArticleFormFactory
 	- App\Forms\CommentFormFactory
@@ -43,8 +50,8 @@ services:
 	- CommentDbMapper
 	- FileDbMapper
 	- FileRepository
-	- PersonRepository
-#	- PersonDbMapper
+#	- PersonRepository
+	- PersonDbMapper
 	- PersonIsMapper
 	- PhotoRepository
 	- RaceRepository
