@@ -70,6 +70,7 @@
 	<tr>
 		<th>Povolený počet členů družiny:</th><td>{$race->membersRange->name}</td>
 	</tr>
+	{if $user->isLoggedIn()}
 	<tr>
 		<th>Přihlášené družiny / kapacita:</th>
 		<td>{$race->getNumWatchs()} / {$race->capacity} 
@@ -81,6 +82,7 @@
 	<tr>
 		<th>Počet postupujících <br /> v kategorii dívčí / chlapecká:</th><td>{$race->getNumAdvance(Watch::CATEGORY_FEMALE)} / {$race->getNumAdvance(Watch::CATEGORY_MALE)}</td>
 	</tr>
+	{/if}
 </table>
 <hr />
 {if $user->isLoggedIn()}
@@ -102,7 +104,7 @@
 		<tbody>
 	{foreach $watchs as $watch}
 		<tr>
-			<td>{$watch->name}</td>
+			<td><a n:href="Watch:detail $watch->id">{$watch->name}</a></td>
 			<td>{$watch->troop->displayName}</td>
 			<td>{$watch->group->displayName}</td>
 			<td>{$watch->getNumRunners($race)}</td>

@@ -26,7 +26,7 @@
 
 {foreach $races as $race}
 	<fieldset>
-		<legend>{$race->name} <small>({$race->datum|date:'d.m.Y'}, {$race->place} )</small></legend>
+		<legend>{$race->name} <small>({$race->date|date:'d.m.Y'}, Místo: {$race->place} )</small></legend>
 		<table class="table">
 			<thead>
 				<th>Jméno</th>
@@ -37,10 +37,10 @@
 			<tbody>
 				{foreach $watch->getMembers($race) as $member}
 				<tr>					
-					<td>{$member['member']->displayName}</td>
-					<td>{$member['member']->birthday|date:'d.m.Y'}</td>
-					<td>{$member['member']->sex}</td>
-					<td>{$member['role']}</td>
+					<td>{$member->displayName}</td>
+					<td>{$member->birthday|date:'d.m.Y'}</td>
+					<td>{$member->sex}</td>
+					<td>{$member->getRoleName($race->id)}</td>
 				</tr>
 				{/foreach}
 			</tbody>
@@ -53,7 +53,7 @@
 			<td style="text-align: left">
 	<a class="btn btn-default active" n:href="Watch:create $watch->id">Upravit údaje</a>
 	</td><td style="text-align: right">
-	<a class="btn btn-default active" n:href="Watch:members $watch->id, $race->id">Vytvořit hlídku</a>
+	<a class="btn btn-default active" n:href="Watch:members $watch->id, $race->id">Upravit členy</a>
 	</td>
 		</tr>
 	</table>

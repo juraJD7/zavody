@@ -7,25 +7,73 @@
  */
 class WatchDbMapper extends BaseDbMapper {
 	
-	public function getWatch($id) {
+	private $raceRepositoryFactory;
+	private $personRepositoryFactory;
+
+
+	public function __construct(\Nette\Database\Context $database, \UserRepository $userRepository, \UnitRepository $unitRepository, $raceRepositoryFactory, $personRepositoryFactory) {
+		parent::__construct($database, $userRepository, $unitRepository);
+		$this->raceRepositoryFactory = $raceRepositoryFactory;
+		$this->personRepositoryFactory = $personRepositoryFactory;
+	}
+	
+	/**
+	 * 
+	 * @return RaceRepository
+	 */
+	private function getRaceRepository() {
+		return call_user_func($this->raceRepositoryFactory);
+	}
+	
+	/**
+	 * 
+	 * @return PersonRepository
+	 */
+	private function getPersonRepository() {
+		return call_user_func($this->personRepositoryFactory);
+	}
+
+
+	public function getWatch($id, WatchRepository $repository) {
 		$row = $this->database->table('watch')->get($id);		
 		if(!$row) {
 			throw new Nette\InvalidArgumentException("Hlídka $id neexistuje");
 		}
-		return $this->loadFromActiveRow($row);
+		return $this->loadFromActiveRow($row, $repository);
 	}
+	
+	public function getWatchs($raceId, WatchRepository $repository) {
+		$result = $this->database->table('race_watch')
+				->where('race_id', $raceId);
+		$watchs = array();
+		foreach ($result as $row) {
+			$watchs[] = $this->getWatch($row->watch_id, $repository);
+		}
+		return $watchs;
+	}
+
+
 	/**
 	 * 
 	 * @param Nette\Database\Table\ActiveRow $row
 	 * @return \Watch
 	 */
-	public function loadFromActiveRow(Nette\Database\Table\ActiveRow $row) {
+	public function loadFromActiveRow(Nette\Database\Table\ActiveRow $row, WatchRepository $repository) {
 		$watch = new Watch($row->id);
+		$watch->repository = $repository;
 		$watch->name = $row->name;
 		$watch->town = $row->name;
 		$watch->emailLeader = $row->email_leader;
 		$watch->emailGuide = $row->email_guide;
 		$watch->category = $row->category;
+		$watch->getRaces();
+		$watch->getMembers();
+		/*$resultMembers = $this->database->table('participant')
+				->where('watch', $watch->id);
+		foreach ($resultMembers as $row) {
+			$member = $this->getPersonRepository()->getParticipant($row->id);
+			$watch->addMember($member);
+		}	*/	
 		return $watch;
 	}
 
@@ -65,18 +113,6 @@ class WatchDbMapper extends BaseDbMapper {
 			return TRUE;
 		}
 		return FALSE;
-	}
-	
-	public function getRoles() {
-		return $this->database->table('role');
-	}
-	
-	public function getRoleName($id) {
-		$row = $this->database->table('role')
-				->get($id);
-		if ($row) {
-			return $row->name;
-		}
 	}
 	
 	public function save(Watch $watch) {
@@ -132,8 +168,7 @@ class WatchDbMapper extends BaseDbMapper {
 					->delete();
 		}
 		//vytvoreni noveho participanta, je li treba
-		foreach ($watch->members as $member) {
-			$participant = $member["member"];			
+		foreach ($watch->members as $participant) {						
 			$partRow = $this->database->table('participant')
 					->where('person_id', $participant->personId)
 					->where('watch', $rowWatch->id)
@@ -152,13 +187,15 @@ class WatchDbMapper extends BaseDbMapper {
 				$this->unitRepository->save($participant->unit);
 				$partRow = $this->database->table('participant')
 					->insert($data);
-			}			
-			$this->database->table('participant_race')
+			}				
+			foreach ($participant->roles as $race => $role) {
+				$this->database->table('participant_race')
 					->insert(array(
 						"participant_id" => $partRow->id,
-						"race_id" => $member["raceId"],
-						"role_id" => $member["roleId"]
+						"race_id" => $race,
+						"role_id" => $role
 					));
+			}			
 		}
 	}
 	

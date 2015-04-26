@@ -27,7 +27,7 @@ class Watch extends Nette\Object {
 	
 	/**
 	 *
-	 * @var array [Person, idRace, idRole]
+	 * @var array Person
 	 */
 	private $members = array();
 	
@@ -128,7 +128,7 @@ class Watch extends Nette\Object {
 		$participants = $this->getMembers($race);
 		$counter = 0;
 		foreach ($participants as $participant) {
-			if ($participant["roleId"] == 1 || $participant["roleId"] == 2) { // ucastnik nebo radce
+			if ($participant->getRoleId($race->id) == Person::TYPE_GUIDE || $participant->getRoleId($race->id) == Person::TYPE_RUNNER) { // ucastnik nebo radce
 				$counter++;
 			}
 		}
@@ -148,6 +148,7 @@ class Watch extends Nette\Object {
 		} else {
 			// pokud je družina přihlášena na 2. závod, musí mít předtím jasně danou kategorii
 			if (count($this->getRaces()) > 1) {
+				\Tracy\Dumper::dump($this->getRaces());exit;
 				throw new LogicException("Není záznam o kategorii z posupového kola kola");
 			}
 			$race = $this->getRaces()[0];			
@@ -161,15 +162,15 @@ class Watch extends Nette\Object {
 		$guide = 0;
 		$escort = 0;
 		$male = 0;
-		$female = 0;
-		foreach ($participants as $participant) {
-			switch ($participant["roleId"]) {
-				case Person::TYPE_RUNNER : $runner++;
-				case Person::TYPE_GUIDE : $guide++;
+		$female = 0;		
+		foreach ($participants as $participant) {			
+			switch ($participant->getRoleId($race->id)) {			
+				case Person::TYPE_RUNNER : $runner++;break;
+				case Person::TYPE_GUIDE : $guide++;break;
 				default : $escort++;
-			}
-			if ($participant["roleId"] != Person::TYPE_ESCORT) {
-				if ($participant["member"]->sex == Person::ID_MALE) {
+			}			
+			if ($participant->getRoleId($race->id) != Person::TYPE_ESCORT) {
+				if ($participant->sex == Person::ID_MALE) {
 					$male++;
 				} else {
 					$female++;
@@ -219,42 +220,31 @@ class Watch extends Nette\Object {
 		return ($this->getOrder($race->id) <= $race->getNumAdvance($this->getCategory()));			
 	}	
 	
-	public function addMember(Person $member, $raceId, $roleId) {
-		if (!$this->isInRace($raceId)) {
-			throw new Nette\InvalidArgumentException("Nelze přidat člena do závodu, kterého se hlídka neúčastní");
+	public function addMember(Person $member) {
+		$isInRace = FALSE;
+		foreach ($member->races as $raceId) {
+			if ($this->isInRace($raceId)) {
+				$isInRace = TRUE;
+				break;
+			}
 		}
-		$memberArray = Array(
-			"member" => $member,
-			"raceId" => $raceId,
-			"roleId" => $roleId,
-			"role" => $this->repository->getRoleName($roleId)
-		);
-		array_push($this->members, $memberArray);
+		if ($isInRace) {
+			array_push($this->members, $member);
+		} else {
+			throw new LogicException("Osoba $member->personId se neúčastní žádného ze závodů hlídky");
+		}
 	}
 	
 	/**
 	 * 
 	 * @param Race $race
-	 * @return array [Person member, int raceId, int roleId]
+	 * @return array Person
 	 */
 	public function getMembers($race = null) {
-		if (empty($this->members)) {
-			if (isset($this->id)) {
-				$this->members = $this->repository->getMembers($this->id, $race);
-			}
-		}
-		$members = array();
-		if (is_null($race)) {
-			$raceId = $this->getRaces()[0]->id;
-		} else {
-			$raceId = $race->id;
+		if (empty($this->members)) {			
+			$this->members = $this->repository->getMembers($this->id, $race);
 		}		
-		foreach ($this->members as $member) {
-			if ($member["raceId"] == $raceId) {
-				$members[] = $member;
-			}
-		}
-		return $members;
+		return $this->members;
 	}
 
 
@@ -269,6 +259,7 @@ class Watch extends Nette\Object {
 	}
 	
 	public function getNonCompetitiveReason() {
+		$this->getCategory();
 		return $this->nonCompetitiveReason;
 	}
 	

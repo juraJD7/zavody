@@ -11,7 +11,7 @@ class WatchRepository extends Nette\Object {
 	private $personRepositoryFactory;
 	private $userRepository;
 	private $unitRepository;
-	private $dbMapper;
+	private $dbMapperFactory;
 	
 	/**
 	 * 
@@ -19,15 +19,23 @@ class WatchRepository extends Nette\Object {
 	 * @param $personRepositoryFactory
 	 * @param UnitRepository $unitRepository
 	 * @param UserRepository $userRepository
-	 * @param WatchDbMapper $dbMapper
+	 * @param $dbMapperFactory
 	 */
-	public function __construct($raceRepositoryFactory, $personRepositoryFactory, UnitRepository $unitRepository, UserRepository $userRepository, WatchDbMapper $dbMapper) {
+	public function __construct($raceRepositoryFactory, $personRepositoryFactory, UnitRepository $unitRepository, UserRepository $userRepository, $dbMapperFactory) {
 		$this->raceRepositoryFactory = $raceRepositoryFactory;
 		$this->personRepositoryFactory = $personRepositoryFactory;
 		$this->unitRepository = $unitRepository;
 		$this->userRepository = $userRepository;
-		$this->dbMapper = $dbMapper;
+		$this->dbMapperFactory = $dbMapperFactory;
 		
+	}
+	
+	/**
+	 * 
+	 * @return WatchDbMapper
+	 */
+	private function getDbMapper() {
+		return call_user_func($this->dbMapperFactory);
 	}
 	
 	/**
@@ -53,13 +61,16 @@ class WatchRepository extends Nette\Object {
 	 * @return Watch
 	 */
 	public function getWatch($id) {
-		$watch = $this->dbMapper->getWatch($id);
-		$watch->repository = $this;
+		$watch = $this->getDbMapper()->getWatch($id, $this);
 		return $watch;
+	}
+	
+	public function getWatchs($raceId) {
+		return $this->getDbMapper()->getWatchs($raceId, $this);
 	}
 
 	public function getAuthor($id) {
-		return $this->dbMapper->getAuthor($id);
+		return $this->getDbMapper()->getAuthor($id);
 	}
 	
 	/**
@@ -69,15 +80,20 @@ class WatchRepository extends Nette\Object {
 	 * @return Unit
 	 */
 	public function getUnit($id, $type) {
-		return $this->dbMapper->getUnit($id, $type);
+		return $this->getDbMapper()->getUnit($id, $type);
 	}	
 	
-	public function getMembers($watchId, Race $race) {
-		return $this->getPersonRepository()->getPersonsByWatch($watchId, $race->id);
+	public function getMembers($watchId, Race $race = null) {
+		if (is_null($race)) {
+			$raceId = null;
+		} else {
+			$raceId = $race->id;
+		}
+		return $this->getPersonRepository()->getPersonsByWatch($watchId, $raceId);
 	}
 	
 	public function getRaces($watchId) {
-		$result = $this->dbMapper->getRaces($watchId);
+		$result = $this->getDbMapper()->getRaces($watchId);
 		$races = array();
 		foreach ($result as $id) {
 			$races[] = $this->getRaceRepository()->getRace($id);
@@ -86,23 +102,15 @@ class WatchRepository extends Nette\Object {
 	}
 	
 	public function getPoints($watchId, $raceId) {
-		return $this->dbMapper->getPoints($watchId, $raceId);
+		return $this->getDbMapper()->getPoints($watchId, $raceId);
 	}
 	
 	public function getOrder($watchId, $raceId) {
-		return $this->dbMapper->getOrder($watchId, $raceId);
+		return $this->getDbMapper()->getOrder($watchId, $raceId);
 	}
 	
 	public function isConfirmed($watchId, $raceId) {
-		return $this->dbMapper->isConfirmed($watchId, $raceId);
-	}
-	
-	public function getRoles() {
-		return $this->dbMapper->getRoles();
-	}
-	
-	public function getRoleName($id) {
-		return $this->dbMapper->getRoleName($id);
+		return $this->getDbMapper()->isConfirmed($watchId, $raceId);
 	}
 	
 	/**
@@ -131,7 +139,8 @@ class WatchRepository extends Nette\Object {
 		foreach ($section->members as $key => $value) {
 			$member = $this->getPersonRepository()->getPerson($key);
 			$member->unit = $this->unitRepository->getUnit($section->units[$key]);
-			$watch->addMember($member, $basic["race"], $section->roles[$key]);
+			$member->addRace($basic["race"], $section->roles[$key]);
+			$watch->addMember($member);
 		}
 		return $watch;
 	}
@@ -158,6 +167,6 @@ class WatchRepository extends Nette\Object {
 	}
 
 	public function save(Watch $watch) {
-		return $this->dbMapper->save($watch);
+		return $this->getDbMapper()->save($watch);
 	}
 }

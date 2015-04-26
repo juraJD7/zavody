@@ -42,6 +42,18 @@ class PersonDbMapper extends BaseDbMapper {
 		}
 	}
 	
+	public function getRoleId($systemId, $raceId) {
+		$result = $this->database->table('participant_race')
+				->where('participant_id', $systemId)
+				->where('race_id', $raceId)
+				->fetch();
+		if ($result) {
+			return $result->role;
+		} else {
+			return null;
+		}
+	}
+	
 	/**
 	 * 
 	 * @param int $id 
@@ -60,7 +72,19 @@ class PersonDbMapper extends BaseDbMapper {
 		$participant->sex = $row->sex;
 		$participant->birthday = $row->birthday;
 		$participant->unit = $this->unitRepository->getUnit($row->unit);
-		$participant->watch = $this->getWatchRepository()->getWatch($row->watch);
+		$participant->watch = $row->watch;
+		$participant->roles = $this->getParticipantRoles($participant->systemId);
+		return $participant;
+	}
+	
+	public function getParticipantRoles($participantId) {
+		$result = $this->database->table('participant_race')
+				->where('participant_id', $participantId);
+		$roles = array();
+		foreach ($result as $row) {
+			$roles[$row->race_id] = $row->role_id;
+		}
+		return $roles;
 	}
 
 	/**
@@ -77,6 +101,9 @@ class PersonDbMapper extends BaseDbMapper {
 		foreach ($rowsMembers as $member) {
 			$row = $this->database->table('participant_race')
 					->where('participant_id', $member->id);
+			if (!is_null($raceId)) {
+				$row = $row->where('race_id', $raceId);
+			}			
 			if ($row) {
 				$person = $this->getParticipant($member->id);
 				$person->repository = $repository;				
@@ -84,5 +111,17 @@ class PersonDbMapper extends BaseDbMapper {
 			}
 		}
 		return $members;
+	}
+	
+	public function getRoles() {
+		return $this->database->table('role');
+	}
+	
+	public function getRoleName($id) {
+		$row = $this->database->table('role')
+				->get($id);
+		if ($row) {
+			return $row->name;
+		}
 	}
 }

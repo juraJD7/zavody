@@ -201,7 +201,7 @@ class RaceDbMapper extends BaseDbMapper {
 	 * @return \Nette\Database\ActiveRow
 	 */
 	public function getKey($raceId) {
-		$keyId = $this->database->table('race')->get($id)->key;
+		$keyId = $this->database->table('race')->get($raceId)->key;
 		return $this->database->table('key')->get($keyId);
 	}
 
@@ -259,13 +259,14 @@ class RaceDbMapper extends BaseDbMapper {
 		if (is_null($category)) {
 			return $rows->count();
 		} else {
-			$counter = 0;
-			foreach ($rows as $row) {
+			$counter = 0;			
+			foreach ($rows as $row) {				
 				$watch = $this->getWatchRepository()->getWatch($row->watch_id);
+				
 				if ($watch->getCategory() == $category) {
 					$counter++;
 				}
-			}
+			}			
 			return $counter;
 		}
 	}

@@ -39,13 +39,31 @@ class PersonRepository {
 		return $person;
 	}
 	
+	public function getParticipant($systemId) {
+		$person = $this->getDbMapper()->getParticipant($systemId);
+		$person->repository = $this;
+		return $person;
+	}
+
 	public function getPersonsByUnit($idUnit) {
 		return $this->isMapper->getPersonsByUnit($this, $idUnit);
 	}
 	
 	public function getRole($systemId, $raceId) {
 		return $this->getDbMapper()->getRole($systemId, $raceId);
-	}	
+	}
+	
+	public function getRoleId($systemId, $raceId) {
+		return $this->getDbMapper()->getRoleId($systemId, $raceId);
+	}
+	
+	public function getRoles() {
+		return $this->getDbbMapper()->getRoles();
+	}
+	
+	public function getRoleName($id) {
+		return $this->getDbMapper()->getRoleName($id);
+	}
 	
 	public function getPersonsByWatch($watchId, $raceId) {
 		return $this->getDbMapper()->getPersonsByWatch($this, $watchId, $raceId);

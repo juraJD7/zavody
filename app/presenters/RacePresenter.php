@@ -23,6 +23,13 @@ class RacePresenter extends BasePresenter {
 	 * @inject
 	 */
 	public $raceRepository;
+	
+	/**
+	 *
+	 * @var \WatchRepository
+	 * @inject
+	 */
+	public $watchRepository;
 
 	public function createComponentRaceForm() {
 		if ($this->user->isLoggedIn()) {
@@ -58,6 +65,7 @@ class RacePresenter extends BasePresenter {
 	public function renderDetail($id) {
 		try {
 			$this->template->race = $this->raceRepository->getRace($id);
+			$this->template->watchs = $this->watchRepository->getWatchs($id);
 		} catch (\Nette\InvalidArgumentException $ex) {
 			$this->error($ex);
 		}

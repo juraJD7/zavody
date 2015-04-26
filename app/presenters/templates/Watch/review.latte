@@ -35,10 +35,10 @@
 			{foreach $watch->getMembers($watch->races[0]) as $member}
 			<tr>
 				{dump $member}
-				<td>{$member['member']->displayName}</td>
-				<td>{$member['member']->birthday|date:'d.m.Y'}</td>
-				<td>{$member['member']->sex}</td>
-				<td>{$member['role']}</td>
+				<td>{$member->displayName}</td>
+				<td>{$member->birthday|date:'d.m.Y'}</td>
+				<td>{$member->sex}</td>
+				<td>{$member->getRoleName($watch->races[0]->id)}</td>
 			</tr>
 			{/foreach}
 		</tbody>

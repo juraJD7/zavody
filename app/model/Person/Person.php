@@ -7,9 +7,9 @@
  */
 class Person extends Nette\Object {
 	
-	const TYPE_RUNNER = "Závodník";
-	const TYPE_GUIDE = "Rádce";
-	const TYPE_ESCORT = "Doprovod";
+	const TYPE_RUNNER = 1;
+	const TYPE_GUIDE = 2;
+	const TYPE_ESCORT = 3;
 	
 	const ID_MALE = 1;
 	const ID_FEMALE = 0;
@@ -26,6 +26,7 @@ class Person extends Nette\Object {
 	private $birthday;
 	private $unit;	
 	private $watch;
+	private $roles = array(); //Key - ID race, Value - ID role
 	
 	public function __construct($personId) {
 		$this->personId = $personId;
@@ -111,12 +112,21 @@ class Person extends Nette\Object {
 		return $this->watch;
 	}
 	
-	public function setWatch(Watch $watch) {
+	/**
+	 * 
+	 * @param int $watch watch ID
+	 */
+	public function setWatch($watch) {
 		$this->watch = $watch;
 	}
 	
-	public function getRole($raceId) {
-		return $this->repository->getRole($this->systemId, $raceId);
+	public function getRoleName($raceId) {		
+		$roleId = $this->roles[$raceId];
+		return $this->repository->getRoleName($roleId);
+	}
+	
+	public function getRoleId($raceId) {		
+		return $this->roles[$raceId];
 	}
 	
 	public function getDisplayName() {
@@ -125,5 +135,25 @@ class Person extends Nette\Object {
 			$name .= " ($this->nickName)";
 		}
 		return $name;
+	}
+	
+	public function getRaces() {
+		$races = array();
+		foreach ($this->roles as $race => $role) {
+			$races[] = $race;
+		}
+		return $races;
+	}
+	
+	public function getRoles() {
+		return $this->roles;
+	}
+
+	public function addRace($raceId, $roleId) {
+		$this->roles[$raceId] = $roleId;
+	}
+	
+	public function setRoles($roles) {
+		$this->roles = $roles;
 	}
 }

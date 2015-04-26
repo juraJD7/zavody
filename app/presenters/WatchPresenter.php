@@ -90,7 +90,7 @@ class WatchPresenter extends BasePresenter {
 		$this->step = $step;
 	}
 
-	public function renderCreate($race) {
+	public function renderCreate($raceId, $watchId) {
 		if ($this->user->isLoggedIn()) {
 			if ($this->getSession()->hasSection('watch')) {
 				$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));				
@@ -148,14 +148,14 @@ class WatchPresenter extends BasePresenter {
 		}
 	}
 
-	public function renderMembers() {		
+	public function renderMembers($watchId, $raceId) {		
 		$this->template->members = ($this->getSession('watch')->members) 
 				? $this->getSession('watch')->members
 				: array();
 		$roles = array();		
 		foreach ($this->template->members as $key => $value) {
 			$rolesSession = $this->getSession('watch')->roles;
-			$roles[$key] = $this->watchRepository->getRoleName($rolesSession[$key]);
+			$roles[$key] = $this->personRepository->getRoleName($rolesSession[$key]);
 		}
 		$this->template->rolesPicked = $roles;
 	}
@@ -180,7 +180,7 @@ class WatchPresenter extends BasePresenter {
 			($this->user->isInRole('raceManager') && $watch->isInRace($this->user->race)) ||
 			($watch->author->id == $this->user->id) ) {
 				$this->template->watch = $watch;
-				$this->template->comment = 0;
+				$this->template->comment = $this->template->watch->nonCompetitiveReason;
 				$this->template->races = $this->template->watch->getRaces();
 			} else {
 				throw new \Nette\Security\AuthenticationException("Nemáte oprávnění pracovat s hlídkou $id");

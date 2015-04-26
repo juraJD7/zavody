@@ -16,10 +16,12 @@ class LazyContainer extends Nette\Object {
 	private $raceRepositoryFactory;
 	
 	private $raceDbMapperFactory;
+	
+	private $watchDbMapperFactory;
 
-	public function __construct(\Nette\Database\Context $database, UserRepository $userRepository, UnitRepository $unitRepository, WatchDbMapper $watchDbMapper, PersonIsMapper $isMapper){
-			$this->watchRepositoryFactory = $this->factory(function() use($unitRepository, $userRepository, $watchDbMapper) {
-					return new WatchRepository($this->raceRepositoryFactory, $this->personRepositoryFactory, $unitRepository, $userRepository, $watchDbMapper);
+	public function __construct(\Nette\Database\Context $database, UserRepository $userRepository, UnitRepository $unitRepository, PersonIsMapper $isMapper){
+			$this->watchRepositoryFactory = $this->factory(function() use($unitRepository, $userRepository) {
+					return new WatchRepository($this->raceRepositoryFactory, $this->personRepositoryFactory, $unitRepository, $userRepository, $this->watchDbMapperFactory);
 			});
 			$this->personRepositoryFactory = $this->factory(function()use ($isMapper){
 					return new PersonRepository($isMapper, $this->personDbMapperFactory);
@@ -33,6 +35,10 @@ class LazyContainer extends Nette\Object {
 			$this->raceDbMapperFactory = $this->factory(function()use ($database, $userRepository, $unitRepository){
 					return new RaceDbMapper($database, $userRepository, $unitRepository, $this->watchRepositoryFactory);
 			});
+			$this->watchDbMapperFactory = $this->factory(function()use ($database, $userRepository, $unitRepository){
+					return new WatchDbMapper($database, $userRepository, $unitRepository, $this->raceRepositoryFactory, $this->personRepositoryFactory);
+			});
+			
 	}
 	
 	private function factory($create){
@@ -65,5 +71,9 @@ class LazyContainer extends Nette\Object {
 	
 	public function getRaceDbMapper() {
 		return call_user_func($this->raceDbMapperFactory);		
+	}
+	
+	public function getWatchDbMapper() {
+		return call_user_func($this->watchDbMapperFactory);		
 	}
 }

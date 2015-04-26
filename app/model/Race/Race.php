@@ -62,6 +62,9 @@ class Race extends \Nette\Object {
 	}
 	
 	public function getName() {
+		if (empty($this->name)) {
+			return "Kolo bez názvu";
+		}
 		return $this->name;
 	}
 
@@ -218,7 +221,7 @@ class Race extends \Nette\Object {
 	public function getKey() {
 		if (is_null($this->key)) {
 			$this->key = $this->repository->getKey($this->id);
-		}
+		}		
 		return $this->key;
 	}
 	
@@ -281,7 +284,7 @@ class Race extends \Nette\Object {
 		return $this->repository->getMaxRunner($this->getMembersRange());
 	}
 
-	public function getNumWatchs($category = NULL) {
+	public function getNumWatchs($category = NULL) {		
 		return $this->repository->getNumWatchs($this->id, $category);
 	}
 	
@@ -291,11 +294,14 @@ class Race extends \Nette\Object {
 		} else if ($this->getRound()->short == 'K') {
 			return 1;
 		} else {
-			$numWatchs = $this->getNumWatchs($category);
+			$numWatchs = $this->getNumWatchs($category);			
 			if ($numWatchs > 20) {
 				$numWatchs = 20;
 			}
-			$key = $this->getKey();
+			if ($numWatchs == 0) {
+				return 0;
+			}
+			$key = $this->getKey();			
 			return $key[$numWatchs];			
 		}
 	}
