@@ -91,12 +91,12 @@ class WatchPresenter extends BasePresenter {
 	}
 
 	public function renderCreate($race) {
-		if ($this->user->isLoggedIn()) {			
-			if ($this->getSession("watch")) {
+		if ($this->user->isLoggedIn()) {
+			if ($this->getSession()->hasSection('watch')) {
 				$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));				
 				$this->troop = $watch->troop;				
 				$this["watchForm"]->setDefaults($this->watchRepository->getDataForForm($watch));
-			}
+			}			
 			$this->template->form = $this->template->_form = $this['watchForm'];
 		} else {
 			throw new \Skautis\Wsdl\AuthenticationException("Pro založení hlídky je třeba se přihlásit");
@@ -106,8 +106,8 @@ class WatchPresenter extends BasePresenter {
 	public function handleTroop() {
 		if($this->isAjax()) {
 			$unitID = $this->getHttpRequest()->getPost('unitID');
-			$this->watchFormFactory->setTroop($this->unitRepository->getUnit($unitID));
-			$this->redrawControl();			
+			$this->troop = $this->unitRepository->getUnit($unitID);
+			$this->redrawControl("group");			
 		}
 	}
 	

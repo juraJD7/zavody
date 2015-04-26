@@ -8,16 +8,24 @@
 class PersonRepository {
 		
 	private $isMapper;
-	private $dbMapper;
+	private $dbMapperFactory;
 	
 	/**
 	 * 
 	 * @param PersonIsMapper $isMapper
-	 * @param PersonDbMapper $dbMapper
+	 * @param $dbMapperFactory
 	 */
-	public function __construct(PersonIsMapper $isMapper, PersonDbMapper $dbMapper) {
+	public function __construct(PersonIsMapper $isMapper, $dbMapperFactory) {
 		$this->isMapper = $isMapper;
-		$this->dbMapper = $dbMapper;
+		$this->dbMapperFactory = $dbMapperFactory;
+	}
+	
+	/**
+	 * 
+	 * @return PersonDbMapper
+	 */
+	private function getDbMapper() {
+		return call_user_func($this->dbMapperFactory);
 	}
 	
 	/**
@@ -36,11 +44,11 @@ class PersonRepository {
 	}
 	
 	public function getRole($systemId, $raceId) {
-		return $this->dbMapper->getRole($systemId, $raceId);
+		return $this->getDbMapper()->getRole($systemId, $raceId);
 	}	
 	
 	public function getPersonsByWatch($watchId, $raceId) {
-		return $this->dbMapper->getPersonsByWatch($this, $watchId, $raceId);
+		return $this->getDbMapper()->getPersonsByWatch($this, $watchId, $raceId);
 	}
 	
 }

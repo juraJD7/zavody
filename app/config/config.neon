@@ -33,6 +33,15 @@ services:
 	PersonRepository:
 		factory: @lc::getPersonRepository()
 		class: PersonRepository
+	PersonDbMapper:
+		factory: @lc::getPersonDbMapper()
+		class: PersonDbMapper
+	RaceRepository:
+		factory: @lc::getRaceRepository()
+		class: RaceRepository
+	RaceDbMapper:
+		factory: @lc::getRaceDbMapper()
+		class: RaceDbMapper
 	- App\RouterFactory
 	- App\Forms\ArticleFormFactory
 	- App\Forms\CommentFormFactory
@@ -51,11 +60,11 @@ services:
 	- FileDbMapper
 	- FileRepository
 #	- PersonRepository
-	- PersonDbMapper
+#	- PersonDbMapper
 	- PersonIsMapper
 	- PhotoRepository
-	- RaceRepository
-	- RaceDbMapper
+#	- RaceRepository
+#	- RaceDbMapper
 	- PhotoDbMapper
 	- UnitRepository
 	- UnitISMapper

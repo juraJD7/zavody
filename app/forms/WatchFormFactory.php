@@ -3,8 +3,7 @@
 namespace App\Forms;
 
 use Nette,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+	Nette\Application\UI\Form;
 
 /**
  * Description of WatchFormFactory
@@ -16,6 +15,11 @@ class WatchFormFactory extends BaseFormFactory {
 	private $watchRepository;
 	private $raceRepository;
 	private $unitRepository;
+	
+	/**
+	 *
+	 * @var Nette\Security\LoggedUser
+	 */
 	private $user;
 	private $season;
 	private $race;
@@ -64,12 +68,13 @@ class WatchFormFactory extends BaseFormFactory {
 	 */
 	public function create() {
 		$form = new Form;		
-				
+		//var_dump($this->troop);exit;		
 		if(is_null($this->id)) {
 			$form->addSelect("race", "Závod: ", $this->loadRaces())
 					->setPrompt("-- vyber závod --")
 					->setDefaultValue($this->race);
 		}
+		$form->addHidden("author", $this->user->getUserDetail()->ID);
 		$form->addText("name", "Název hlídky:")->setRequired();
 		$form->addSelect("troop", "Středisko:", $this->loadTroops())
 				->setPrompt('-- vyber středisko --')

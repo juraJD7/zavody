@@ -18,11 +18,6 @@ $configurator->addConfig(__DIR__ . '/config/config.local.neon');
 
 $container = $configurator->createContainer();
 
-foreach(['WatchRepository', 'PersonRepository'] as $name){
-       $container->addService($name, function($container) use ($name) {
-               return $container->getService('lazyContainer')->{$name};
-       });
-};
 
 
 

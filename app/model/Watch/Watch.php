@@ -61,6 +61,11 @@ class Watch extends Nette\Object {
 		return $this->author;
 	}
 	
+	public function setAuthor(User $author) {
+		$this->author = $author;
+	}
+
+
 	public function getGroup() {
 		if (is_null($this->group)) {
 			$this->group = $this->repository->getUnit($this->id, "group");
@@ -120,7 +125,7 @@ class Watch extends Nette\Object {
 	}
 	
 	public function getNumRunners(Race $race) {
-		$participants = $this->getMembers($race->id);
+		$participants = $this->getMembers($race);
 		$counter = 0;
 		foreach ($participants as $participant) {
 			if ($participant["roleId"] == 1 || $participant["roleId"] == 2) { // ucastnik nebo radce
@@ -239,8 +244,10 @@ class Watch extends Nette\Object {
 			}
 		}
 		$members = array();
-		if (is_null($raceId)) {
+		if (is_null($race)) {
 			$raceId = $this->getRaces()[0]->id;
+		} else {
+			$raceId = $race->id;
 		}		
 		foreach ($this->members as $member) {
 			if ($member["raceId"] == $raceId) {

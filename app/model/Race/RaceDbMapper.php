@@ -6,22 +6,30 @@
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class RaceDbMapper extends BaseDbMapper {
-	/*
 	
-	private $watchRepository;
+	
+	private $watchRepositoryFactory;
 	
 	/**
 	 * 
 	 * @param \Nette\Database\Context $database
 	 * @param \UserRepository $userRepository
 	 * @param \UnitRepository $unitRepository
-	 * @param WatchRepository $watchRepository
-	 *//*
-	public function __construct(\Nette\Database\Context $database, \UserRepository $userRepository, \UnitRepository $unitRepository, WatchRepository $watchRepository) {
+	 * @param $watchRepositoryFactory
+	 */
+	public function __construct(\Nette\Database\Context $database, \UserRepository $userRepository, \UnitRepository $unitRepository, $watchRepositoryFactory) {
 		parent::__construct($database, $userRepository, $unitRepository);
-		$this->watchRepository = $watchRepository;
+		$this->watchRepositoryFactory = $watchRepositoryFactory;
 	}
-*/
+	
+	/**
+	 * 
+	 * @return WatchRepository
+	 */
+	private function getWatchRepository() {
+		return call_user_func($this->watchRepositoryFactory);
+	}
+
 	/**
 	 * 
 	 * @param int $id
@@ -244,7 +252,7 @@ class RaceDbMapper extends BaseDbMapper {
 				->get($membersRange)
 				->max;
 	}
-	/*
+	
 	public function getNumWatchs($raceId, $category) {
 		$rows = $this->database->table('race_watch')
 				->where('race_id', $raceId);
@@ -253,12 +261,12 @@ class RaceDbMapper extends BaseDbMapper {
 		} else {
 			$counter = 0;
 			foreach ($rows as $row) {
-				$watch = $this->watchRepository->getWatch($row->watch_id);
+				$watch = $this->getWatchRepository()->getWatch($row->watch_id);
 				if ($watch->getCategory() == $category) {
 					$counter++;
 				}
 			}
 			return $counter;
 		}
-	}*/
+	}
 }

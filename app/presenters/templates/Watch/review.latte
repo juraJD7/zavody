@@ -32,7 +32,7 @@
 			<th>Role v závodě</th>
 		</thead>
 		<tbody>
-			{foreach $watch->getMembers($watch->races[0]->id) as $member}
+			{foreach $watch->getMembers($watch->races[0]) as $member}
 			<tr>
 				{dump $member}
 				<td>{$member['member']->displayName}</td>
@@ -50,7 +50,7 @@
 			<td style="text-align: left">
 	<a class="btn btn-default active" n:href="Watch:members">&lt;&lt; Zpět na editaci členů</a>
 	</td><td style="text-align: right">
-	<a class="btn btn-default active" n:href="save!">Vytvořit hlídku</a>
+	<a class="btn btn-default active" n:href="save! $watch->races[0]->id">Vytvořit hlídku</a>
 	</td>
 		</tr>
 	</table>

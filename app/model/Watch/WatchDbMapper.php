@@ -93,6 +93,7 @@ class WatchDbMapper extends BaseDbMapper {
 	private function saveWatch(Watch $watch) {
 		$data = array(
 			"name" =>  $watch->name,
+			"author" => $watch->author->id,
 			"group" => $watch->group->id,
 			"troop" => $watch->troop->id,
 			"town" => $watch->town,

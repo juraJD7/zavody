@@ -5,27 +5,48 @@
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
-class WatchRepository {
+class WatchRepository extends Nette\Object {
 	
-	private $raceRepository;
-	private $personRepository;
+	private $raceRepositoryFactory;
+	private $personRepositoryFactory;
+	private $userRepository;
 	private $unitRepository;
 	private $dbMapper;
 	
 	/**
 	 * 
-	 * @param RaceRepository $raceRepository
+	 * @param $raceRepositoryFactory
 	 * @param $personRepositoryFactory
 	 * @param UnitRepository $unitRepository
+	 * @param UserRepository $userRepository
 	 * @param WatchDbMapper $dbMapper
 	 */
-	public function __construct(RaceRepository $raceRepository, $personRepositoryFactory, UnitRepository $unitRepository, WatchDbMapper $dbMapper) {
-		$this->raceRepository = $raceRepository;
-		$this->personRepository = $personRepositoryFactory;
+	public function __construct($raceRepositoryFactory, $personRepositoryFactory, UnitRepository $unitRepository, UserRepository $userRepository, WatchDbMapper $dbMapper) {
+		$this->raceRepositoryFactory = $raceRepositoryFactory;
+		$this->personRepositoryFactory = $personRepositoryFactory;
 		$this->unitRepository = $unitRepository;
+		$this->userRepository = $userRepository;
 		$this->dbMapper = $dbMapper;
+		
 	}
 	
+	/**
+	 * 
+	 * @return RaceRepository
+	 */
+	private function getRaceRepository() {
+		return call_user_func($this->raceRepositoryFactory);
+	}
+	
+	/**
+	 * 
+	 * @return PersonRepository
+	 */
+	private function getPersonRepository() {
+		return call_user_func($this->personRepositoryFactory);
+	}
+
+
 	/**
 	 * 
 	 * @param int $id
@@ -52,14 +73,14 @@ class WatchRepository {
 	}	
 	
 	public function getMembers($watchId, Race $race) {
-		return $this->personRepository->getPersonsByWatch($watchId, $race->id);
+		return $this->getPersonRepository()->getPersonsByWatch($watchId, $race->id);
 	}
 	
 	public function getRaces($watchId) {
 		$result = $this->dbMapper->getRaces($watchId);
 		$races = array();
 		foreach ($result as $id) {
-			$races[] = $this->raceRepository->getRace($id);
+			$races[] = $this->getRaceRepository()->getRace($id);
 		}
 		return $races;
 	}
@@ -97,8 +118,9 @@ class WatchRepository {
 		}
 		$basic = $section->basic;
 		$watch = new Watch();
+		$watch->author = $this->userRepository->getUser($basic["author"]);
 		$watch->repository = $this;
-		$watch->addRace($this->raceRepository->getRace($basic["race"]));		
+		$watch->addRace($this->getRaceRepository()->getRace($basic["race"]));		
 		$watch->name = $basic["name"];
 		$watch->troop = $this->unitRepository->getUnit($basic["troop"]);
 		$watch->group = $this->unitRepository->getUnit($basic["group"]);
@@ -107,7 +129,7 @@ class WatchRepository {
 		$watch->emailGuide = $basic["email_guide"];
 		
 		foreach ($section->members as $key => $value) {
-			$member = $this->personRepository->getPerson($key);
+			$member = $this->getPersonRepository()->getPerson($key);
 			$member->unit = $this->unitRepository->getUnit($section->units[$key]);
 			$watch->addMember($member, $basic["race"], $section->roles[$key]);
 		}
@@ -124,6 +146,7 @@ class WatchRepository {
 		}
 		$raceArray = array (
 			"race" => $raceId,
+			"author" => $watch->author->id,
 			"name" => $watch->name,
 			"troop" => $watch->troop->id,
 			"group" => $watch->group->id,
