@@ -1,29 +1,29 @@
 {block content}
 
-<h1>Přihlášení nové hlídky</h1>
+<h1>Úprava hlídky {$watch->name}</h1>
 
 {form watchForm}
 	
 <fieldset>
-<legend>Krok 1 - základní nastavení</legend>	
+<legend>Základní nastavení</legend>	
+
+<p>
+	<em>Upozornění: Změny se provedou pro všechny závody, kterých se hlídka účastní.</em>
+</p>
 
 <table>
-<tr>
-	<th>{label race /}</th>
-	<td>{input race}</td>
-</tr>
 <tr>
 	<th>{label name /}</th>
 	<td>{input name}</td>
 </tr>
 <tr>
-	<th>{label troop /}</th>
-	<td>{input troop}</td>
+	<th>Středisko: </th>
+	<td>{$watch->troop->displayName}</td>
 </tr>
 
 <tr>
-	<th>{label group /}</th>
-	<td>{snippet group}{input group}{/snippet}</td>
+	<th>Oddíl: </th>
+	<td>{$watch->group->displayName}</td>
 </tr>
 
 <tr>
@@ -40,7 +40,7 @@
 </tr>
 <tr>
 	<th></th>
-	<td>{input send}</td>
+	<td>{input save}</td>
 </tr>
 </table>
 {/form}

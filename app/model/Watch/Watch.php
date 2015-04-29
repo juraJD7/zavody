@@ -169,8 +169,8 @@ class Watch extends Nette\Object {
 				case Person::TYPE_GUIDE : $guide++;break;
 				default : $escort++;
 			}			
-			if ($participant->getRoleId($race->id) != Person::TYPE_ESCORT) {
-				if ($participant->sex == Person::ID_MALE) {
+			if ($participant->getRoleId($race->id) != Person::TYPE_ESCORT) {				
+				if ($participant->sexId == Person::ID_MALE) {
 					$male++;
 				} else {
 					$female++;
@@ -188,7 +188,7 @@ class Watch extends Nette\Object {
 		if ($runner + $guide < $race->minRunner) {
 			$this->nonCompetitiveReason = "Počet členů je menší než minimum pro tento závod (" . $race->minRunner . ")";
 			return Watch::CATEGORY_NONCOMPETIVE;
-		}
+		}		
 		if ($male > $female) {
 			return Watch::CATEGORY_MALE;
 		} else {
@@ -261,6 +261,16 @@ class Watch extends Nette\Object {
 	public function getNonCompetitiveReason() {
 		$this->getCategory();
 		return $this->nonCompetitiveReason;
+	}
+	
+	public function deleteAllMembers($raceId = NULL) {
+		if ($this->repository->deleteAllMembers($this->id, $raceId)) {
+			$this->members = array();
+		}
+	}
+	
+	public function save() {
+		$this->repository->save($this);
 	}
 	
 }

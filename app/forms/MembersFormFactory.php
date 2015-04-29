@@ -17,7 +17,6 @@ class MembersFormFactory extends BaseFormFactory {
 	private $raceRepository;
 	private $unitRepository;
 	private $user;
-	private $season;
 	private $race;
 	private $id;
 	private $troop;
@@ -53,6 +52,10 @@ class MembersFormFactory extends BaseFormFactory {
 		$this->troop = $troop;
 	}
 
+	public function setRace($raceId) {
+		$this->race = $raceId;
+	}
+	
 	/**
 	 * 
 	 * @return Form
@@ -60,10 +63,11 @@ class MembersFormFactory extends BaseFormFactory {
 	public function create() {
 		
 		$form = new Form;	
-		if (!isset($this->id)) {
-			//var_dump($this->session->getSection('watch')->basic);exit;
+		if (!isset($this->id)) {			
 			$troopId = $this->session->getSection('watch')->basic["troop"];
 			$this->troop = $this->unitRepository->getUnit($troopId);
+		} else {
+			$this->troop = $this->watchRepository->getWatch($this->id)->troop;
 		}
 		
 		$form->addSelect("units", "Zobraz jednotky", $this->loadGroups())
@@ -74,6 +78,7 @@ class MembersFormFactory extends BaseFormFactory {
 		$form->addSubmit('preview', "<< Předchozí krok");
 		$form->addSubmit('addMembers', "Přidat vybrané členy");
 		$form->addSubmit('send', "Další krok >>");
+		$form->addSubmit('save', "Uložit členy");
 		
 				
 		return $form;
@@ -82,15 +87,34 @@ class MembersFormFactory extends BaseFormFactory {
 	public function formSucceeded(Form $form) {		
 		$values = $form->getHttpData();		
 		$section = $this->session->getSection('watch');
-		if (isset($values["members"])) {
-			foreach ($values["members"] as $member) {		
-				$section->members[$member] = $this->personRepository->getPerson($member)->displayName;
-				$section->roles[$member] = $values["roles"][$member];
-				$section->units[$member] = $values["units"];
+		if ($form["save"]->isSubmittedBy()) {			
+			$watch = $this->watchRepository->getWatch($this->id);
+			$watch->deleteAllMembers($this->race);				
+			if (isset($section->members)) {				
+				foreach ($section->members as $key => $value) {					
+					$member = $this->personRepository->getPerson($key);
+					$member->unit = $this->unitRepository->getUnit($section->units[$key]);
+					$member->addRace($this->race, $section->roles[$key]);
+					$watch->addMember($member);					
+				}
+				$watch->save();
 			}
 		}
-		
-		
+		if ($form["addMembers"]->isSubmittedBy()) {				
+			if (isset($values["members"])) {
+				foreach ($values["members"] as $member) {	
+					$race = $this->raceRepository->getRace($this->race);	
+					$memberValidation = $this->watchRepository->validateMember($member, $values["roles"][$member], $race, $this->id);
+					if ($memberValidation === TRUE) {
+						$section->members[$member] = $this->personRepository->getPerson($member)->displayName;
+						$section->roles[$member] = $values["roles"][$member];
+						$section->units[$member] = $values["units"];
+					} else {
+						$form->getPresenter()->flashMessage($memberValidation);
+					}
+				}
+			}
+		}	
 	}
 	
 	public function loadGroups() {

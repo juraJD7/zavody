@@ -61,7 +61,9 @@
 </head>
 
 <body>
+	{snippet flashes}
 	<div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
+	{/snippet}
 	
 	    <div class="blog-masthead">
       <div class="container">

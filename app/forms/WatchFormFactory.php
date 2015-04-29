@@ -60,43 +60,54 @@ class WatchFormFactory extends BaseFormFactory {
 	
 	public function setTroop($troop) {
 		$this->troop = $troop;
-	}
+	}	
+	
 
 	/**
 	 * 
 	 * @return Form
 	 */
 	public function create() {
-		$form = new Form;		
-		//var_dump($this->troop);exit;		
+		$form = new Form;
 		if(is_null($this->id)) {
 			$form->addSelect("race", "Závod: ", $this->loadRaces())
 					->setPrompt("-- vyber závod --")
-					->setDefaultValue($this->race);
-		}
-		$form->addHidden("author", $this->user->getUserDetail()->ID);
-		$form->addText("name", "Název hlídky:")->setRequired();
-		$form->addSelect("troop", "Středisko:", $this->loadTroops())
+					->setDefaultValue($this->race)
+					->setRequired('Vyber prosím závod.');
+			$form->addSelect("troop", "Středisko:", $this->loadTroops())
 				->setPrompt('-- vyber středisko --')
 				->setAttribute('class', 'js-example-basic-single')
-				->setRequired();
+				->setRequired('Vyber prosím středisko');
 		$form->addSelect("group", "Oddíl:", $this->loadGroups())
 				->setPrompt('-- vyber oddíl --')
-				->setAttribute('class', 'js-example-basic-single');
-				//->setRequired();
+				->setAttribute('class', 'js-example-basic-single')
+				->setRequired('Vyber prosím oddíl');
+		}
+		$form->addHidden("author", $this->user->getUserDetail()->ID);
+		$form->addText("name", "Název hlídky:")->setRequired();		
 		$form->addText("town","Obec:");
-		$form->addText("email_leader", "E-mail na vůdce oddílu:");
+		$form->addText("email_leader", "E-mail na vůdce oddílu:")->setRequired();
 		$form->addText("email_guide", "E-mail na rádce družiny:");
-		$form->addSubmit("send","Další krok >>");		
+		$form->addSubmit("send","Další krok >>");
+		$form->addSubmit("save","Uložit změny");
 		
 		$form->onSuccess[] = array($this, 'formSucceeded');
 		return $form;
 	}
 	
-	public function formSucceeded(Form $form) {	
+	public function formSucceeded(Form $form) {
 		$values = $form->getHttpData();
-		$section = $this->session->getSection('watch');
-		$section->basic = $values;		
+		if ($this->id) {
+			$row = $this->database->table('watch')
+					->where('id', $this->id);
+			unset($values["save"]);
+			unset($values["do"]);
+			unset($values["author"]);
+			$row->update($values);			
+		} else {			
+			$section = $this->session->getSection('watch');
+			$section->basic = $values;		
+		}
 	}
 
 	public function loadRaces() {
@@ -118,8 +129,7 @@ class WatchFormFactory extends BaseFormFactory {
 	}
 	
 	public function loadGroups() {		
-		if (isset($this->troop)) {
-			
+		if (isset($this->troop)) {			
 			$units = $this->troop->getSubordinateUnits();
 			$groups = array();
 			foreach ($units as $unit) {

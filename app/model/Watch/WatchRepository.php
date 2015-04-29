@@ -123,7 +123,7 @@ class WatchRepository extends Nette\Object {
 	public function createWatchFromSession(Nette\Http\SessionSection $section) {
 		if (!$section->offsetExists("basic")) {
 			throw new SessionExpiredException("Platnost údajů vypršela.");
-		}
+		}		
 		$basic = $section->basic;
 		$watch = new Watch();
 		$watch->author = $this->userRepository->getUser($basic["author"]);
@@ -157,7 +157,7 @@ class WatchRepository extends Nette\Object {
 			"race" => $raceId,
 			"author" => $watch->author->id,
 			"name" => $watch->name,
-			"troop" => $watch->troop->id,
+			"troop" => $watch->troop->id,			
 			"group" => $watch->group->id,
 			"town" => $watch->town,
 			"email_guide" => $watch->emailGuide,
@@ -168,5 +168,13 @@ class WatchRepository extends Nette\Object {
 
 	public function save(Watch $watch) {
 		return $this->getDbMapper()->save($watch);
+	}
+	
+	public function deleteAllMembers($watchId, $raceId = NULL) {
+		return $this->getDbMapper()->deleteAllMembers($watchId, $raceId);
+	}
+	
+	public function validateMember($personId, $roleId, $race, $watchId = NULL) {
+		return $this->getDbMapper()->validateMember($personId, $roleId, $race, $watchId);
 	}
 }

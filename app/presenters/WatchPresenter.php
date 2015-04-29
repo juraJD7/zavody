@@ -58,9 +58,13 @@ class WatchPresenter extends BasePresenter {
 			$this->watchFormFactory->setTroop($this->troop);
 			$form = $this->watchFormFactory->create();
 			$form->onSuccess[] = function ($form) {
-				$this->flashMessage("Hlídka byla založena.");		
-				$link = $this->link("Watch:members");
-				$form->getPresenter()->redirectUrl($link);
+				$watchId = $this->getParameter('id');
+				if ($this["watchForm"]["send"]->isSubmittedBy()) {
+					$this->redirect("Watch:members");
+				}
+				if ($this["watchForm"]["save"]->isSubmittedBy()) {					
+					$this->redirect("Watch:detail", $watchId);
+				}
 			};
 			return $form;
 		} else {
@@ -69,12 +73,22 @@ class WatchPresenter extends BasePresenter {
 	}
 	
 	public function createComponentMembersForm() {
-		if ($this->user->isLoggedIn()) {			
+		if ($this->user->isLoggedIn()) {
+			$watchId = $this->getParameter('watchId');
+			$this->membersFormFactory->setId($watchId);
+			$raceId = $this->getParameter('raceId');
+			$this->membersFormFactory->setRace($raceId);
+			$this->membersFormFactory->setTroop($this->troop);
 			$form = $this->membersFormFactory->create();
 			$form->onSuccess[] = function ($form) {
+				$watchId = $this->getParameter('watchId');
 				$this->redrawControl("members");
+				$this->redrawControl("flashes");
 				if ($this["membersForm"]["send"]->isSubmittedBy()) {
 					$this->redirect("Watch:review");
+				}
+				if ($this["membersForm"]["save"]->isSubmittedBy()) {
+					$this->redirect("Watch:detail", $watchId);
 				}
 				if ($this["membersForm"]["preview"]->isSubmittedBy()) {
 					$this->redirect("Watch:create");
@@ -92,7 +106,8 @@ class WatchPresenter extends BasePresenter {
 
 	public function renderCreate($raceId, $watchId) {
 		if ($this->user->isLoggedIn()) {
-			if ($this->getSession()->hasSection('watch')) {
+			$this->getSession("watch")->remove();
+			if ($this->getSession()->hasSection('watch')) {				
 				$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));				
 				$this->troop = $watch->troop;				
 				$this["watchForm"]->setDefaults($this->watchRepository->getDataForForm($watch));
@@ -116,7 +131,7 @@ class WatchPresenter extends BasePresenter {
 			$unitID = $this->getHttpRequest()->getPost('unitID');		
 			$members = $this->personRepository->getPersonsByUnit($unitID);						
 			$this->template->persons = $members;
-			$this->template->roles = $this->watchRepository->getRoles();
+			$this->template->roles = $this->personRepository->getRoles();
 			$this->redrawControl("persons");			
 		}
 	}
@@ -160,10 +175,66 @@ class WatchPresenter extends BasePresenter {
 		$this->template->rolesPicked = $roles;
 	}
 	
+	public function renderEditMembers($watchId, $raceId) {
+		try {			
+			$watch = $this->watchRepository->getWatch($watchId);
+			if ($this->user->isInRole('admin') || 
+			($this->user->isInRole('raceManager') && $watch->isInRace($this->user->race)) ||
+			($watch->author->id == $this->user->id) ) {	
+				$section = $this->getSession("watch");
+				unset($section->basic);
+				$race = $this->raceRepository->getRace($raceId);								
+				$this->template->watch = $watch;
+				$this->template->race = $race;
+				if ($section->members) {
+					$this->template->members = $section->members;
+					$roles = array();
+					foreach ($this->template->members as $key => $value) {
+						$rolesSession = $section->roles;
+						$roles[$key] = $this->personRepository->getRoleName($rolesSession[$key]);
+					}
+				} else {
+					$this->template->members = array();
+					foreach ($watch->getMembers($race) as $member) {
+						$this->template->members[$member->personId] = $member->displayName;
+						$roles[$member->personId] = $member->getRoleName($raceId);
+					}
+				}				
+				
+				$this->template->rolesPicked = $roles;
+			} else {
+				throw new \Nette\Security\AuthenticationException("Nemáte oprávnění pracovat s hlídkou $watchId");
+			}
+		} catch (\Nette\InvalidArgumentException $ex) {
+			$this->error($ex);
+		}		
+	}
+	
 	public function renderReview() {
 		$this->template->watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));
 		if ($this->template->watch->category == \Watch::CATEGORY_NONCOMPETIVE) {
 			$this->template->comment = $this->template->watch->nonCompetitiveReason;
+		}
+	}
+	
+	public function renderEdit($id) {
+		try {
+			$watch = $this->watchRepository->getWatch($id);
+			if ($this->user->isInRole('admin') || 
+			($this->user->isInRole('raceManager') && $watch->isInRace($this->user->race)) ||
+			($watch->author->id == $this->user->id) ) {
+				$section = $this->getSession("watch");
+				$section->remove();				
+				$data = $this->watchRepository->getDataForForm($watch);				
+				$this->troop = $watch->troop;				
+				$this["watchForm"]->setDefaults($data);				
+				$this->template->watch = $watch;
+				$this->template->form = $this->template->_form = $this['watchForm'];
+			} else {
+				throw new \Nette\Security\AuthenticationException("Nemáte oprávnění pracovat s hlídkou $id");
+			}
+		} catch (\Nette\InvalidArgumentException $ex) {
+			$this->error($ex->getMessage());
 		}
 	}
 
@@ -188,20 +259,5 @@ class WatchPresenter extends BasePresenter {
 		} catch (\Nette\InvalidArgumentException $ex) {
 			$this->error($ex);
 		}
-	}
-	/*
-	public function renderEdit($id) {
-		try {
-			$race = $this->raceRepository->getRace($id);
-			if(!$this->user->isInRole('admin') && !$race->canEdit($this->user->id)) {
-				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");				
-			}
-			$this->template->editors = $this->raceRepository->getEditors($id);
-			$this->template->race = $race;
-			//\Tracy\Dumper::dump();exit;
-			$this["raceForm"]->setDefaults($this->raceRepository->getDataForForm($id));
-		} catch (\Nette\InvalidArgumentException $ex) {
-			$this->error($ex);
-		}
-	}*/
+	}	
 }

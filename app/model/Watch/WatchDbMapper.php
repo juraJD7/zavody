@@ -62,7 +62,7 @@ class WatchDbMapper extends BaseDbMapper {
 		$watch = new Watch($row->id);
 		$watch->repository = $repository;
 		$watch->name = $row->name;
-		$watch->town = $row->name;
+		$watch->town = $row->town;
 		$watch->emailLeader = $row->email_leader;
 		$watch->emailGuide = $row->email_guide;
 		$watch->category = $row->category;
@@ -117,12 +117,12 @@ class WatchDbMapper extends BaseDbMapper {
 	
 	public function save(Watch $watch) {
 		try {
-			$rowWatch = $this->saveWatch($watch);
+			$watchId = $this->saveWatch($watch);
 			// ucastnici
-			$this->saveMembers($watch, $rowWatch);
+			$this->saveMembers($watch, $watchId);
 		} catch (Exception $ex) {
 			throw new DbSaveException("Hlídku se nepodařilo uložit do databáze", $ex);
-		}
+		}		
 		return true;
 	}
 	
@@ -136,32 +136,35 @@ class WatchDbMapper extends BaseDbMapper {
 			"email_leader" => $watch->emailLeader,
 			"email_guide" => $watch->emailGuide
 		);		
-		if (isset($watch->systemId)) {			
+		if (isset($watch->id)) {			
 			$rowWatch = $this->database->table('watch')
 				->where('id', $watch->id)
-				->update($data);				
+				->update($data);
+			$watchId = $watch->id;
 		} else {
 			$rowWatch = $this->database->table('watch')
 				->insert($data);
+			$watchId = $rowWatch->id;
 		}
+		
 		// race_watch - smažu staré vazby a vložím nové -> aktualizace
 		$this->database->table('race_watch')
-				->where('watch_id', $rowWatch->id)
+				->where('watch_id', $watchId)
 				->delete();
 		foreach ($watch->races as $race) {
 			$this->database->table('race_watch')
 					->insert(array(
 						"race_id" => $race->id,
-						"watch_id" => $rowWatch->id
+						"watch_id" => $watchId
 					));
 		}
-		return $rowWatch;
+		return $watchId;
 	}
 	
-	private function saveMembers(Watch $watch, $rowWatch) {
+	private function saveMembers(Watch $watch, $watchId) {
 		// tabulka participant zustane, pouze se smazou vazby
 		$watchMembers = $this->database->table('participant')
-				->where('watch', $rowWatch->id);
+				->where('watch', $watchId);
 		foreach ($watchMembers as $watchMember) {
 			$this->database->table('participant_race')
 					->where('participant_id', $watchMember->id)
@@ -171,7 +174,7 @@ class WatchDbMapper extends BaseDbMapper {
 		foreach ($watch->members as $participant) {						
 			$partRow = $this->database->table('participant')
 					->where('person_id', $participant->personId)
-					->where('watch', $rowWatch->id)
+					->where('watch', $watchId)
 					->fetch();
 			if (!$partRow) {
 				$data = array(
@@ -182,7 +185,7 @@ class WatchDbMapper extends BaseDbMapper {
 					"sex" => $participant->sexId,
 					"birthday" => $participant->birthday,
 					"unit" => $participant->unit->id,				
-					"watch" => $rowWatch->id
+					"watch" => $watchId
 				);
 				$this->unitRepository->save($participant->unit);
 				$partRow = $this->database->table('participant')
@@ -209,4 +212,77 @@ class WatchDbMapper extends BaseDbMapper {
 		return $raceIds;
 	}
 	
+	public function deleteAllMembers($watchId, $raceId = null) {
+		$members = $this->database->table('participant')
+				->where('watch', $watchId);
+		foreach ($members as $member) {
+			$this->database->table('participant_race')
+					->where('participant_id', $member->id)
+					->where('race_id', $raceId)
+					->delete();
+		}
+		$members->delete();
+		return 1;
+	}
+	
+	private function validateAgeMember($personId, $roleId, $race) {
+		if ($roleId == Person::TYPE_ESCORT) {			
+			return TRUE;
+		}		
+		$person = $this->getPersonRepository()->getPerson($personId);
+		if ($roleId == Person::TYPE_RUNNER ) {			
+			$age = $person->birthday > $race->getRunnerAge();
+			$message = "Pro osobu $person->displayName byl překročen věk závodníka. Zvolte jinou kategorii.";
+		}
+		if ($roleId == Person::TYPE_GUIDE ) {			
+			$age = $person->birthday > $race->getGuideAge();				
+			$message = "Pro osobu $person->displayName byl překročen věk rádce. Starší osoby se musí uvést jako doprovod.";
+		}
+		
+		if ($age) {
+			return $age;
+		} else {
+			return $message;
+		}
+	}
+	
+	private function validateMemberCollision($personId, $roleId, $race, $watchId) {
+		$collisionRoles = array(\Person::TYPE_RUNNER, \Person::TYPE_GUIDE);
+		if (!in_array($roleId, $collisionRoles)) {
+			return TRUE;
+		}
+		
+		$participants = $this->database->table('participant')
+				->where('person_id', $personId);
+		foreach ($participants as $participant) {
+			$races = $this->database->table('participant_race')
+					->where('participant_id', $participant->id)
+					->where('role_id', $collisionRoles);
+			foreach ($races as $raceId) {				
+				$race = $this->database->table('race')->get($raceId->race_id);				
+				if ($race->season == $race->season) {
+					$person = $this->getPersonRepository()->getPerson($personId);
+					if (is_null($watchId)) {						
+						return "Osoba $person->displayName je již členem jiné hlídky";
+					} else {
+						if ($watchId != $participant->watch) {							
+							return "Osoba $person->displayName je již členem jiné hlídky";
+						}
+					}				
+				}
+			}
+		}
+		return TRUE;
+	}
+
+	public function validateMember($personId, $roleId, $race, $watchId = NULL) {
+		
+		$validateAge = $this->validateAgeMember($personId, $roleId, $race);			
+		if ($validateAge !== TRUE) {			
+			return $validateAge;
+		}				
+		
+		return $this->validateMemberCollision($personId, $roleId, $race, $watchId);		
+		
+	}
 }

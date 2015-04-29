@@ -58,7 +58,7 @@ class PersonRepository {
 	}
 	
 	public function getRoles() {
-		return $this->getDbbMapper()->getRoles();
+		return $this->getDbMapper()->getRoles();
 	}
 	
 	public function getRoleName($id) {
