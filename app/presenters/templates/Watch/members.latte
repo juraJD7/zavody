@@ -65,18 +65,4 @@
 		{input send}
 {/form}
 
-<script type="text/javascript">		
-	
-	$("#frm-membersForm-units").on('change',function(event) {		
-		$.nette.ajax({
-            url: {link loadPersons!},
-			type: "POST",
-            data: {
-                unitID: $('#frm-membersForm-units').val()
-            }
-        });
-	});	
-
-</script>
-
 {/block}

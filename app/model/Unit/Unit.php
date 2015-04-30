@@ -50,10 +50,7 @@ class Unit extends \Nette\Object {
 		return $this->registrationNumber;
 	}
 	
-	public function setRegistrationNumber($registrationNumber) {
-		if (!is_int($registrationNumber)) {
-			throw new Nette\InvalidArgumentException("Parametr registration number musí být int.");
-		}
+	public function setRegistrationNumber($registrationNumber) {		
 		$this->registrationNumber = $registrationNumber;
 	}
 	

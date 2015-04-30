@@ -205,19 +205,23 @@ class Watch extends Nette\Object {
 	}	
 		
 	public function getPoints($raceId) {
-		$this->repository->getPoints($this->id, $raceId);
+		return $this->repository->getPoints($this->id, $raceId);
 	}
 	
 	public function getOrder($raceId) {
-		$this->repository->getOrder($this->id, $raceId);
+		return $this->repository->getOrder($this->id, $raceId);
+	}
+	
+	public function getAdvance($raceId) {
+		$advance = $this->repository->getAdvance($this->id, $raceId);
+		if ($advance) {
+			return "Ano";
+		} 
+		return "Ne";
 	}
 	
 	public function isConfirmed($raceId) {
-		$this->repository->isConfirmed($this->id, $raceId);
-	}
-	
-	public function getAdvance(\Race $race) {		
-		return ($this->getOrder($race->id) <= $race->getNumAdvance($this->getCategory()));			
+		return $this->repository->isConfirmed($this->id, $raceId);
 	}	
 	
 	public function addMember(Person $member) {
@@ -271,6 +275,14 @@ class Watch extends Nette\Object {
 	
 	public function save() {
 		$this->repository->save($this);
+	}
+	
+	public function fixCategory() {
+		$this->repository->fixCategory($this->id, $this->getCategory());
+	}
+	
+	public function processAdvance(Race $race) {
+		$this->repository->processAdvance($this, $race);
 	}
 	
 }

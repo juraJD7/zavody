@@ -20,8 +20,13 @@ class UnitRepository {
 		$this->dbMapper = $dbMapper;
 	}
 	
-	public function getUnit($id) {
-		$unit = $this->isMapper->getUnit($id);
+	public function getUnit($id, $useIS = TRUE) {
+		if ($useIS) {
+			$unit = $this->isMapper->getUnit($id);
+			$this->save($unit);
+		} else {
+			$unit = $this->dbMapper->getUnit($id);
+		}
 		$unit->repository = $this;		
 		return $unit;
 	}

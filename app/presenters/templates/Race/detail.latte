@@ -84,8 +84,16 @@
 	</tr>
 	{/if}
 </table>
+
+{if $user->isLoggedIn() && $race->isLoginActive($season)}
+	<p style="margin: 10px">
+	<a n:href="Watch:create $race->id">>>Přihlásit družinu k tomuto závodu</a>
+	</p>
+{/if}
+
 <hr />
-{if $user->isLoggedIn()}
+{if $user->isLoggedIn()}	
+	
 	<h3>Seznam přihlášených družin:</h3>
 	
 	<table class="table">
@@ -111,7 +119,7 @@
 			<td>{$watch->getCategory($race)}</td>
 			<td>{$watch->getPoints($race->id)}</td>
 			<td>{$watch->getOrder($race->id)}</td>
-			<td>{$watch->getAdvance($race)}</td>
+			<td>{$watch->getAdvance($race->id)}</td>
 		</tr>
 	{/foreach}
 		</tbody>

@@ -17,6 +17,15 @@ class UnitDbMapper {
 		$this->database = $database;		
 	}
 	
+	public function getUnit($id) {
+		$row = $this->database->table('unit')->get($id);
+		$unit = new Unit($id);
+		$unit->registrationNumber = $row->registration_number;
+		$unit->displayName = $row->name;
+		return $unit;
+	}
+
+
 	public function save(Unit $unit) {
 		$data = array(
 			"id" => (int) $unit->id,

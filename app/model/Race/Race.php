@@ -313,6 +313,20 @@ class Race extends \Nette\Object {
 			}
 		}
 		return FALSE;
-	}	
+	}
+	
+	public function isLoginActive($season) {		
+		if ($this->getNumWatchs() < $this->capacity 
+				&& date('Y-m-d') < $this->applicationDeadline
+				&& $this->season == $season
+				&& $this->getRound()->short == 'Z'
+				) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+		
+			
+	}
 	
 }

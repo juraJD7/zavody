@@ -95,6 +95,18 @@ class WatchDbMapper extends BaseDbMapper {
 				->points;
 	}
 	
+	public function getAdvance($watchId, $raceId) {
+		$advance = $this->database->table('race_watch')
+				->where('race_id', $raceId)
+				->where('watch_id', $watchId)
+				->fetch()
+				->advance;
+		if($advance) {
+			return TRUE;
+		}
+		return FALSE;
+	}
+	
 	public function getOrder($watchId, $raceId) {
 		return $this->database->table('race_watch')
 				->where('race_id', $raceId)
@@ -284,5 +296,38 @@ class WatchDbMapper extends BaseDbMapper {
 		
 		return $this->validateMemberCollision($personId, $roleId, $race, $watchId);		
 		
+	}
+	
+	public function fixCategory($watchId, $category) {
+		$this->database->table('watch')
+			->where('id', $watchId)
+			->update(array("category" => $category));
+	}
+	
+	public function processAdvance(Watch $watch, Race $race) {
+		
+		$advanceRace = $race->getAdvance();
+		if ($advanceRace) {			
+			$rows = $this->database->table('participant_race')
+					->where('race_id', $race->id);
+			foreach ($rows as $row) {
+				$participant = $this->database->table('participant')
+						->where('id', $row->participant_id)
+						->where('watch', $watch->id)->fetch();				
+				if ($participant) {
+					$this->database->table('participant_race')
+							->insert(array(
+								"participant_id" => $row->participant_id,
+								"race_id" => $advanceRace->id,
+								"role_id" => $row->role_id
+							));
+				}
+			}
+			$this->database->table('race_watch')
+					->insert(array(
+						"race_id" => $advanceRace->id,
+						"watch_id" => $watch->id
+					));
+		}
 	}
 }

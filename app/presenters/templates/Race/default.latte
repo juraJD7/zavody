@@ -43,7 +43,7 @@
 		{if $race->region->id == $region->id}			
 			<tr n:class="$race->round == 'K' ? kraj">						
 				<td>{$race->round->short}</td><td>{$race->date|date:'d.m.Y'}</td><td><a n:href="Race:detail $race->id">{$race->name}<br />{$race->organizer->displayName}</a></td><td><a n:href="Race:detail $race->id">{$race->place}</a></td><td>{$race->description}</td>
-				<td>{$race->web}<br />{$race->email}</td><td>-/{$race->capacity}</td><td>{$race->applicationDeadline|date:'d.m.Y'}</td>
+				<td>{$race->web}<br />{$race->email}</td><td>{$race->getNumWatchs()}/{$race->capacity}</td><td>{$race->applicationDeadline|date:'d.m.Y'}</td>
 			</tr>		
 		{/if}
 	{/foreach}

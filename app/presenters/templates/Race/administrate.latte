@@ -1,0 +1,44 @@
+{block content}
+
+<h1>Administrační rozhraní</h1>
+
+<h2>Závod: {$race->name}</h2>
+
+<h3><a n:href="Race:staff $race->id">Přidat další účastníky závodu (organizátoři)<a/></h3>
+<h3><a n:href="Race:export $race->id">Exportovat účastníky</a></h3>
+<h3><a n:href="Email:race $race->id">Poslat email</a></h3>
+	
+<h3>Seznam přihlášených družin:</h3>
+	
+	<table class="table">
+		<thead>
+			<tr>
+				<td>Jméno hlídky</td>
+				<td>Středisko</td>
+				<td>Oddíl</td>
+				<td>Počet členů</td>
+				<td>Kategorie</td>
+				<td>Počet bodů</td>				
+			</tr>
+		</thead>
+		<tbody>		
+			{form pointsForm}
+	{foreach $watchs as $watch}
+		<tr>
+			<td><a n:href="Watch:detail $watch->id">{$watch->name}</a></td>
+			<td>{$watch->troop->displayName}</td>
+			<td>{$watch->group->displayName}</td>
+			<td>{$watch->getNumRunners($race)}</td>
+			<td>{$watch->getCategory($race)}</td>
+			<td>{input $watch->id}</td>			
+		</tr>
+	{/foreach}	
+	
+		</tbody>
+	</table>
+		
+	{input send}
+	{/form}
+		
+
+

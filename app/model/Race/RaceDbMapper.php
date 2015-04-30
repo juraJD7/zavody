@@ -136,13 +136,14 @@ class RaceDbMapper extends BaseDbMapper {
 	 */
 	public function getRacesToLogIn(RaceRepository $repository, $season) {
 		$result = $this->database->table('race')
-				->where('season', $season)
-				->where('application_deadline >', date('Y-m-d'));
+				->where('season', $season);
 		$races = array();
 		foreach ($result as $row) {			
 			$race = $this->loadFromActiveRow($row);
 			$race->repository = $repository;
-			$races[$row->id] = $race;
+			if ($race->isLoginActive($season)) {				
+				$races[$row->id] = $race;
+			}
 		}
 		return $races;
 	}

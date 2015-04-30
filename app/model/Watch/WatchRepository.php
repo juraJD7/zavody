@@ -109,6 +109,10 @@ class WatchRepository extends Nette\Object {
 		return $this->getDbMapper()->getOrder($watchId, $raceId);
 	}
 	
+	public function getAdvance($watchId, $raceId) {
+		return $this->getDbMapper()->getAdvance($watchId, $raceId);
+	}
+	
 	public function isConfirmed($watchId, $raceId) {
 		return $this->getDbMapper()->isConfirmed($watchId, $raceId);
 	}
@@ -176,5 +180,13 @@ class WatchRepository extends Nette\Object {
 	
 	public function validateMember($personId, $roleId, $race, $watchId = NULL) {
 		return $this->getDbMapper()->validateMember($personId, $roleId, $race, $watchId);
+	}
+	
+	public function fixCategory($watchId, $category) {
+		$this->getDbMapper()->fixCategory($watchId, $category);
+	}
+	
+	public function processAdvance(Watch $watch, Race $race) {
+		$this->getDbMapper()->processAdvance($watch, $race);
 	}
 }

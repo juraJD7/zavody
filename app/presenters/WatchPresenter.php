@@ -104,12 +104,12 @@ class WatchPresenter extends BasePresenter {
 		$this->step = $step;
 	}
 
-	public function renderCreate($raceId, $watchId) {
+	public function renderCreate($race) {
 		if ($this->user->isLoggedIn()) {
-			$this->getSession("watch")->remove();
+			$this->getSession("watch")->remove();			
 			if ($this->getSession()->hasSection('watch')) {				
 				$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));				
-				$this->troop = $watch->troop;				
+				$this->troop = $watch->troop;					
 				$this["watchForm"]->setDefaults($this->watchRepository->getDataForForm($watch));
 			}			
 			$this->template->form = $this->template->_form = $this['watchForm'];
@@ -194,6 +194,7 @@ class WatchPresenter extends BasePresenter {
 						$roles[$key] = $this->personRepository->getRoleName($rolesSession[$key]);
 					}
 				} else {
+					$roles = array();
 					$this->template->members = array();
 					foreach ($watch->getMembers($race) as $member) {
 						$this->template->members[$member->personId] = $member->displayName;

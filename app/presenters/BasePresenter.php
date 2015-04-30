@@ -58,6 +58,7 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 			$this->template->login="guest";		
 		}			
 		$this->setSeason();
+		$this->template->season = $this->season;
 		
 	}
 	
