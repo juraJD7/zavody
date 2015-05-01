@@ -80,8 +80,8 @@ class WatchFormFactory extends BaseFormFactory {
 				->setRequired('Vyber prosím středisko');
 		$form->addSelect("group", "Oddíl:", $this->loadGroups())
 				->setPrompt('-- vyber oddíl --')
-				->setAttribute('class', 'js-example-basic-single')
-				->setRequired('Vyber prosím oddíl');
+				->setAttribute('class', 'js-example-basic-single');
+				//->setRequired('Vyber prosím oddíl');
 		}
 		$form->addHidden("author", $this->user->getUserDetail()->ID);
 		$form->addText("name", "Název hlídky:")->setRequired();		
@@ -95,7 +95,7 @@ class WatchFormFactory extends BaseFormFactory {
 		return $form;
 	}
 	
-	public function formSucceeded(Form $form) {
+	public function formSucceeded(Form $form) {		
 		$values = $form->getHttpData();
 		if ($this->id) {
 			$row = $this->database->table('watch')

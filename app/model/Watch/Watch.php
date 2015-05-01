@@ -285,4 +285,16 @@ class Watch extends Nette\Object {
 		$this->repository->processAdvance($this, $race);
 	}
 	
+	public function getToken($raceId) {
+		return $this->repository->getToken($this->id, $raceId);
+	}
+	
+	public function setToken($raceId, $token) {
+		$this->repository->setToken($this->id, $raceId, $token);
+	}
+	
+	public function confirm($token) {
+		return $this->repository->confirm($this->id, $token);
+	}
+	
 }

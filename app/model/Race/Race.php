@@ -32,6 +32,8 @@ class Race extends \Nette\Object {
 	private $key;
 	private $targetGroup;
 	private $membersRange;
+	private $commanderEmail;
+	private $refereeEmail;
 	
 	private $editors = array();	
 	
@@ -175,12 +177,28 @@ class Race extends \Nette\Object {
 		$this->commander = $commander;
 	}
 	
+	public function getCommanderEmail() {
+		return $this->commanderEmail;
+	}
+
+	public function setCommanderEmail($email) {		
+		$this->commanderEmail = $email;
+	}	
+	
 	public function getReferee() {
 		return $this->referee;
 	}
 
 	public function setReferee($referee) {		
 		$this->referee = $referee;
+	}
+	
+	public function getRefereeEmail() {
+		return $this->refereeEmail;
+	}
+
+	public function setRefereeEmail($email) {		
+		$this->refereeEmail = $email;
 	}
 	
 	public function getTelephone() {
@@ -327,6 +345,18 @@ class Race extends \Nette\Object {
 		}
 		
 			
+	}
+	
+	public function getToken() {
+		return $this->repository->getToken($this->id);
+	}
+	
+	public function setToken($token) {
+		$this->repository->setToken($this->id, $token);
+	}
+	
+	public function confirm($token) {
+		return $this->repository->confirm($this->id, $token);
 	}
 	
 }

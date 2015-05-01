@@ -115,4 +115,16 @@ class RaceRepository {
 	public function getNumAdvance($raceId, $category) {
 		return $this->getDbMapper()->getNumAdvance($raceId, $category);
 	}
+	
+	public function getToken($raceId) {
+		return $this->getDbMapper()->getToken($raceId);
+	}
+	
+	public function setToken($raceId, $token) {
+		$this->getDbMapper()->setToken($raceId, $token);
+	}
+	
+	public function confirm($raceId, $token) {
+		return $this->getDbMapper()->confirm($raceId, $token);
+	}
 }

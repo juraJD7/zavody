@@ -1,0 +1,49 @@
+{block content}
+
+<h1>Potvrzení výsledků závodu</h1>
+
+<h3>Závod: {$race->name}</h3>
+	<table class="table">
+		<thead>
+			<tr>
+				<td>Jméno hlídky</td>
+				<td>Středisko</td>
+				<td>Oddíl</td>
+				<td>Počet členů</td>
+				<td>Kategorie</td>
+				<td>Počet bodů</td>
+				<td>Pořadí</td>
+				<td>Postup</td>
+			</tr>
+		</thead>
+		<tbody>
+		{foreach $watchs as $watch}
+		<tr>
+			<td>{$watch->name}</td>
+			<td>{$watch->troop->displayName}</td>
+			<td>{$watch->group->displayName}</td>
+			<td>{$watch->getNumRunners($race)}</td>
+			<td>{$watch->getCategory($race)}</td>
+			<td>{$watch->getPoints($race->id)}</td>
+			<td>{$watch->getOrder($race->id)}</td>
+			<td>{$watch->getAdvance($race->id)}</td>
+		</tr>
+		{/foreach}
+		</tbody>
+	</table>
+		
+		<button id="confirmButton" type="button">Povrdit výsledky</button>	
+<script>
+$("#confirmButton").on('click',function(event) {		
+	$.nette.ajax({
+		url: {link confirm!},
+		type: "POST",
+		data: {
+			raceId: {$race->id},
+			token: {$token}
+		}
+	});
+});
+</script>
+
+{/block}

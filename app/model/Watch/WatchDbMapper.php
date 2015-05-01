@@ -135,7 +135,7 @@ class WatchDbMapper extends BaseDbMapper {
 		} catch (Exception $ex) {
 			throw new DbSaveException("Hlídku se nepodařilo uložit do databáze", $ex);
 		}		
-		return true;
+		return $watchId;
 	}
 	
 	private function saveWatch(Watch $watch) {
@@ -147,8 +147,8 @@ class WatchDbMapper extends BaseDbMapper {
 			"town" => $watch->town,
 			"email_leader" => $watch->emailLeader,
 			"email_guide" => $watch->emailGuide
-		);		
-		if (isset($watch->id)) {			
+		);			
+		if (!is_null($watch->id)) {			
 			$rowWatch = $this->database->table('watch')
 				->where('id', $watch->id)
 				->update($data);
@@ -329,5 +329,29 @@ class WatchDbMapper extends BaseDbMapper {
 						"watch_id" => $watch->id
 					));
 		}
+	}
+	
+	public function getToken($watchId, $raceId) {
+		return $this->database->table('race_watch')
+				->where('watch_id', $watchId)
+				->where('race_id', $raceId)
+				->fetch()
+				->token;
+	}
+	
+	public function setToken($watchId, $raceId, $token) {
+		$this->database->table('race_watch')
+				->where('watch_id', $watchId)
+				->where('race_id', $raceId)
+				->update(array("token" => $token));
+	}
+	
+	public function confirm($watchId, $token) {
+		return $this->database->table('race_watch')
+				->where('watch_id', $watchId)
+				->where('token', $token)
+				->update(array(
+					"confirmed" => 1
+				));
 	}
 }

@@ -64,7 +64,9 @@ class RaceDbMapper extends BaseDbMapper {
 		$race->web = $row->web;
 		$race->capacity = $row->capacity;
 		$race->applicationDeadline = $row->application_deadline;
-		$race->targetGroup = $row->target_group;		
+		$race->targetGroup = $row->target_group;
+		$race->commanderEmail = $row->commander_email;
+		$race->refereeEmail = $row->referee_email;
 		return $race;
 	}
 	
@@ -270,5 +272,29 @@ class RaceDbMapper extends BaseDbMapper {
 			}			
 			return $counter;
 		}
+	}
+	
+	public function getToken($raceId) {
+		return $this->database->table('race')
+				->get($raceId)
+				->token;
+	}
+	
+	public function setToken($raceId, $token) {
+		$this->database->table('race')
+				->where('id', $raceId)
+				->update(array(
+					"token" => $token,
+					"results_confirmed" => 0
+				));
+	}
+	
+	public function confirm($raceId, $token) {
+		return $this->database->table('race')
+				->where('id', $raceId)
+				->where('token', $token)
+				->update(array(
+					"results_confirmed" => 1
+				));		
 	}
 }

@@ -1,0 +1,27 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Potvrzení výsledků závodu</title>
+    <style>    
+    </style>
+</head>
+<body>
+    <p>Nazdar,</p>
+
+    <p>na webu <a href="zavody.skauting.cz">Skautských závodů</a> byly zadány výsledky závodu, jehož jsi velitelem.
+	Je potřeba výsledky potvdrit zde: <a href="zavody.skauting.cz/race/confirm/?raceId={$race->id}&token={$race->token}">odkaz</a>.
+	</p>
+	
+	{include 'results.latte'}
+	
+	<p>
+		Se stiskem levice
+	</p>
+	
+	<p>
+		Tým skautských závodů,<br />
+		zavody@zavody.skauting.cz
+	</p>
+	
+</body>
+</html>

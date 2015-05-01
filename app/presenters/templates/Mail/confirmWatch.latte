@@ -1,0 +1,41 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Potvrzení účasti hlídky</title>
+    <style>    
+    </style>
+</head>
+<body>
+    <p>Nazdar,</p>
+
+    <p>na webu <a href="zavody.skauting.cz">Skautských závodů</a> byla přihlášena hlídka z Tvého oddílu:</p>
+
+	<p>
+	<h3>Závod: {$raceTitle}	</h3>
+		
+	<table class="table table-non-lined">
+		<tr><th>Založil: </th><td>{$watch->author->displayName}</td></tr>
+		<tr><th>Jméno: </th><td>{$watch->name}</td></tr>
+		<tr><th>Středisko: </th><td>{$watch->troop->displayName}</td></tr>
+		<tr><th>Oddíl: </th><td>{$watch->group->displayName}</td></tr>
+		<tr><th>Obec: </th><td>{$watch->town}</td></tr>
+		<tr><th>Email na vůdce: </th><td>{$watch->emailLeader}</td></tr>
+		<tr><th>Email na rádce: </th><td>{$watch->emailGuide}</td></tr>
+		<tr><th>Kategorie: </th> <td>{$watch->category}</td></tr>
+	</table>
+	
+	<p>
+		Účast hlídky potvrdíš, pokud klikneš zde: <a href="zavody.skauting.cz/watch/confirm/?watchId={$watch->id}&token={$token}">odkaz</a>.
+	</p>
+	
+	<p>
+		Přjeme hodně zdaru tvojí hlídce v závodu!
+	</p>
+	
+	<p>
+		Tým skautských závodů,<br />
+		zavody@zavody.skauting.cz
+	</p>
+	
+</body>
+</html>

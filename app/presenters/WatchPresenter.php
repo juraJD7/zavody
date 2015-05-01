@@ -2,7 +2,9 @@
 
 namespace App\Presenters;
 
-use Nette;
+use Nette,
+	Nette\Mail\Message,
+	Nette\Mail\SendmailMailer;
 
 /**
  * Description of WatchPresenter
@@ -57,7 +59,7 @@ class WatchPresenter extends BasePresenter {
 			$this->watchFormFactory->setRace($raceId);
 			$this->watchFormFactory->setTroop($this->troop);
 			$form = $this->watchFormFactory->create();
-			$form->onSuccess[] = function ($form) {
+			$form->onSuccess[] = function ($form) {				
 				$watchId = $this->getParameter('id');
 				if ($this["watchForm"]["send"]->isSubmittedBy()) {
 					$this->redirect("Watch:members");
@@ -87,7 +89,7 @@ class WatchPresenter extends BasePresenter {
 				if ($this["membersForm"]["send"]->isSubmittedBy()) {
 					$this->redirect("Watch:review");
 				}
-				if ($this["membersForm"]["save"]->isSubmittedBy()) {
+				if ($this["membersForm"]["save"]->isSubmittedBy()) {					
 					$this->redirect("Watch:detail", $watchId);
 				}
 				if ($this["membersForm"]["preview"]->isSubmittedBy()) {
@@ -155,12 +157,45 @@ class WatchPresenter extends BasePresenter {
 	}
 	
 	public function handleSave($raceId) {
-		$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));		
-		$save = $this->watchRepository->save($watch);
+		$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));
+		$race = $this->raceRepository->getRace($raceId);
+		$token = md5(uniqid(mt_rand(), true));		
+		$watchId = $this->watchRepository->save($watch);
+		$savedWatch = $this->watchRepository->getWatch($watchId);
+		$savedWatch->setToken($raceId, $token);
 		$this->getSession('watch')->remove();
-		if ($save) {			
-			$this->redirect("Race:detail $raceId");
+		if ($savedWatch) {	
+			$this->sendConfirmMail($race, $savedWatch);
+			$this->redirect("Race:detail", $raceId);
 		}
+	}
+	
+	public function renderConfirm() {
+		$watchId = $this->getParameter('watchId');
+		$token = $this->getParameter('token');
+		$watch = $this->watchRepository->getWatch($watchId);
+		$success = $watch->confirm($token);
+		$this->template->watch = $watch;
+		if ($success == 1) {
+			$this->template->success = TRUE;
+		} else {
+			$this->template->success = FALSE;
+		}		
+	}
+	
+	private function sendConfirmMail($race, $watch) {
+		$latte = new \Latte\Engine;
+			$params = array(
+				"watch" => $watch,
+				"raceTitle" => $race->title,
+				"token" => $watch->getToken($race->id)
+			);
+			$mail = new Message();
+			$mail->setFrom('Web skautských závodů <405245@mail.muni.cz>')
+					->addTo($watch->emailLeader)
+					->setHtmlBody($latte->renderToString(__DIR__ . '/templates/Mail/confirmWatch.latte', $params));
+			$mailer = new SendmailMailer;
+			$mailer->send($mail);
 	}
 
 	public function renderMembers($watchId, $raceId) {		

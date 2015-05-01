@@ -1,0 +1,14 @@
+{block content}
+
+<h1>Potvrzení účasti hlídky {$watch->name}</h1>
+
+
+<p>
+	{if $success}
+		Účast hlídky na závodě byla potvrzena. Vše je v pořádku.
+	{else}
+		Vyskytla se chyba, účast nebyla potvrzena. Kontaktujte vedoucího závodu.	
+	{/if}
+</p>
+
+{/block}

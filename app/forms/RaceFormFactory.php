@@ -76,7 +76,11 @@ class RaceFormFactory extends BaseFormFactory {
 		$form->addSelect("organizer", "Pořádající jednotka:", $this->loadUnits())
 				->setRequired();
 		$form->addText("commander", "Velitel závodu:");//->setRequired();
+		$form->addText("commander_email", "E-mail - velitel:")
+				->setType("email");//->setRequired();
 		$form->addText("referee", "Hlavní rozhodčí:");//->setRequired();
+		$form->addText("referee_email", "E-mail - rozhodčí:")
+				->setType("email");//->setRequired();
 		$form->addSelect("editors_input", "Editoři závodu:", $this->loadUsers())
 				->setPrompt('-- vybrat další editory z ISu --')
 				->setAttribute('class', 'js-example-basic-single')

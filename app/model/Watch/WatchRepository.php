@@ -140,7 +140,8 @@ class WatchRepository extends Nette\Object {
 		$watch->emailLeader = $basic["email_leader"];
 		$watch->emailGuide = $basic["email_guide"];
 		
-		foreach ($section->members as $key => $value) {
+		$members = ($section->members) ? $section->members : array();
+		foreach ($members as $key => $value) {
 			$member = $this->getPersonRepository()->getPerson($key);
 			$member->unit = $this->unitRepository->getUnit($section->units[$key]);
 			$member->addRace($basic["race"], $section->roles[$key]);
@@ -188,5 +189,17 @@ class WatchRepository extends Nette\Object {
 	
 	public function processAdvance(Watch $watch, Race $race) {
 		$this->getDbMapper()->processAdvance($watch, $race);
+	}
+	
+	public function getToken($watchId, $raceId) {
+		return $this->getDbMapper()->getToken($watchId, $raceId);
+	}
+	
+	public function setToken($watchId, $raceId, $token) {
+		$this->getDbMapper()->setToken($watchId, $raceId, $token);
+	}
+	
+	public function confirm($watchId, $token) {
+		return $this->getDbMapper()->confirm($watchId, $token);
 	}
 }

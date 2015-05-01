@@ -57,12 +57,15 @@ services:
 	- App\Forms\WatchFormFactory
 	- App\Forms\MembersFormFactory
 	- App\Forms\PointsFormFactory
+	- App\Forms\MailFormFactory
 	- ArticleRepository
 	- ArticleDbMapper
 	- CommentRepository
 	- CommentDbMapper
 	- FileDbMapper
 	- FileRepository
+	- MailRepository
+	- MailDbMapper
 #	- PersonRepository
 #	- PersonDbMapper
 	- PersonIsMapper

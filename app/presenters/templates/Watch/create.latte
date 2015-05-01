@@ -7,6 +7,10 @@
 <fieldset>
 <legend>Krok 1 - základní nastavení</legend>	
 
+<ul class="errors" n:if="$form->hasErrors()">
+        <li n:foreach="$form->errors as $error">{$error}</li>
+</ul>
+
 <table>
 <tr>
 	<th>{label race /}</th>
