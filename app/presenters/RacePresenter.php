@@ -140,6 +140,34 @@ class RacePresenter extends BasePresenter {
 		}	
 	}
 	
+	public function renderMy() {
+		if ($this->user->isLoggedIn()) {
+			//všechny, které založil akt. uživatel		
+			$editor = $this->raceRepository->getRacesByEditor($this->user->id);	
+			//pro činovníky / administrátory pořádající jendotky
+			if ($this->user->isOfficial()) {
+				$administrator = $this->raceRepository->getRacesByOrganizer($this->skautIS->getUser()->getUnitId());
+			}
+			//jsem účastníkem
+			$participant = $this->raceRepository->getRacesByParticipant($this->user->id);		
+			$this->template->races = $editor + $administrator + $participant;
+			krsort($this->template->races);
+			$roles = array();
+			foreach (array_keys($this->template->races) as $key) {
+				if (array_key_exists($key, $editor)) {
+					$roles[$key] = "Editor závodu";
+				} else if (array_key_exists($key, $administrator)) {
+					$roles[$key] = "Činovník pořádající jednotky";
+				} else if (array_key_exists($key, $participant)) {
+					$roles[$key] = "Účastník závodu";
+				}
+			}
+			$this->template->roles = $roles;
+		} else {
+			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
+		}
+	}
+	
 	public function handleConfirm() {
 		if($this->isAjax()) {
 			$raceId = $this->getHttpRequest()->getPost('raceId');

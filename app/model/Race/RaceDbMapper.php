@@ -160,6 +160,17 @@ class RaceDbMapper extends BaseDbMapper {
 		return $this->database->table('round')->where('short', $round)->fetch();
 	} 
 	
+	/**
+	 * 
+	 * @param int $seasonId
+	 * @return \Nette\Database\ActiveRow
+	 */
+	public function getSeasonName($seasonId) {
+		$season = $this->database->table('season')->get($seasonId);
+		$competition = $this->database->table('competition')->get($season->competition)->short;
+		return "$competition $season->year";
+	}
+	
 	public function getRegion($id) {
 		$region = $this->database->table('race')->get($id)->region;		
 		return $this->database->table('region')->get($region);
@@ -297,4 +308,44 @@ class RaceDbMapper extends BaseDbMapper {
 					"results_confirmed" => 1
 				));		
 	}
+	
+	public function getRacesByEditor(RaceRepository $repository, $userId) {
+		$rows = $this->database->table('editor_race')
+				->where('user_id', $userId);
+		$races = array();
+		foreach ($rows as $row) {
+			$race = $this->getRace($row->race_id);
+			$race->repository = $repository;
+			$races[$race->id] = $race;
+		}
+		return $races;
+	}
+	
+	public function getRacesByOrganizer(RaceRepository $repository, $unitId) {
+		$rows = $this->database->table('race')
+				->where('organizer', $unitId);
+		$races = array();
+		foreach ($rows as $row) {
+			$race = $this->loadFromActiveRow($row);
+			$race->repository = $repository;
+			$races[$race->id] = $race;
+		}
+		return $races;
+	}
+	
+	public function getRacesByParticipant(RaceRepository $repository, $personId) {
+		$rows = $this->database->table('participant')
+				->where('person_id', $personId);
+		$races = array();
+		foreach ($rows as $row) {
+			$raceIds = $this->database->table('participant_race')
+					->where('participant_id', $row->id);
+			foreach ($raceIds as $raceId) {
+				$race = $this->getRace($raceId);
+				$race->repository = $repository;
+				$races[$race->id] = $race;
+			}
+		}
+		return $races;
+	}	
 }

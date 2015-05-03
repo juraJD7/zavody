@@ -16,6 +16,7 @@ class Question extends \Nette\Object {
 	private $race;
 	private $season;
 	private $answers;
+	private $categories = array();
 	
 	public function __construct($id) {
 		if(!is_int($id)) {
@@ -89,6 +90,12 @@ class Question extends \Nette\Object {
 			$this->answers = $this->repository->loadAnswers($this->id);
 		}
 		return $this->answers;
-	}
+	}	
 	
+	public function getCategories() {
+		if (empty($this->categories)) {
+			$this->categories = $this->repository->getCategoriesByQuestion($this->id);
+		}
+		return $this->categories;
+	}
 }

@@ -21,10 +21,14 @@ class UserRepository {
 	}
 	
 	public function getUser($id) {		
-		if ($this->isMapper->idLoggedIn()) {
+		if ($this->isMapper->isLoggedIn()) {
+			try {
 			$user = $this->isMapper->getUser($id);
 			$user->admin = $this->dbMapper->isAdmin($user->id);
 			$this->dbMapper->saveUser($user);
+			} catch (Skautis\Wsdl\PermissionException $ex) {
+				$user = $this->dbMapper->getUser($id);
+			}
 		} else {
 			$user = $this->dbMapper->getUser($id);
 		}

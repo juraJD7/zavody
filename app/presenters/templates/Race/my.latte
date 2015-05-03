@@ -1,0 +1,30 @@
+{block content}
+
+<h2>Moje závody</h2>
+
+<table class="table table-bordered table-centred">
+	<tr>
+		<th>Soutěž (Ročník)</th><th>Název kola</th><th>Druh kola</th><th>Moje role</th><th>Akce</th>
+	</tr>
+	
+	{foreach $races as $race}
+		<tr>
+			<td>{$race->seasonName}</td>
+			<td>{$race->name}</td>
+			<td>{$race->round->name}</td>
+			<td>
+				{$roles[$race->id]}
+			</td>			
+			<td>
+				<a n:href="Race:detail $race->id">Zobrazit</a>
+				{if $race->canEdit($user->id)}
+				<a n:href="Race:edit $race->id">Upravit</a>
+				<a n:href="Race:administrate $race->id">Spravovat</a>
+				{/if}
+			</td>
+		</tr>
+	{/foreach}
+	
+</table>	
+
+{/block}

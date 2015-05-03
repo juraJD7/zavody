@@ -1,0 +1,44 @@
+{block content}
+
+<h1>Moje soubory</h1>
+
+<p>
+	<a n:href="File:upload">Nahrát nový soubor</a>
+</p>
+	
+{include '../pagination.latte'}
+
+<table class="table">
+	<tr>
+		<th>&nbsp;</th>
+		<th>Název</th>
+		<th>Krátký popis</th>
+		<th>Velikost</th>
+		<th>Nahrál</th>
+		<th>Kategorie</th>
+		<th>&nbsp;</th>
+	</tr>
+{foreach $files as $file}
+	<tr>
+		<td><img src="{$file->getIconPath()}" title="{$file->type}"></td>
+		<td><a n:href="File:download $file->id">{$file->name}</a></td>
+		<td>{$file->description}</td>
+		<td>{$file->getFormattedSize()}</td>
+		<td>{$file->author->userName}</td>
+		<td>
+			{foreach $file->categories as $category}
+				{$category->name}
+				{sep}, {/sep}
+			{/foreach}
+		</td>
+		<td>		
+			<a n:href="File:edit $file->id">Upravit</a>
+			<a n:href="File:delete $file->id">Smazat</a>		
+		</td>
+	</tr>
+{/foreach}
+</table>
+
+{include '../pagination.latte'}
+
+{/block}

@@ -202,4 +202,20 @@ class WatchRepository extends Nette\Object {
 	public function confirm($watchId, $token) {
 		return $this->getDbMapper()->confirm($watchId, $token);
 	}
+	
+	public function getWatchsByAuthor($userId) {
+		return $this->getDbMapper()->getWatchsByAuthor($this, $userId);
+	}
+	
+	public function getWatchsByUnit($unitId) {
+		return $this->getDbMapper()->getWatchsByUnit($this, $unitId);
+	}
+	
+	public function getWatchsByParticipant($personId) {
+		return $this->getDbMapper()->getWatchsByParticipant($this, $personId);
+	}	
+	
+	public function getSeasonName($seasonId) {
+		return $this->getDbMapper()->getSeasonName($seasonId);
+	}
 }

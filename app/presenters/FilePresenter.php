@@ -110,7 +110,7 @@ class FilePresenter extends BasePresenter {
 		if ($this->paginator->itemCount === NULL) {		
 			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
 			$this->paginator->setItemCount($this->fileRepository->countAll($this->category));
-			$this->paginator->setItemsPerPage(5); 
+			$this->paginator->setItemsPerPage(10); 
 			$this->paginator->setPage($page);			
 		}
 		
@@ -129,6 +129,23 @@ class FilePresenter extends BasePresenter {
 		$this->template->files = $this->files;
 		
 		$this->template->categories = $this->fileRepository->getAllCategories();
+	}
+	
+	public function renderMy() {		
+		if ($this->user->isLoggedIn()) {
+			$page = $this->getParameter('page');				
+			$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$paginator->setItemCount($this->fileRepository->countAllAuthor($this->user->id));
+			$paginator->setItemsPerPage(10); 
+			$paginator->setPage($page);			
+
+			$this->template->paginator = $paginator;
+			$this->template->actionPaginator = "my";
+			$this->template->params = array();
+			$this->template->files = $this->fileRepository->getFilesByAuthor($paginator, $this->user->id);	
+		} else {
+			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
+		}
 	}
 	
 	public function handleChangeCategory() {

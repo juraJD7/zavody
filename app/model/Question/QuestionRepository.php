@@ -27,6 +27,10 @@ class QuestionRepository {
 		return $this->dbMapper->getQuestions($this, $paginator, $category);
 	}
 	
+	public function getQuestionsByAuthor($paginator, $userId) {
+		return $this->dbMapper->getQuestionsByAuthor($this, $paginator, $userId);
+	}
+	
 	public function getCategoriesByQuestion($id) {
 		return $this->dbMapper->getCatogoriesByQuestion($id);
 	}
@@ -41,6 +45,10 @@ class QuestionRepository {
 	
 	public function countAll($category = NULL) {
 		return $this->dbMapper->countAll($category);
+	}
+	
+	public function countAllAuthor($userId) {
+		return $this->dbMapper->countAllAuthor($userId);
 	}
 	
 	public function loadAnswers($id) {

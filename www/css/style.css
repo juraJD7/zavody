@@ -74,3 +74,8 @@ form .error {
 .table-non-lined th {
     border-top: none !important;
 }
+
+.table-centred td {
+	align: center;
+	vertical-align: middle;
+}

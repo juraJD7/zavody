@@ -74,7 +74,7 @@ class PhotoPresenter extends BasePresenter {
 		if ($this->paginator->itemCount === NULL) {
 			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
 			$this->paginator->setItemCount($this->photoRepository->countAllPublic());
-			$this->paginator->setItemsPerPage(5); 
+			$this->paginator->setItemsPerPage(6); 
 			$this->paginator->setPage($this->page);
 		}		
 		$this->template->photos = $this->photoRepository->getPublicPhotos($this->paginator);
@@ -83,6 +83,26 @@ class PhotoPresenter extends BasePresenter {
 		$this->template->paginator = $this->paginator;
 		$this->template->edit = $this->edit;
 		$this->template->page = $this->page;
+	}
+	
+	public function renderMy() {
+		if ($this->user->isLoggedIn()) {
+			$this->page = $this->getParameter('page');
+			if ($this->paginator->itemCount === NULL) {
+				$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+				$this->paginator->setItemCount($this->photoRepository->countAllAuthor($this->user->id));
+				$this->paginator->setItemsPerPage(6); 
+				$this->paginator->setPage($this->page);
+			}		
+			$this->template->photos = $this->photoRepository->getPhotosByAuthor($this->paginator, $this->user->id);
+			$this->template->actionPaginator = $this->actionPaginator;
+			$this->template->params = $this->params;
+			$this->template->paginator = $this->paginator;
+			$this->template->edit = $this->edit;
+			$this->template->page = $this->page;
+		} else {
+			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
+		}
 	}
 	
 	public function handleDelete($id, $page) {

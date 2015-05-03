@@ -102,6 +102,24 @@ class QuestionPresenter extends BasePresenter {
 		$this->template->categories = $this->questionRepository->getAllCategories();		
 	}
 	
+	public function renderMy() {		
+		if ($this->user->isLoggedIn()) {
+			$page = $this->getParameter('page');	
+
+			$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$paginator->setItemCount($this->questionRepository->countAllAuthor($this->user->id));
+			$paginator->setItemsPerPage(5); 
+			$paginator->setPage($page);	
+
+			$this->template->paginator = $paginator;
+			$this->template->actionPaginator = "my";
+			$this->template->params = array();		
+			$this->template->questions = $this->questionRepository->getQuestionsByAuthor($paginator, $this->user->id);
+		} else {
+			throw new Nette\Security\AuthenticationException("Pro tuto funkci je potřeba se přihlásit.");
+		}
+	}
+	
 	public function handleChangeCategory() {
 		if($this->isAjax()) {				
 			$httpRequest = $this->context->getByType('Nette\Http\Request');

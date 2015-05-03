@@ -19,7 +19,7 @@ class UserIsMapper extends BaseISMapper {
 		return $user;
 	}
 	
-	public function idLoggedIn() {
+	public function isLoggedIn() {
 		return $this->skautIS->getUser()->isLoggedIn();
 	}
 }

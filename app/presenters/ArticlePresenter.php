@@ -106,13 +106,30 @@ class ArticlePresenter extends BasePresenter {
 		$page = $this->getParameter('page');
 		$paginator = new Nette\Utils\Paginator;
 		$paginator->setItemCount($this->articleRepository->countAll());
-		$paginator->setItemsPerPage(2); 
+		$paginator->setItemsPerPage(5); 
 		$paginator->setPage($page);
 		$this->template->paginator = $paginator;
 		$this->template->actionPaginator = "default";
 		$this->template->params = array();
 		
 		$this->template->articles = $this->articleRepository->getArticles($paginator, \Article::PUBLISHED);
+	}
+	
+	public function renderMy() {
+		if ($this->user->isLoggedIn()) {
+		$page = $this->getParameter('page');
+		$paginator = new Nette\Utils\Paginator;
+		$paginator->setItemCount($this->articleRepository->countAllAuthor($this->user->id));
+		$paginator->setItemsPerPage(5); 
+		$paginator->setPage($page);
+		$this->template->paginator = $paginator;
+		$this->template->actionPaginator = "my";
+		$this->template->params = array();
+		
+		$this->template->articles = $this->articleRepository->getArticlesByAuthor($paginator, $this->user->id);
+		} else {
+			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
+		}
 	}
 	
 	public function handleDelete($articleId) {

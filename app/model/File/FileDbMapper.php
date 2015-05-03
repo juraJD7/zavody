@@ -38,6 +38,20 @@ class FileDbMapper extends BaseDbMapper {
 		}		
 		return $files;
 	}
+	
+	public function getFilesByAuthor(FileRepository $repository, $paginator, $userId) {
+		$table = $this->database->table('file')
+				->where('author', $userId)
+				->order('id DESC')
+				->limit($paginator->getLength(), $paginator->getOffset());	
+		$files = array();
+		foreach ($table as $row) {
+			$file = $this->getFile($row->id);
+			$file->repository = $repository;
+			$files[] = $file;
+		}		
+		return $files;
+	}
 
 	public function getWhiteList() {
 		$table = $this->database->table('whitelist');
@@ -101,6 +115,12 @@ class FileDbMapper extends BaseDbMapper {
 					->count();
 		}		
 		return $this->database->table('file')
+				->count();
+	}
+	
+	public function countAllAuthor($userId) {
+		return $this->database->table('file')
+				->where('author', $userId)
 				->count();
 	}
 }

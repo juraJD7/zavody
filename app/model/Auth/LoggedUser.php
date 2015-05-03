@@ -75,4 +75,23 @@ class LoggedUser extends User {
 		return $this->userName;
 	}
 	
+	/**
+	 * Zjistí, zda přihlášený uživatel patří do vyššího vedení své jednotky
+	 * 
+	 * @return TRUE pokud je uživatelova role v jednotce Vedoucí/administrátor nebo aktivní činovník nebo
+	 */
+	public function isOfficial() {
+		$officialKeys = array(
+			"vedouciDruzina", "cinovnikDruzina", "vedouciOddil", "cinovnikOddil", "vedouciStredisko", "cinovnikStredisko",
+			"vedouciOkres", "cinovnikOkres", "vedouciKraj", "cinovnikKraj", "vedouciUstredi", "cinovnikUstredi"
+		);
+		$roleId = $this->getSkautISRole();
+		$roles = $this->getAllSkautISRoles();
+		foreach ($roles as $role) {
+			if ($role->ID == $roleId) {
+				return in_array($role->Key, $officialKeys);
+			}
+		}
+	}
+	
 }

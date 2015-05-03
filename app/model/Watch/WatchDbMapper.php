@@ -354,4 +354,45 @@ class WatchDbMapper extends BaseDbMapper {
 					"confirmed" => 1
 				));
 	}
+	
+	public function getWatchsByAuthor(WatchRepository $repository, $userId) {
+		$rows = $this->database->table('watch')
+				->where('author', $userId);
+		$watchs = array();
+		foreach ($rows as $row) {
+			$watchs[$row->id] = $this->getWatch($row->id, $repository);			
+		}
+		return $watchs;
+	}
+	
+	public function getWatchsByUnit(WatchRepository $repository, $unitId) {
+		$rows = $this->database->table('watch')
+				->where('group = ? OR troop = ?', $unitId, $unitId);
+		$watchs = array();
+		foreach ($rows as $row) {
+			$watchs[$row->id] = $this->getWatch($row->id, $repository);			
+		}
+		return $watchs;		
+	}
+	
+	public function getWatchsByParticipant(WatchRepository $repository, $personId) {
+		$rows = $this->database->table('participant')
+				->where('person_id', $personId);
+		$watchs = array();
+		foreach ($rows as $row) {
+			$watchs[$row->watch] = $this->getWatch($row->watch, $repository);
+		}
+		return $watchs;
+	}
+	
+	/**
+	 * 
+	 * @param int $seasonId
+	 * @return \Nette\Database\ActiveRow
+	 */
+	public function getSeasonName($seasonId) {
+		$season = $this->database->table('season')->get($seasonId);
+		$competition = $this->database->table('competition')->get($season->competition)->short;
+		return "$competition $season->year";
+	}
 }

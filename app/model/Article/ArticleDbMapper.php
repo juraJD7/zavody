@@ -42,11 +42,12 @@ class ArticleDbMapper extends BaseDbMapper {
 	public function getArticles(Nette\Utils\Paginator $paginator, ArticleRepository $repository, $status, $category) {
 		$rows = $this->database->table('article')				
 				->order('modified DESC');
+		
 		if (is_null($status)) {
 			$rows = $rows->where('status',  $status);
-		}		
+		}			
 		//to DO CATEGORY
-		$rows = $rows->limit($paginator->getLength(), $paginator->getOffset());
+		$rows = $rows->limit($paginator->getLength(), $paginator->getOffset());		
 		$articles = array();
 		foreach ($rows as $row) {
 			$article = $this->getArticle($row->id);
@@ -64,11 +65,23 @@ class ArticleDbMapper extends BaseDbMapper {
 	 */
 	public function countAll($status, $category) {
 		$rows = $this->database->table('article');
-		if (is_null($status)) {
+		if (!is_null($status)) {
 			$rows = $rows->where('status',  $status);
 		}		
 		//to DO CATEGORY
 				
+		return $rows->count();
+	}
+	
+	/**
+	 * 
+	 * @param int $status
+	 * @param int $category
+	 * @return int
+	 */
+	public function countAllAuthor($userId) {
+		$rows = $this->database->table('article')
+				->where($userId);
 		return $rows->count();
 	}
 	
@@ -84,5 +97,19 @@ class ArticleDbMapper extends BaseDbMapper {
 		return $this->database->table('article')
 				->get($id)->
 				delete();
+	}
+	
+	public function getArticlesByAuthor(ArticleRepository $repository, $paginator, $userId) {
+		$rows = $this->database->table('article')
+				->where('author', $userId)
+				->order('modified DESC')
+				->limit($paginator->getLength(), $paginator->getOffset());
+		$articles = array();
+		foreach ($rows as $row) {
+			$article = $this->getArticle($row->id);
+			$article->repository = $repository;
+			$articles[] = $article; 
+		}
+		return $articles;
 	}
 }

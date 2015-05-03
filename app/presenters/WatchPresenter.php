@@ -183,6 +183,34 @@ class WatchPresenter extends BasePresenter {
 		}		
 	}
 	
+	public function renderMy() {
+		if ($this->user->isLoggedIn()) {
+			//všechny, které založil akt. uživatel		
+			$author = $this->watchRepository->getWatchsByAuthor($this->user->id);	
+			//pro činovníky / administrátory střediska / oddílu
+			if ($this->user->isOfficial()) {
+				$administrator = $this->watchRepository->getWatchsByUnit($this->skautIS->getUser()->getUnitId());
+			}
+			//jsem účastníkem
+			$participant = $this->watchRepository->getWatchsByParticipant($this->user->id);		
+			$this->template->watchs = $author + $administrator + $participant;
+			krsort($this->template->watchs);
+			$roles = array();
+			foreach (array_keys($this->template->watchs) as $key) {
+				if (array_key_exists($key, $author)) {
+					$roles[$key] = "Správce hlídky";
+				} else if (array_key_exists($key, $administrator)) {
+					$roles[$key] = "Hlídka mé jednotky";
+				} else if (array_key_exists($key, $participant)) {
+					$roles[$key] = "Člen hlídky";
+				}
+			}
+			$this->template->roles = $roles;
+		} else {
+			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
+		}
+	}
+	
 	private function sendConfirmMail($race, $watch) {
 		$latte = new \Latte\Engine;
 			$params = array(

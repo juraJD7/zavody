@@ -297,4 +297,11 @@ class Watch extends Nette\Object {
 		return $this->repository->confirm($this->id, $token);
 	}
 	
+	public function getSeasonName() {
+		if ($this->getRaces()) {
+			return $this->repository->getSeasonName($this->races[0]->season);
+		}
+		return NULL;
+	}
+	
 }

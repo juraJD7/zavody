@@ -29,6 +29,10 @@ class FileRepository {
 		return $this->dbMapper->getFiles($this, $paginator, $category);
 	}
 	
+	public function getFilesByAuthor($paginator, $userId) {
+		return $this->dbMapper->getFilesByAuthor($this, $paginator, $userId);
+	}
+	
 	public function getWhiteList() {
 		return $this->dbMapper->getWhiteList();
 	}
@@ -53,6 +57,10 @@ class FileRepository {
 	
 	public function countAll($category = NULL) {
 		return $this->dbMapper->countAll($category);
+	}
+	
+	public function countAllAuthor($userId) {
+		return $this->dbMapper->countAllAuthor($userId);
 	}
 	
 	public function getPath($id) {

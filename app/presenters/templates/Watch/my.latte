@@ -1,0 +1,34 @@
+{block content}
+
+<h2>Moje hlídky</h2>
+
+<table class="table table-bordered table-centred">
+	<tr>
+		<th>Název</th><th>Oddíl</th><th>Soutěž (Ročník)</th><th>Přihlášena do závodů</th><th>Funkce v hlídce</th><th>Akce</th>
+	</tr>
+	
+	{foreach $watchs as $watch}
+		<tr>
+			<td>{$watch->name}</td>
+			<td>{$watch->group->displayName}</td>
+			<td>{$watch->seasonName}</td>
+			<td>
+				{foreach $watch->races as $race}
+					{$race->name}<br />	
+				{/foreach}
+			</td>
+			<td>
+				{$roles[$watch->id]}
+			</td>			
+			<td>
+				<a n:href="Watch:detail $race->id">Zobrazit</a>
+				{if $race->canEdit($user->id)}
+				<a n:href="Watch:edit $race->id">Upravit</a>
+				{/if}
+			</td>
+		</tr>
+	{/foreach}
+	
+</table>	
+
+{/block}

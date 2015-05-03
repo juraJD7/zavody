@@ -27,7 +27,11 @@ class ArticleRepository {
 	}
 	
 	public function countAll($status = NULL, $category = NULL) {
-		$this->dbMapper->countAll($status, $category);
+		return $this->dbMapper->countAll($status, $category);
+	}
+	
+	public function countAllAuthor($userId) {
+		return $this->dbMapper->countAllAuthor($userId);
 	}
 	
 	public function delete($id) {
@@ -36,5 +40,9 @@ class ArticleRepository {
 	
 	public function getNumComments($articleId) {
 		return $this->commentRepository->countAll($articleId);
+	}
+	
+	public function getArticlesByAuthor($paginator, $userId) {
+		return $this->dbMapper->getArticlesByAuthor($this, $paginator, $userId);
 	}
 }

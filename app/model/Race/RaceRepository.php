@@ -55,6 +55,10 @@ class RaceRepository {
 		return $this->getDbMapper()->getRound($id);
 	}
 	
+	public function getSeasonName($seasonId) {
+		return $this->getDbMapper()->getSeasonName($seasonId);
+	}
+	
 	public function getRegion($id) {
 		return $this->getDbMapper()->getRegion($id);
 	}
@@ -127,4 +131,16 @@ class RaceRepository {
 	public function confirm($raceId, $token) {
 		return $this->getDbMapper()->confirm($raceId, $token);
 	}
+	
+	public function getRacesByEditor($userId) {
+		return $this->getDbMapper()->getRacesByEditor($this, $userId);
+	}
+	
+	public function getRacesByOrganizer($unitId) {
+		return $this->getDbMapper()->getRacesByOrganizer($this, $unitId);
+	}
+	
+	public function getRacesByParticipant($personId) {
+		return $this->getDbMapper()->getRacesByParticipant($this, $personId);
+	}	
 }

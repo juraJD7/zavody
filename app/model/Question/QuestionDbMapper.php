@@ -51,14 +51,28 @@ class QuestionDbMapper extends BaseDbMapper {
 		return $questions;
 	}
 	
+	public function getQuestionsByAuthor(QuestionRepository $repository, $paginator, $userId) {
+		$table = $this->database->table('question')
+				->where('author', $userId)
+				->order('posted DESC')
+				->limit($paginator->getLength(), $paginator->getOffset());	
+		$questions = array();
+		foreach ($table as $row) {
+			$question = $this->getQuestion($row->id);
+			$question->repository = $repository;
+			$questions[] = $question;
+		}
+		return $questions;
+	}
+	
 	public function getCatogoriesByQuestion($id) {
 		$join =  $this->database->table('question')
 				->get($id)
-				->related('category_question');
+				->related('category_question');		
 		$categories = array();
 		foreach ($join as $category) {			
 			$categories[] = $this->database->table('category')
-					->where($category->category_id)
+					->where('id', $category->category_id)
 					->fetch();
 		}
 		return $categories;
@@ -92,10 +106,16 @@ class QuestionDbMapper extends BaseDbMapper {
 			return $this->database->table('category_question')
 					->where('category_id',$category)
 					->count();
-		}		
+		}
 		return $this->database->table('question')
 				->count();
 	}
+	
+	public function countAllAuthor($userId) {		
+		return $this->database->table('question')
+				->where('author', $userId)
+				->count();
+	}	
 	
 	public function loadAnswers($id) {		
 		$table = $this->database->table('answer')

@@ -100,7 +100,7 @@ class Article extends Nette\Object {
 		return $this->published;
 	}
 
-	public function setPublished(DateTime $published) {
+	public function setPublished(DateTime $published = NULL) {
 		$this->published = $published;
 	}
 	

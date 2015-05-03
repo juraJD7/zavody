@@ -55,12 +55,16 @@ class Race extends \Nette\Object {
 	public function getSeason() {
 		return $this->season;
 	}
-
+	
 	public function setSeason($season) {
 		if(!is_int($season)) {
 			throw new \Nette\MemberAccessException("Parametr season musí být integer.");
 		}
 		$this->season = $season;
+	}
+	
+	public function getSeasonName() {
+		return $this->repository->getSeasonName($this->season);
 	}
 	
 	public function getName() {

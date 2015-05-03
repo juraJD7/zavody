@@ -1,0 +1,46 @@
+{block content}
+
+<h1>Moje otázky</h1>
+
+<p>
+{control questionForm}
+</p>
+
+
+{include '../pagination.latte'}
+
+{foreach $questions as $question}
+	<div class="panel panel-default">
+		<div class="panel-heading"><span style="floaft: left">{$question->author->userName}, dne: {$question->posted|date:'d.m.Y H:i'}</span>
+		<span style="float: right">
+			{foreach $question->categories as $category}
+				{$category->name}
+				{sep}, {/sep}
+			{/foreach}
+		</span>		
+		</div>
+		<div class="panel-body">
+		  {$question->text}
+		   <table class="table">
+		  {if $question->answers}			 
+			  {foreach $question->answers as $answer}
+				  <tr>
+					  <td>{$answer->text}</td>
+					  <td>{$answer->author->userName}, {$answer->posted|date:'d.m.Y H:i'}</td>					  
+				  </tr>
+			  {/foreach}			  
+		  {/if}
+		  {if $user->isLoggedIn() && ($user->isInRole('admin') || $user->data['id'] == $question->race->author)}
+			  {form answerForm-$question->id}
+				  <tr><td>{input text}</td><td>{input send}</td><tr>
+			  {/form}
+		  {/if}
+		   </table>
+		</div>
+	</div>
+	<hr />
+{/foreach}
+
+{include '../pagination.latte'}
+
+{/block}
