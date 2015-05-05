@@ -51,8 +51,7 @@ class WatchPresenter extends BasePresenter {
 	private $troop;
 
 	public function createComponentWatchForm() {
-		if ($this->user->isLoggedIn()) {
-			$this->watchFormFactory->setSeason($this->season);
+		if ($this->user->isLoggedIn()) {			
 			$watchId = $this->getParameter('id');
 			$this->watchFormFactory->setId($watchId);
 			$raceId = $this->getParameter('race');

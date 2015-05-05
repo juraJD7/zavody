@@ -29,6 +29,7 @@ class ArticleDbMapper extends BaseDbMapper {
 		$article->modified = $row->modified;
 		$article->published = $row->published;
 		$article->race = $row->race;
+		$article->season = $row->season;
 		$article->adminOnly = $row->admin_only;
 		
 		return $article;
@@ -41,6 +42,7 @@ class ArticleDbMapper extends BaseDbMapper {
 		$rows = $this->database->table('article')
 				->where('admin_only', $adminOnly)
 				->where('race', NULL)
+				->where('season', $this->season)
 				->where('status', Article::PUBLISHED)
 				->order('modified DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());	
@@ -63,6 +65,7 @@ class ArticleDbMapper extends BaseDbMapper {
 		}
 		$table = $this->database->table('article')
 				->where('id IN', $articleIds)
+				->where('season', $this->season)
 				->order('modified DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());
 		$articles = array();
@@ -105,9 +108,9 @@ class ArticleDbMapper extends BaseDbMapper {
 			$counter = 0;
 			foreach ($table as $row) {
 				$article = $this->database->table('article')
-					->where('status', Article::PUBLISHED)
+					->where('status', Article::PUBLISHED)					
 					->get($row->article_id);
-				if ($article->admin_only == $adminOnly) {
+				if ($article->admin_only == $adminOnly && $article->season == $this->season) {
 					$counter++;
 				}
 			}
@@ -116,6 +119,7 @@ class ArticleDbMapper extends BaseDbMapper {
 		return $this->database->table('article')
 				->where('admin_only', $adminOnly)
 				->where('race', NULL)
+				->where('season', $this->season)
 				->where('status', Article::PUBLISHED)
 				->count();
 	}
@@ -123,6 +127,7 @@ class ArticleDbMapper extends BaseDbMapper {
 	
 	public function countAllAuthor($userId) {
 		$rows = $this->database->table('article')
+				->where('season', $this->season)
 				->where('author', $userId);
 		return $rows->count();
 	}
@@ -151,6 +156,7 @@ class ArticleDbMapper extends BaseDbMapper {
 	public function getArticlesByAuthor(ArticleRepository $repository, $paginator, $userId) {
 		$rows = $this->database->table('article')
 				->where('author', $userId)
+				->where('season', $this->season)
 				->order('modified DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());
 		$articles = array();

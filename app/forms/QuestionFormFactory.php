@@ -44,8 +44,7 @@ class QuestionFormFactory extends BaseFormFactory {
 	 * @return Form
 	 */
 	public function create()
-	{
-		
+	{		
 		$categories = $this->questionRepository->getAllCategories('question');
 		
 		$items = array();
@@ -81,10 +80,10 @@ class QuestionFormFactory extends BaseFormFactory {
 	
 	public function formSucceeded(Form $form, $values)
 	{		
-		$values->race = $values->race ?: NULL;
+		$values->race = $values->race ?: NULL;		
 		$user = $this->skautIS->usr->UserDetail()->ID;
 		$data = array(
-			'season' => 1,
+			'season' => $this->season,
 			'text' => $values->text,
 			'posted' => date("Y-m-d H:i:s"),
 			'changed' => date("Y-m-d H:i:s"),

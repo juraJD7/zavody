@@ -44,8 +44,7 @@ class RacePresenter extends BasePresenter {
 	private $watchs;
 
 	public function createComponentRaceForm() {
-		if ($this->user->isLoggedIn()) {
-		$this->raceFormFactory->setSeason($this->season);
+		if ($this->user->isLoggedIn()) {		
 		$raceId = $this->getParameter('id');
 		$this->raceFormFactory->setId($raceId);
 		$form = $this->raceFormFactory->create();

@@ -19,6 +19,7 @@ class File extends Nette\Object {
 	private $type;
 	private $size;
 	private $author;
+	private $competition;
 	
 	private $iconPath;
 	private $categories;
@@ -68,6 +69,17 @@ class File extends Nette\Object {
 	
 	public function setType($type) {
 		$this->type = $type;
+	}
+	
+	public function getCompetition() {
+		return $this->competition;
+	}
+	
+	public function setCompetition($competition) {
+		if(!is_int($competition)) {
+			throw new \Nette\InvalidArgumentException("Parametr season musí být integer.");
+		}
+		$this->competition = $competition;
 	}
 	
 	public function getSize() {

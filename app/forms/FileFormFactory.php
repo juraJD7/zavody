@@ -82,6 +82,8 @@ class FileFormFactory extends BaseFormFactory {
 			$user = $this->skautIS->usr->UserDetail()->ID;	
 			$type = $values->file->getContentType();
 			if(in_array($type, $whiteList)) {
+				$competition = $this->database->table('season')
+						->get($this->season)->competition;
 				if (!is_null($this->id)) {
 					//detele old file
 					$file = $this->database->table('file')->get($this->id);
@@ -96,7 +98,8 @@ class FileFormFactory extends BaseFormFactory {
 					'description' => $values->description,
 					'type' => $type,
 					'size' => $values->file->getSize(),
-					'author' => $user
+					'author' => $user,
+					'competition' => $competition
 				);
 				if (!is_null($this->id)) {
 					$file->update($data);					

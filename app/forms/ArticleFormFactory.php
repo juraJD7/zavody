@@ -99,7 +99,8 @@ class ArticleFormFactory extends BaseFormFactory {
 			'image' => 1,
 			'modified' => date("Y-m-d H:i:s"),
 			'admin_only' => $values->admin_only,
-			'race' => $values->race
+			'race' => $values->race,
+			'season' => $this->season
 		);
 		
 		if($this->id) {

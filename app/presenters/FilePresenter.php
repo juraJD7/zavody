@@ -44,10 +44,9 @@ class FilePresenter extends BasePresenter {
 		if (isset($fileId)) {
 			$this->fileFormFactory->setId((int)$fileId);
 		}
-		$form->onSuccess[] = function ($form) {
-			$this->flashMessage("Soubor byl uložen.");			
-			$link = $this->link("File:");
-			$form->getPresenter()->redirectUrl($link);
+		$form->onSuccess[] = function () {
+			$this->flashMessage("Soubor byl uložen.");
+			$this->redirect('this');
 		};
 		return $form;
 	}
@@ -63,10 +62,15 @@ class FilePresenter extends BasePresenter {
 		} catch (Nette\Security\AuthenticationException $ex) {
 			$this->error($ex);
 			$this->redirect("File:default");
-		}				
+		}
 		$this['fileForm']['name']->setDefaultValue($file->name);
 		$this['fileForm']['description']->setDefaultValue($file->description);
-		$this['fileForm']['categories']->setDefaultValue($this->fileRepository->getCategoriesByFile($file->id));
+		$categories = $this->fileRepository->getCategoriesByFile($file->id);			
+		$items = array();
+		foreach ($categories as $category) {
+			$items[] = $category->id;
+		}
+		$this['fileForm']['categories']->setDefaultValue($items);
 	}
 	
 	public function renderUpload() {

@@ -29,6 +29,7 @@ class QuestionDbMapper extends BaseDbMapper {
 		$table = $this->database->table('question')
 				->where('admin_only', $adminOnly)
 				->where('race', NULL)
+				->where('season', $this->season)
 				->order('changed DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());	
 		$questions = array();
@@ -43,6 +44,7 @@ class QuestionDbMapper extends BaseDbMapper {
 	public function getQuestionsByAuthor(QuestionRepository $repository, $paginator, $userId) {
 		$table = $this->database->table('question')
 				->where('author', $userId)
+				->where('season', $season)
 				->order('changed DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());	
 		$questions = array();
@@ -82,17 +84,18 @@ class QuestionDbMapper extends BaseDbMapper {
 	}
 	
 	public function getQuestionsByCategory($repository, $paginator, $adminOnly, $id) {
-		$join =  $this->database->table('category')
-				->get($id)
-				->related('category_question')
-				->limit($paginator->getLength(), $paginator->getOffset());
+		$join =  $this->database->table('category_question')
+					->where('category_id', $id);			
+				
 		$questionIds = array();
 		foreach ($join as $row) {
 			$questionIds[] = $row->question_id;
 		}
 		$table = $this->database->table('question')
 				->where('id IN', $questionIds)
-				->order('changed DESC');
+				->where('season', $this->season)
+				->order('changed DESC')
+				->limit($paginator->getLength(), $paginator->getOffset());
 		$questions = array();
 		foreach ($table as $row) {			
 			$question = $this->getQuestion($row->id);
@@ -121,7 +124,7 @@ class QuestionDbMapper extends BaseDbMapper {
 			foreach ($table as $row) {
 				$question = $this->database->table('question')
 					->get($row->question_id);
-				if ($question->admin_only == $adminOnly) {
+				if ($question->admin_only == $adminOnly && $question->season == $this->season) {
 					$counter++;
 				}
 			}
@@ -129,12 +132,14 @@ class QuestionDbMapper extends BaseDbMapper {
 		}
 		return $this->database->table('question')
 				->where('admin_only', $adminOnly)
+				->where('season', $this->season)
 				->where('race', NULL)
 				->count();
 	}
 	
 	public function countAllAuthor($userId) {		
 		return $this->database->table('question')
+				->where('season', $this->season)
 				->where('author', $userId)
 				->count();
 	}	

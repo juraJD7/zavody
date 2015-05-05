@@ -20,8 +20,7 @@ class WatchFormFactory extends BaseFormFactory {
 	 *
 	 * @var Nette\Security\LoggedUser
 	 */
-	private $user;
-	private $season;
+	private $user;	
 	private $race;
 	private $id;
 	private $troop;
@@ -48,10 +47,6 @@ class WatchFormFactory extends BaseFormFactory {
 	
 	public function setId($id) {
 		$this->id = $id;
-	}
-	
-	public function setSeason($season) {
-		$this->season = $season;
 	}
 	
 	public function setRace($race) {

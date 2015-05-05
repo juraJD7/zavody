@@ -26,6 +26,8 @@ class BaseDbMapper {
 	 */
 	protected $unitRepository;
 	
+	protected $season;
+	
 	/**
 	 * 
 	 * @param \Nette\Database\Context $database
@@ -37,6 +39,10 @@ class BaseDbMapper {
 		$this->database = $database;		
 		$this->userRepository = $userRepository;
 		$this->unitRepository = $unitRepository;
+		$this->season = $_COOKIE["season"];
+		$this->competition = $this->database->table('season')
+				->get($this->season)
+				->competition;
 		
 	}
 	

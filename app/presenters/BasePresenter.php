@@ -104,15 +104,15 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	private function setSeason() {
 		$defaultSeason = $this->database->table('setting')->get('season')->value;
 		if (!isset($_COOKIE['season'])) {				
-			setcookie("season", $defaultSeason, time() + 7776000); // 3 months
+			setcookie("season", $defaultSeason, time() + 7776000, '/'); // 3 months
 			$this->season = $defaultSeason;
 		} else {			
 			$season = $this->database->table('season')->get($_COOKIE['season']);			
 			if (!$season) {
-				setcookie("season", $defaultSeason, time() + 7776000); // 3 months
+				setcookie("season", $defaultSeason, time() + 7776000, '/'); // 3 months
 				$this->season = $defaultSeason;
 			} else {
-				setcookie("season", $season->id, time() + 7776000); // 3 months
+				setcookie("season", $season->id, time() + 7776000, '/'); // 3 months
 				$this->season = $season->id;
 			}	
 		}

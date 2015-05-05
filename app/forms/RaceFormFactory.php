@@ -15,7 +15,6 @@ class RaceFormFactory extends BaseFormFactory {
 	
 	private $raceRepository;
 	
-	private $season;
 	private $user;
 	private $id;
 	private $editors = array();
@@ -31,11 +30,7 @@ class RaceFormFactory extends BaseFormFactory {
 		parent::__construct($skautIS, $database);
 		$this->raceRepository = $raceRepository;
 		$this->user = $loggedUser;
-	}
-	
-	public function setSeason($season) {
-		$this->season = $season;
-	}
+	}	
 	
 	public function setId($id) {
 		$this->id = $id;

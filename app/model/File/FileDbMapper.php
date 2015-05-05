@@ -19,6 +19,7 @@ class FileDbMapper extends BaseDbMapper {
 		$file->type = $row->type;
 		$file->path = $row->path;
 		$file->author = $this->userRepository->getUser($row->author);
+		$file->competition = $row->competition;
 		return $file;
 	}
 	
@@ -28,6 +29,7 @@ class FileDbMapper extends BaseDbMapper {
 			return $this->getFilesByCategory($repository, $paginator, $category);
 		}
 		$table = $this->database->table('file')
+				->where('competition', $this->competition)
 				->order('id DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());	
 		$files = array();
@@ -42,6 +44,7 @@ class FileDbMapper extends BaseDbMapper {
 	public function getFilesByAuthor(FileRepository $repository, $paginator, $userId) {
 		$table = $this->database->table('file')
 				->where('author', $userId)
+				->where('competition', $this->competition)
 				->order('id DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());	
 		$files = array();
@@ -69,30 +72,41 @@ class FileDbMapper extends BaseDbMapper {
 	}
 	
 	public function getCatogoriesByFile($id) {
-		$join =  $this->database->table('file')
-				->get($id)
-				->related('category_file');
+		$join =  $this->database->table('category_file')
+					->where('file_id', $id);
 		$categories = array();
 		foreach ($join as $category) {			
-			$categories[] = $this->database->table('category')
-					->where($category->category_id)
+			$row = $this->database->table('category')
+					->where('id', $category->category_id)
 					->fetch();
+			$category = new Category($row->id);
+			$category->name = $row->name;
+			$category->short = $row->short;
+			$category->description = $row->description;
+			$categories[] = $category;
 		}
 		return $categories;
 	}
 	
 	public function getFilesByCategory($repository,  $paginator, $id) {
-		$join =  $this->database->table('category')
-				->get($id)
-				->related('category_file')
+		$join =  $this->database->table('category_file')
+				->where('category_id', $id);				
+		$fileIds = array();
+		foreach ($join as $row) {
+			$fileIds[] = $row->file_id;
+		}
+		$table = $this->database->table('file')
+				->where('id IN', $fileIds)
+				->where('competition', $this->competition)
+				->order('id DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());
 		$files = array();
-		foreach ($join as $row) {			
-			$file = $this->getFile($row->file_id);
-			$file->repository = $repository;
-			$files[] = $file;
+		foreach ($table as $row) {			
+			$file = $this->getFile($row->id);
+			$file->repository = $repository;			
+			$files[] = $file;			
 		}
-		return $files;
+		return $files;		
 	}
 	
 	public function deleteFile($id) {
@@ -106,17 +120,27 @@ class FileDbMapper extends BaseDbMapper {
 	
 	public function countAll($category) {
 		if (!is_null($category) && !empty($category)) {
-			return $this->database->table('category_file')
-					->where('category_id',$category)
-					->count();
+			$table = $this->database->table('category_file')
+					->where('category_id',$category);
+			$counter = 0;
+			foreach ($table as $row) {
+				$file = $this->database->table('file')
+						->get($row->file_id);
+				if ($file->competition == $this->competition) {
+					$counter++;
+				}						
+			}
+			return $counter;
 		}		
 		return $this->database->table('file')
+				->where('competition', $this->competition)
 				->count();
 	}
 	
 	public function countAllAuthor($userId) {
 		return $this->database->table('file')
 				->where('author', $userId)
+				->where('competition', $this->competition)
 				->count();
 	}
 }

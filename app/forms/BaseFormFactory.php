@@ -21,6 +21,8 @@ class BaseFormFactory extends Nette\Object
 	 */
 	protected $database;
 	
+	protected $season;
+	
 	/**
 	 * 
 	 * @param \Skautis\Skautis $skautIS
@@ -30,6 +32,7 @@ class BaseFormFactory extends Nette\Object
 	{
 		$this->skautIS = $skautIS;
 		$this->database = $database;
+		$this->season = $_COOKIE["season"];
 	}
 	
 	protected function addBootstrapRendering(&$renderer, &$form) {

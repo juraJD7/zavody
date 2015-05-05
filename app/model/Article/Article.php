@@ -19,6 +19,7 @@ class Article extends Nette\Object {
 	private $status;
 	private $modified;
 	private $published;
+	private $season;
 	private $race;
 	private $adminOnly;
 	
@@ -99,6 +100,17 @@ class Article extends Nette\Object {
 			throw new \Nette\MemberAccessException("Parametr race musí být integer.");
 		}
 		$this->race = $race;
+	}
+	
+	public function getSeason() {
+		return $this->season;
+	}
+	
+	public function setSeason($season) {
+		if(!is_int($season)) {
+			throw new \Nette\InvalidArgumentException("Parametr season musí být integer.");
+		}
+		$this->season = $season;
 	}
 
 	public function getModified() {
