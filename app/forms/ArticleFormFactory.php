@@ -57,8 +57,7 @@ class ArticleFormFactory extends BaseFormFactory {
 		$items = array();
 		foreach ($categories as $category) {
 			$items[$category->id] = $category->name;
-		}
-		
+		}		
 		$form = new Form;
 		
 		$checkboxList = new Controls\MyCheckboxList();
@@ -115,7 +114,12 @@ class ArticleFormFactory extends BaseFormFactory {
 		
 	}
 	
-	private function updateCategories($categories, $articleId) {		
+	private function updateCategories($categories, $articleId) {	
+		if (!is_null($this->id)) {
+			$this->database->table('article_category')
+				->where('article_id',  $this->id)
+				->delete();
+		}
 		foreach ($categories as $category) {
 			$this->database->table('article_category')
 				->insert(array(

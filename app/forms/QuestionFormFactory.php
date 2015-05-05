@@ -96,7 +96,12 @@ class QuestionFormFactory extends BaseFormFactory {
 		$this->updateCategories($values->categories, $question);					
 	}	
 	
-	private function updateCategories($categories, $question) {		
+	private function updateCategories($categories, $question) {	
+		if (!is_null($this->id)) {
+			$this->database->table('category_question')
+				->where('question_id',  $this->id)
+				->delete();
+		}
 		foreach ($categories as $category) {
 			$this->database->table('category_question')
 				->insert(array(

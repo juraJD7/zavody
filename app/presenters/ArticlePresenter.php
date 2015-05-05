@@ -280,7 +280,15 @@ class ArticlePresenter extends BasePresenter {
 			$this['articleForm']['title']->setDefaultValue($article->title);
 			$this['articleForm']['lead']->setDefaultValue($article->lead);
 			$this['articleForm']['text']->setDefaultValue($article->text);
-			$this['articleForm']['publish']->setDefaultValue($publish);			
+			$this['articleForm']['publish']->setDefaultValue($publish);	
+			$this['articleForm']['admin_only']->setDefaultValue($article->adminOnly);
+			$this['articleForm']['race']->setDefaultValue($article->race);
+			$categories = $this->articleRepository->getCategoriesByArticle($article->id);			
+			$items = array();
+			foreach ($categories as $category) {
+				$items[] = $category->id;
+			}			
+			$this['articleForm']['categories']->setDefaultValue($items);
 			
 		} catch (\InvalidArgumentException $ex) {
 			$this->error($ex);

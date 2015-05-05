@@ -42,6 +42,10 @@ class ArticleRepository {
 		return $this->dbMapper->getAllCategories($type);
 	}
 	
+	public function getCategoriesByArticle($id) {
+		return $this->dbMapper->getCatogoriesByArticle($id);
+	}
+	
 	public function delete($id) {
 		return $this->dbMapper->delete($id);
 	}

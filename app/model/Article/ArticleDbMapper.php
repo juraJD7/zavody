@@ -76,6 +76,23 @@ class ArticleDbMapper extends BaseDbMapper {
 		return $articles;
 	}
 	
+	public function getCatogoriesByArticle($id) {
+		$join =  $this->database->table('article_category')
+					->where('article_id', $id);
+		$categories = array();
+		foreach ($join as $category) {				
+			$row = $this->database->table('category')
+					->where('id', $category->category_id)
+					->fetch();
+			$category = new Category($row->id);
+			$category->name = $row->name;
+			$category->short = $row->short;
+			$category->description = $row->description;
+			$categories[] = $category;
+		}
+		return $categories;
+	}
+	
 	/**
 	 * 
 	 * @param int $category
