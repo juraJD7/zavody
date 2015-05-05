@@ -53,6 +53,20 @@ class PhotoDbMapper extends BaseDbMapper {
 		return $photos;
 	}
 	
+	public function getPhotosByRace(PhotoRepository $repository, $paginator, $raceId) {
+		$table = $this->database->table('photo')
+				->where('race', $raceId)
+				->order('id DESC')
+				->limit($paginator->getLength(), $paginator->getOffset());	
+		$photos = array();
+		foreach ($table as $row) {
+			$photo = $this->getPhoto($row->id);
+			$photo->repository = $repository;
+			$photos[] = $photo;
+		}		
+		return $photos;
+	}
+	
 	public function deletePhoto($id) {		
 		$this->database->table('photo')
 				->where('id', $id)
@@ -68,6 +82,12 @@ class PhotoDbMapper extends BaseDbMapper {
 	public function countAllAuthor($userId) {				
 		return $this->database->table('photo')
 				->where('author', $userId)
+				->count();
+	}
+	
+	public function countAllRace($raceId) {				
+		return $this->database->table('photo')
+				->where('race', $raceId)
 				->count();
 	}
 }

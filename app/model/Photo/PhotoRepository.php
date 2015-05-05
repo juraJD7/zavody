@@ -36,6 +36,10 @@ class PhotoRepository {
 		return $this->dbMapper->getPhotosByAuthor($this, $paginator, $userId);
 	}
 	
+	public function getPhotosByRace($paginator, $raceId) {
+		return $this->dbMapper->getPhotosByRace($this, $paginator, $raceId);
+	}
+	
 	public function getWhiteList() {
 		return $this->dbMapper->getWhiteList();
 	}			
@@ -52,6 +56,10 @@ class PhotoRepository {
 	
 	public function countAllAuthor($userId) {
 		return $this->dbMapper->countAllAuthor($userId);
+	}
+	
+	public function countAllRace($raceId) {
+		return $this->dbMapper->countAllRace($raceId);
 	}
 	
 	public function getPath($id, $type = NULL) {

@@ -37,6 +37,10 @@ class FileRepository {
 		return $this->dbMapper->getWhiteList();
 	}
 	
+	public function getAllCategories($type) {
+		return $this->dbMapper->getAllCategories($type);
+	}
+	
 	public function getIconPath($type) {
 		$file = $this->dbMapper->getIconName($type);
 		return "/images/icons/" . $file;
@@ -44,12 +48,8 @@ class FileRepository {
 	
 	public function getCategoriesByFile($id) {
 		return $this->dbMapper->getCatogoriesByFile($id);
-	}
-	
-	public function getAllCategories() {
-		return $this->dbMapper->getAllCategories();
-	}
-	
+	}	
+		
 	public function deleteFile($id) {
 		unlink($this->getPath($id));
 		$this->dbMapper->deleteFile($id);

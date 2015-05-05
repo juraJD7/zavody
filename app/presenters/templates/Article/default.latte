@@ -3,9 +3,21 @@
 <h2>Aktuality</h2>
 
 {if $user->isInRole('admin')}
+	<p>
 	<a n:href="Article:create">>>Přidat článek</a>	
+	</p>
 {/if}
-
+<form>
+<p>	Zobrazované kategorie: 
+	<select id="categorySelect" onchange="changeCategory();">
+		<option value="">-- Vše --</option>
+		{foreach $categories as $category}
+			<option value="{$category->id}" n:attr="selected => $params['category'] == $category->id">{$category->name}</option>
+		{/foreach}
+	</select>  
+</p>
+</form>
+{snippet category}
 {include '../pagination.latte'}
 
 {foreach $articles as $article}
@@ -40,5 +52,14 @@
 {/foreach}
 
 {include '../pagination.latte'}
+
+{/snippet}
+
+<script type="text/javascript">
+	function changeCategory() {
+		var category = $('#categorySelect').val();
+		window.location.href = window.location.pathname + "?category=" + category;
+	}
+</script>
 
 {/block}

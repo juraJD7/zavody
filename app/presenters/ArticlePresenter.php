@@ -35,14 +35,33 @@ class ArticlePresenter extends BasePresenter {
 	
 	/**
 	 *
+	 * @var \RaceRepository
+	 * @inject
+	 */
+	public $raceRepository;
+	
+	/**
+	 *
 	 * @var \CommentRepository
 	 * @inject
 	 */
 	public $commentRepository;
 
+	/**
+	 *
+	 * @var \Nette\Utils\Paginator
+	 * @inject
+	 */
+	public $paginator;
 
 	private $commentId;
+	private $raceId;
 	private $page;
+	private $adminOnly;
+	private $actionPaginator;
+	protected $params = array();
+	private $articles;
+	private $category;	
 	
 	/**
 	 * Article form factory
@@ -50,13 +69,14 @@ class ArticlePresenter extends BasePresenter {
 	 */
 	protected function createComponentArticleForm()
 	{
+		$this->articleFactory->setAdminOnly($this->adminOnly);		
+		$this->articleFactory->setRace($this->raceId);
 		$form = $this->articleFactory->create();
 		$articleId = $this->getParameter('articleId');					
 		$this->articleFactory->setId($articleId);
-		$form->onSuccess[] = function ($form) {
-			$this->flashMessage("Článek byl uložen.");			
-			$link = $this->link("Article:detail", $this->articleFactory->id);
-			$form->getPresenter()->redirectUrl($link);
+		$form->onSuccess[] = function () {
+			$this->flashMessage("Článek byl uložen.");
+			$this->redirect("Article:detail", $this->articleFactory->id);
 		};
 		return $form;
 	}
@@ -95,41 +115,84 @@ class ArticlePresenter extends BasePresenter {
 		}
 	}
 	
-	public function renderCreate() {
-		if (!$this->user->isInRole('admin') && !$this->user->isInRole('raceManager')) {
+	public function renderCreate($id = NULL, $adminOnly = 0) {
+		$this->adminOnly = $adminOnly;
+		$this->raceId = $id;		
+		if (!$this->user->isInRole('admin') && !($this->user->isInRole('raceManager') && in_array($id, $this->user->races))) {
 			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
 		}
 	}
 
-	public function renderDefault() {
-		
+	public function renderDefault() {		
+		$this->template->categories = $this->articleRepository->getAllCategories('article');
 		$page = $this->getParameter('page');
-		$paginator = new Nette\Utils\Paginator;
-		$paginator->setItemCount($this->articleRepository->countAll());
-		$paginator->setItemsPerPage(5); 
-		$paginator->setPage($page);
-		$this->template->paginator = $paginator;
+		$this->category = $this->getParameter('category');
+		if ($this->paginator->itemCount === NULL) {		
+			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator->setItemCount($this->articleRepository->countAll(\BaseDbMapper::COMMON, $this->category));
+			$this->paginator->setItemsPerPage(1); 
+			$this->paginator->setPage($page);			
+		}
+		$this->params['category'] = $this->category;
+		$this->template->paginator = $this->paginator;
 		$this->template->actionPaginator = "default";
-		$this->template->params = array();
+		$this->template->params = $this->params;		
 		
-		$this->template->articles = $this->articleRepository->getArticles($paginator, \Article::PUBLISHED);
+		$this->template->articles = $this->articleRepository->getArticles($this->paginator, \BaseDbMapper::COMMON, $this->category);
+	}
+	
+	public function renderAdmin() {		
+		if ($this->user->isInRole('admin') || $this->user->isInRole('raceManager')) {
+			$this->template->categories = $this->articleRepository->getAllCategories('article');
+			$page = $this->getParameter('page');
+			$this->category = $this->getParameter('category');
+			if ($this->paginator->itemCount === NULL) {		
+				$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+				$this->paginator->setItemCount($this->articleRepository->countAll(\BaseDbMapper::ADMIN_ONLY, $this->category));
+				$this->paginator->setItemsPerPage(1); 
+				$this->paginator->setPage($page);			
+			}
+			$this->params['category'] = $this->category;
+			$this->template->paginator = $this->paginator;
+			$this->template->actionPaginator = "admin";
+			$this->template->params = $this->params;		
+
+			$this->template->articles = $this->articleRepository->getArticles($this->paginator, \BaseDbMapper::ADMIN_ONLY, $this->category);			
+			
+		} else {
+			throw new Nette\Security\AuthenticationException("Nemáte potřebná oprávnění");
+		}
 	}
 	
 	public function renderMy() {
-		if ($this->user->isLoggedIn()) {
-		$page = $this->getParameter('page');
-		$paginator = new Nette\Utils\Paginator;
-		$paginator->setItemCount($this->articleRepository->countAllAuthor($this->user->id));
-		$paginator->setItemsPerPage(5); 
-		$paginator->setPage($page);
-		$this->template->paginator = $paginator;
-		$this->template->actionPaginator = "my";
-		$this->template->params = array();
-		
-		$this->template->articles = $this->articleRepository->getArticlesByAuthor($paginator, $this->user->id);
+		if ($this->user->isLoggedIn()) {			
+			$page = $this->getParameter('page');
+			$paginator = new Nette\Utils\Paginator;
+			$paginator->setItemCount($this->articleRepository->countAllAuthor($this->user->id));
+			$paginator->setItemsPerPage(5); 
+			$paginator->setPage($page);
+			$this->template->paginator = $paginator;
+			$this->template->actionPaginator = "my";
+			$this->template->params = array();
+
+			$this->template->articles = $this->articleRepository->getArticlesByAuthor($paginator, $this->user->id);
 		} else {
 			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
 		}
+	}
+	
+	public function renderRace($id) {
+		$this->raceId = $id;
+		$page = $this->getParameter('page');
+		$paginator = new Nette\Utils\Paginator;
+		$paginator->setItemCount($this->articleRepository->countAllRace($id));		
+		$paginator->setItemsPerPage(5); 
+		$paginator->setPage($page);
+		$this->template->paginator = $paginator;
+		$this->template->actionPaginator = "race";
+		$this->template->params = array('id' => $id);
+		$this->template->race = $this->raceRepository->getRace($id);
+		$this->template->articles = $this->articleRepository->getArticlesByRace($paginator, $id);		
 	}
 	
 	public function handleDelete($articleId) {

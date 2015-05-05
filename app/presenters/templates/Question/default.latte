@@ -35,8 +35,8 @@
 				  </tr>
 			  {/foreach}			  
 		  {/if}
-		  {if $user->isLoggedIn() && ($user->isInRole('admin') || $user->data['id'] == $question->race->author)}
-			  {form answerForm-$question->id}
+		  {if $user->isLoggedIn() && ($user->isInRole('admin') || $user->isInRole('raceManager') && in_array($question->race, $user->races))}
+			  {form answerForm-$question->id, class => ajax}
 				  <tr><td>{input text}</td><td>{input send}</td><tr>
 			  {/form}
 		  {/if}
@@ -52,35 +52,8 @@
 
 <script type="text/javascript">
 	function changeCategory() {
-		$.nette.ajax({
-			url: {link changeCategory!},
-			type: "POST",
-			data: {
-				category: $('#categorySelect').val()
-			}
-		});
-	}
-	
-	$( ".answer-button" ).click(function() {
-		
-		$.nette.ajax({
-			url: {link changeCategory!},
-			type: "POST",
-			data: {
-				question: $(this).attr('id'),
-				text: $(this)
-			}
-		});
-	});
-	
-	function answear() {
-		$.nette.ajax({
-			url: {link changeCategory!},
-			type: "POST",
-			data: {
-				question: $('#categorySelect').val()
-			}
-		});
+		var category = $('#categorySelect').val();
+		window.location.href = window.location.pathname + "?category=" + category;
 	}
 </script>
 

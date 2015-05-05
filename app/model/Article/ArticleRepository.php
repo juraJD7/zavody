@@ -22,16 +22,24 @@ class ArticleRepository {
 		return $article;
 	}
 	
-	public function getArticles($paginator, $status = NULL, $category = NULL) {
-		return $this->dbMapper->getArticles($paginator, $this, $status, $category);
+	public function getArticles($paginator, $adminOnly = 0, $category = NULL) {
+		return $this->dbMapper->getArticles($paginator, $this, $adminOnly, $category);
 	}
 	
-	public function countAll($status = NULL, $category = NULL) {
-		return $this->dbMapper->countAll($status, $category);
+	public function countAll($adminOnly = 0, $category = NULL) {
+		return $this->dbMapper->countAll($adminOnly, $category);
 	}
 	
 	public function countAllAuthor($userId) {
 		return $this->dbMapper->countAllAuthor($userId);
+	}
+	
+	public function countAllRace($raceId) {
+		return $this->dbMapper->countAllRace($raceId);
+	}
+	
+	public function getAllCategories($type) {
+		return $this->dbMapper->getAllCategories($type);
 	}
 	
 	public function delete($id) {
@@ -44,5 +52,9 @@ class ArticleRepository {
 	
 	public function getArticlesByAuthor($paginator, $userId) {
 		return $this->dbMapper->getArticlesByAuthor($this, $paginator, $userId);
+	}
+	
+	public function getArticlesByRace($paginator, $raceId) {
+		return $this->dbMapper->getArticlesByRace($this, $paginator, $raceId);
 	}
 }

@@ -28,26 +28,22 @@ class ArticleDbMapper extends BaseDbMapper {
 		$article->status = $row->status;
 		$article->modified = $row->modified;
 		$article->published = $row->published;
+		$article->race = $row->race;
+		$article->adminOnly = $row->admin_only;
 		
 		return $article;
-	}
+	}	
 	
-	/**
-	 * 
-	 * @param Nette\Utils\Paginator $paginator
-	 * @param ArticleRepository $repository
-	 * @param int $status
-	 * @return type
-	 */
-	public function getArticles(Nette\Utils\Paginator $paginator, ArticleRepository $repository, $status, $category) {
-		$rows = $this->database->table('article')				
-				->order('modified DESC');
-		
-		if (is_null($status)) {
-			$rows = $rows->where('status',  $status);
-		}			
-		//to DO CATEGORY
-		$rows = $rows->limit($paginator->getLength(), $paginator->getOffset());		
+	public function getArticles(Nette\Utils\Paginator $paginator, ArticleRepository $repository, $adminOnly, $category) {
+		if (!is_null($category) && !empty($category)) {
+			return $this->getArticlesByCategory($repository, $paginator, $adminOnly, $category);
+		}		
+		$rows = $this->database->table('article')
+				->where('admin_only', $adminOnly)
+				->where('race', NULL)
+				->where('status', Article::PUBLISHED)
+				->order('modified DESC')
+				->limit($paginator->getLength(), $paginator->getOffset());	
 		$articles = array();
 		foreach ($rows as $row) {
 			$article = $this->getArticle($row->id);
@@ -57,31 +53,67 @@ class ArticleDbMapper extends BaseDbMapper {
 		return $articles;
 	}
 	
-	/**
-	 * 
-	 * @param int $status
-	 * @param int $category
-	 * @return int
-	 */
-	public function countAll($status, $category) {
-		$rows = $this->database->table('article');
-		if (!is_null($status)) {
-			$rows = $rows->where('status',  $status);
-		}		
-		//to DO CATEGORY
+	public function getArticlesByCategory($repository, $paginator, $adminOnly, $id) {
+		$join =  $this->database->table('article_category')
+				->where('category_id', $id);
 				
-		return $rows->count();
+		$articleIds = array();
+		foreach ($join as $row) {
+			$articleIds[] = $row->article_id;
+		}
+		$table = $this->database->table('article')
+				->where('id IN', $articleIds)
+				->order('modified DESC')
+				->limit($paginator->getLength(), $paginator->getOffset());
+		$articles = array();
+		foreach ($table as $row) {			
+			$article = $this->getArticle($row->id);
+			$article->repository = $repository;
+			if ($article->adminOnly == $adminOnly) {
+				$articles[] = $article;
+			}
+		}
+		return $articles;
 	}
 	
 	/**
 	 * 
-	 * @param int $status
 	 * @param int $category
 	 * @return int
 	 */
+	public function countAll($adminOnly, $category = NULL) {
+		if (!is_null($category) && !empty($category)) {
+			$table = $this->database->table('article_category')
+					->where('category_id',$category);	
+			$counter = 0;
+			foreach ($table as $row) {
+				$article = $this->database->table('article')
+					->where('status', Article::PUBLISHED)
+					->get($row->article_id);
+				if ($article->admin_only == $adminOnly) {
+					$counter++;
+				}
+			}
+			return $counter;
+		}
+		return $this->database->table('article')
+				->where('admin_only', $adminOnly)
+				->where('race', NULL)
+				->where('status', Article::PUBLISHED)
+				->count();
+	}
+	
+	
 	public function countAllAuthor($userId) {
 		$rows = $this->database->table('article')
-				->where($userId);
+				->where('author', $userId);
+		return $rows->count();
+	}
+	
+	public function countAllRace($raceId) {
+		$rows = $this->database->table('article')
+				->where('race', $raceId)
+				->where('status', Article::PUBLISHED);
 		return $rows->count();
 	}
 	
@@ -102,6 +134,20 @@ class ArticleDbMapper extends BaseDbMapper {
 	public function getArticlesByAuthor(ArticleRepository $repository, $paginator, $userId) {
 		$rows = $this->database->table('article')
 				->where('author', $userId)
+				->order('modified DESC')
+				->limit($paginator->getLength(), $paginator->getOffset());
+		$articles = array();
+		foreach ($rows as $row) {
+			$article = $this->getArticle($row->id);
+			$article->repository = $repository;
+			$articles[] = $article; 
+		}
+		return $articles;
+	}
+	
+	public function getArticlesByRace(ArticleRepository $repository, $paginator, $raceId) {
+		$rows = $this->database->table('article')
+				->where('race', $raceId)
 				->order('modified DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());
 		$articles = array();

@@ -23,32 +23,40 @@ class QuestionRepository {
 		return $file;
 	}
 	
-	public function getQuestions($paginator, $category = NULL) {
-		return $this->dbMapper->getQuestions($this, $paginator, $category);
+	public function getQuestions($paginator, $adminOnly = 0, $category = NULL) {
+		return $this->dbMapper->getQuestions($this, $paginator, $adminOnly, $category);
 	}
 	
 	public function getQuestionsByAuthor($paginator, $userId) {
 		return $this->dbMapper->getQuestionsByAuthor($this, $paginator, $userId);
 	}
 	
+	public function getQuestionsByRace($paginator, $raceId) {
+		return $this->dbMapper->getQuestionsByRace($this, $paginator, $raceId);
+	}
+	
 	public function getCategoriesByQuestion($id) {
 		return $this->dbMapper->getCatogoriesByQuestion($id);
 	}
 	
-	public function getAllCategories() {
-		return $this->dbMapper->getAllCategories();
+	public function getAllCategories($type) {
+		return $this->dbMapper->getAllCategories($type);
 	}
 	
 	public function deleteQuestion($id) {
 		$this->dbMapper->deleteQuestion($id);
 	}
 	
-	public function countAll($category = NULL) {
-		return $this->dbMapper->countAll($category);
+	public function countAll($adminOnly = 0, $category = NULL) {
+		return $this->dbMapper->countAll($adminOnly, $category);
 	}
 	
 	public function countAllAuthor($userId) {
 		return $this->dbMapper->countAllAuthor($userId);
+	}
+	
+	public function countAllRace($raceId) {
+		return $this->dbMapper->countAllRace($raceId);
 	}
 	
 	public function loadAnswers($id) {

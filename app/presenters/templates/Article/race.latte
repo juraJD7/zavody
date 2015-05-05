@@ -1,12 +1,14 @@
 {block content}
 
-<h2>Moje články</h2>
+<h2>Články závodu {$race->name}</h2>
 
-{if $user->isInRole('admin')}
+
+{if $user->isInRole('admin') || $user->isInRole('raceManager') && in_array($race->id, $user->races)}
 	<p>
-	<a n:href="Article:create">>>Přidat článek</a>	
+	<a n:href="Article:create $race->id">>>Přidat článek k závodu</a>	
 	</p>
 {/if}
+
 {include '../pagination.latte'}
 
 {foreach $articles as $article}
@@ -30,7 +32,9 @@
 			{/if}
 				</em>
 				<br />
+				{if $user->id == $article->author->id || $user->isInRole('admin')  || ($user->isInRole('raceManager') && in_array($question->race, $user->races))}
 					<a n:href="Article:edit $article->id">Upravit</a> <a n:href="delete! $article->id">Smazat</a>
+				{/if}
 			</small></h4>
 				{$article->lead}<br /> <br />
 				<a class="btn btn-primary" n:href="Article:detail  $article->id" role="button">Celý článek</a>

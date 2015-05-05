@@ -16,6 +16,7 @@ class Question extends \Nette\Object {
 	private $race;
 	private $season;
 	private $answers;
+	private $adminOnly;
 	private $categories = array();
 	
 	public function __construct($id) {
@@ -80,7 +81,7 @@ class Question extends \Nette\Object {
 	
 	public function setSeason($season) {
 		if(!is_int($season)) {
-			throw new \Nette\MemberAccessException("Parametr season musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr season musí být integer.");
 		}
 		$this->season = $season;
 	}
@@ -97,5 +98,16 @@ class Question extends \Nette\Object {
 			$this->categories = $this->repository->getCategoriesByQuestion($this->id);
 		}
 		return $this->categories;
+	}
+	
+	public function getAdminOnly() {
+		return $this->adminOnly;
+	}
+	
+	public function setAdminOnly($adminOnly) {
+		if (!is_int($adminOnly)) {
+			throw new Nette\InvalidArgumentException("Parametr adminOnly musí být integer.");
+		}
+		$this->adminOnly = $adminOnly;
 	}
 }

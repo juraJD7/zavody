@@ -128,7 +128,7 @@ class FilePresenter extends BasePresenter {
 		$this->template->params = $this->params;		
 		$this->template->files = $this->files;
 		
-		$this->template->categories = $this->fileRepository->getAllCategories();
+		$this->template->categories = $this->fileRepository->getAllCategories('file');
 	}
 	
 	public function renderMy() {		

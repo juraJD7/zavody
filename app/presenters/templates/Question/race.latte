@@ -1,6 +1,6 @@
 {block content}
 
-<h1>Moje otázky</h1>
+<h1>Otázky k závodu {$race->name}</h1>
 
 <p>
 {control questionForm}
@@ -30,7 +30,7 @@
 				  </tr>
 			  {/foreach}			  
 		  {/if}
-		  {if $user->isLoggedIn() && ($user->isInRole('admin') || $user->isInRole('raceManager') && in_array($question->race, $user->races))}
+		  {if $user->isLoggedIn() && ($user->isInRole('admin') || ($user->isInRole('raceManager') && in_array($question->race, $user->races)))}
 			  {form answerForm-$question->id}
 				  <tr><td>{input text}</td><td>{input send}</td><tr>
 			  {/form}

@@ -95,10 +95,6 @@ class FileDbMapper extends BaseDbMapper {
 		return $files;
 	}
 	
-	public function getAllCategories() {
-		return $this->database->table('category');
-	}
-	
 	public function deleteFile($id) {
 		$this->database->table('category_file')
 				->where('file_id', $id)

@@ -19,6 +19,8 @@ class Article extends Nette\Object {
 	private $status;
 	private $modified;
 	private $published;
+	private $race;
+	private $adminOnly;
 	
 	private $repository;
 
@@ -87,6 +89,17 @@ class Article extends Nette\Object {
 		}
 		$this->status = $status;
 	}
+	
+	public function getRace() {
+		return $this->race;
+	}
+	
+	public function setRace($race) {
+		if(!is_int($race)&&!is_null($race)) {
+			throw new \Nette\MemberAccessException("Parametr race musí být integer.");
+		}
+		$this->race = $race;
+	}
 
 	public function getModified() {
 		return $this->modified;
@@ -106,5 +119,16 @@ class Article extends Nette\Object {
 	
 	public function getNumComments() {
 		return $this->repository->getNumComments($this->id);
+	}
+	
+	public function getAdminOnly() {
+		return $this->adminOnly;
+	}
+	
+	public function setAdminOnly($adminOnly) {
+		if (!is_int($adminOnly)) {
+			throw new Nette\InvalidArgumentException("Parametr adminOnly musí být integer.");
+		}
+		$this->adminOnly = $adminOnly;
 	}
 }

@@ -1,6 +1,6 @@
 {block content}
 
-<h1>Nahrávání fotek</h1>
+<h1>Fotografie ze závodu {$race->name}</h1>
 
 {control photoUploadForm}
 
@@ -16,7 +16,7 @@
 			<img src="{$photo->thumbPath}" alt="Foto ze závodů" class="img-thumbnail">
 		</a>
 		<div class="caption">
-		{if $user->isLoggedIn() && ($user->isInRole('admin') || $user->id == $photo->author->id)}
+		{if $user->isLoggedIn() && ($user->isInRole('admin') || $user->data['id'] == $photo->author->id  || ($user->isInRole('raceManager') && in_array($question->race, $user->races)))}
 			{if $edit == $photo->id}
 				{form photoDescriptionForm}
 					{input description} {input send}

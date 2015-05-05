@@ -3,6 +3,7 @@
 namespace App\Forms;
 
 use Nette,
+	Nette\Forms\Controls,
 	Nette\Application\UI\Form,
 	Nette\Security\User;
 
@@ -14,6 +15,22 @@ use Nette,
 class ArticleFormFactory extends BaseFormFactory {
 		
 	private $id;
+	private $articleRepository;
+	private $adminOnly;
+	private $race;
+	
+	/**
+	 * 
+	 * @param \Skautis\Skautis $skautIS
+	 * @param \Nette\Database\Context $database
+	 * @param \ArticleRepository $articleRepository
+	 */
+	public function __construct(\Skautis\Skautis $skautIS, \Nette\Database\Context $database, \ArticleRepository $articleRepository) {
+		parent::__construct($skautIS, $database);
+		$this->articleRepository = $articleRepository;
+		$this->race = NULL;
+		$this->adminOnly = 0;
+	}
 	
 	public function setId($id) {
 		$this->id = (int) $id;
@@ -22,13 +39,33 @@ class ArticleFormFactory extends BaseFormFactory {
 	public function getId() {
 		return $this->id;
 	}
+	
+	public function setAdminOnly($adminOnly) {
+		$this->adminOnly = $adminOnly;
+	}
+	
+	public function setRace($race) {
+		$this->race = $race;
+	}
 
 	/**
 	 * @return Form
 	 */
 	public function create()
-	{		
+	{	
+		$categories = $this->articleRepository->getAllCategories('article');
+		$items = array();
+		foreach ($categories as $category) {
+			$items[$category->id] = $category->name;
+		}
+		
 		$form = new Form;
+		
+		$checkboxList = new Controls\MyCheckboxList();
+		$checkboxList->setItems($items);
+		
+		$form->addComponent($checkboxList, 'categories');
+		
 		$form->addText('title', 'Nadpis:')
 			->setRequired('Je nutné vyplnit nadpis článku.');
 		$form->addTextArea('lead', 'Krátký popis:', 30, 5);
@@ -36,7 +73,8 @@ class ArticleFormFactory extends BaseFormFactory {
 				->setAttribute('class','mceEditor');
 
 		$form->addCheckbox('publish', ' Ihned publikovat');
-
+		$form->addHidden('admin_only', $this->adminOnly);
+		$form->addHidden('race', $this->race);
 		$form->addSubmit('send', 'Uložit');
 
 		$form->onSuccess[] = array($this, 'formSucceeded');
@@ -48,7 +86,8 @@ class ArticleFormFactory extends BaseFormFactory {
 	}
 
 	public function formSucceeded($form, $values)
-	{		
+	{	
+		$values->race = $values->race ?: NULL;		
 		$status = $values->publish ? 1 : 0;
 		$published = $values->publish ? date("Y-m-d H:i:s") : NULL;
 		$user = $this->skautIS->usr->UserDetail()->ID;		
@@ -60,6 +99,8 @@ class ArticleFormFactory extends BaseFormFactory {
 			'text' => $values->text,
 			'image' => 1,
 			'modified' => date("Y-m-d H:i:s"),
+			'admin_only' => $values->admin_only,
+			'race' => $values->race
 		);
 		
 		if($this->id) {
@@ -70,7 +111,18 @@ class ArticleFormFactory extends BaseFormFactory {
 			$row = $this->database->table('article')->insert($data);
 			$this->id = $row->id;			
 		}
+		$this->updateCategories($values->categories, $this->id);
 		
+	}
+	
+	private function updateCategories($categories, $articleId) {		
+		foreach ($categories as $category) {
+			$this->database->table('article_category')
+				->insert(array(
+					'category_id' => $category,
+					'article_id' => $articleId
+				));
+		}
 	}
 
 }

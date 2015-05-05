@@ -32,11 +32,19 @@ class PhotoPresenter extends BasePresenter {
 	
 	/**
 	 *
+	 * @var \RaceRepository
+	 * @inject
+	 */
+	public $raceRepository;
+	
+	/**
+	 *
 	 * @var \Nette\Utils\Paginator
 	 * @inject
 	 */
 	public $paginator;
 	
+	private $raceId;
 	private $actionPaginator;
 	protected $params = array();
 	private $edit;
@@ -44,11 +52,11 @@ class PhotoPresenter extends BasePresenter {
 	
 	protected function createComponentPhotoUploadForm()
 	{
+		$this->photoUploadFormFactory->setRace($this->raceId);
 		$form = $this->photoUploadFormFactory->create();		
 		$form->onSuccess[] = function ($form) {
-			$this->flashMessage("Fotka byla nahrána.");			
-			$link = $this->link("Photo:");
-			$form->getPresenter()->redirectUrl($link);
+			$this->flashMessage("Fotka byla nahrána.");
+			$this->redirect('this');
 		};
 		return $form;
 	}
@@ -103,6 +111,24 @@ class PhotoPresenter extends BasePresenter {
 		} else {
 			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
 		}
+	}
+	
+	public function renderRace($id) {
+		$this->raceId = $id;
+		$this->page = $this->getParameter('page');
+		if ($this->paginator->itemCount === NULL) {
+			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator->setItemCount($this->photoRepository->countAllRace($this->raceId));
+			$this->paginator->setItemsPerPage(6); 
+			$this->paginator->setPage($this->page);
+		}	
+		$this->template->race = $this->raceRepository->getRace($id);
+		$this->template->photos = $this->photoRepository->getPhotosByRace($this->paginator, $this->raceId);
+		$this->template->actionPaginator = $this->actionPaginator;
+		$this->template->params = $this->params;
+		$this->template->paginator = $this->paginator;
+		$this->template->edit = $this->edit;
+		$this->template->page = $this->page;		
 	}
 	
 	public function handleDelete($id, $page) {

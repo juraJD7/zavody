@@ -14,7 +14,10 @@ use Nette,
  */
 class QuestionFormFactory extends BaseFormFactory {
 	
-	private $questionRepository;	
+	private $questionRepository;
+	
+	private $adminOnly;
+	private $race;
 	
 	/**
 	 * 
@@ -25,14 +28,25 @@ class QuestionFormFactory extends BaseFormFactory {
 	public function __construct(\Skautis\Skautis $skautIS, \Nette\Database\Context $database, \QuestionRepository $questionRepository) {
 		parent::__construct($skautIS, $database);
 		$this->questionRepository = $questionRepository;
+		$this->race = NULL;
+		$this->adminOnly = 0;
 	}
-
+	
+	public function setAdminOnly($adminOnly) {
+		$this->adminOnly = $adminOnly;
+	}
+	
+	public function setRace($race) {
+		$this->race = $race;
+	}
+	
 	/**
 	 * @return Form
 	 */
 	public function create()
 	{
-		$categories = $this->questionRepository->getAllCategories();
+		
+		$categories = $this->questionRepository->getAllCategories('question');
 		
 		$items = array();
 		foreach ($categories as $category) {
@@ -52,8 +66,9 @@ class QuestionFormFactory extends BaseFormFactory {
 		$form->addComponent($checkboxList, 'categories');
 		
 		$form->addTextArea('text', 'Otázka:')
-			->setRequired('Je nutné vyplnit text otázky.');	
-
+			->setRequired('Je nutné vyplnit text otázky.');
+		$form->addHidden('admin_only', $this->adminOnly);
+		$form->addHidden('race', $this->race);
 		$form->addSubmit('send', 'Uložit');
 
 		$form->onSuccess[] = array($this, 'formSucceeded');
@@ -66,12 +81,16 @@ class QuestionFormFactory extends BaseFormFactory {
 	
 	public function formSucceeded(Form $form, $values)
 	{		
+		$values->race = $values->race ?: NULL;
 		$user = $this->skautIS->usr->UserDetail()->ID;
 		$data = array(
 			'season' => 1,
 			'text' => $values->text,
 			'posted' => date("Y-m-d H:i:s"),
-			'author' => $user
+			'changed' => date("Y-m-d H:i:s"),
+			'author' => $user,
+			'admin_only' => $values->admin_only,
+			'race' => $values->race,
 		);
 		$question = $this->database->table('question')->insert($data);
 		$this->updateCategories($values->categories, $question);					

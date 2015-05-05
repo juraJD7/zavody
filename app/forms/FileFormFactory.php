@@ -3,6 +3,7 @@
 namespace App\Forms;
 
 use Nette,
+	Nette\Forms\Controls,
 	Nette\Application\UI\Form,
 	Nette\Security\User;
 
@@ -40,18 +41,25 @@ class FileFormFactory extends BaseFormFactory {
 	 */
 	public function create()
 	{
-		$items = array(
-			1 => 'Pravidla',
-			2 => 'Stanoviště'
-		);
+		$categories = $this->fileRepository->getAllCategories('file');
+		
+		$items = array();
+		foreach ($categories as $category) {
+			$items[$category->id] = $category->name;
+		}
 		
 		$form = new Form;	
 		
-		$form->addText('name', 'Název:')
-			->setRequired('Je nutné vyplnit název souboru.');
+		/*$form->addCheckboxList('categories', 'Zobrazovat v kategoriích', $items)
+				->setAttribute('class', 'inline');*/
+		$checkboxList = new Controls\MyCheckboxList();
+		$checkboxList->setItems($items);
 		
-		$form->addCheckboxList('categories', 'Zobrazovat v kategoriích', $items)
-				->setAttribute('class', 'inline');
+		$form->addComponent($checkboxList, 'categories');
+		
+		$form->addText('name', 'Název:')
+			->setRequired('Je nutné vyplnit název souboru.');		
+		
 		
 		$form->addTextArea('description', 'Krátký popis:', 30, 5);		
 

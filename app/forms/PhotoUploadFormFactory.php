@@ -14,7 +14,7 @@ use Nette,
 class PhotoUploadFormFactory extends BaseFormFactory {
 	
 	private $photoRepository;
-	
+	private $race;
 	/**
 	 * 
 	 * @param \Skautis\Skautis $skautIS
@@ -24,6 +24,11 @@ class PhotoUploadFormFactory extends BaseFormFactory {
 	public function __construct(\Skautis\Skautis $skautIS, \Nette\Database\Context $database, \PhotoRepository $photoRepository) {
 		parent::__construct($skautIS, $database);
 		$this->photoRepository = $photoRepository;
+		$this->race = NULL;
+	}
+	
+	public function setRace($race) {
+		$this->race = $race;
 	}
 
 	/**
@@ -34,9 +39,10 @@ class PhotoUploadFormFactory extends BaseFormFactory {
 		$form = new Form;
 
 		$form->addUpload('files', 'Fotky:', TRUE);
-		
-		$form->addCheckbox('isPublic', 'Zveřejnit fotky');
-
+		if ($this->race) {
+			$form->addCheckbox('isPublic', 'Zveřejnit fotky');
+		}
+		$form->addHidden('race', $this->race);
 		$form->addSubmit('send', 'Uložit');
 
 		$form->onSuccess[] = array($this, 'formSucceeded');
@@ -49,8 +55,12 @@ class PhotoUploadFormFactory extends BaseFormFactory {
 	
 	public function formSucceeded(Form $form, $values)
 	{
+		$post = $form->getHttpData();		
+		$values->isPublic = empty($post["race"]) ? 1 : isset($post["isPublic"]);
 		foreach ($values->files as $file) {
 			if($file->isOk() && $file->isImage()) {
+				
+				$values->race = $values->race ?: NULL;
 				$user = $this->skautIS->usr->UserDetail()->ID;
 				$data = array(
 					"is_public" => $values->isPublic,
@@ -59,7 +69,8 @@ class PhotoUploadFormFactory extends BaseFormFactory {
 					"height" => $file->getImageSize()[1],
 					"width" => $file->getImageSize()[0],
 					"size" => $file->getSize(),
-					"type" => $file->getContentType()
+					"type" => $file->getContentType(),
+					"race" => $values->race
 				);
 				$inserted = $this->database->table('photo')->insert($data);				
 				$path = $this->getPath($inserted->id, $file->getContentType());	

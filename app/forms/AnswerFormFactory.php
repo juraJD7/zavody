@@ -45,7 +45,7 @@ class AnswerFormFactory extends BaseFormFactory {
 
 		$form->addSubmit('send', 'Odpovědět');
 
-		$form->onSuccess[] = array($this, 'formSucceeded');
+		$form->onValidate[] = array($this, 'formSucceeded');
 		
 		$renderer = $form->getRenderer();
 		$this->addBootstrapRendering($renderer, $form);
@@ -54,7 +54,7 @@ class AnswerFormFactory extends BaseFormFactory {
 	}
 	
 	public function formSucceeded(Form $form, $values)
-	{	
+	{
 		if(is_null($this->question)) {
 			throw new Nette\InvalidArgumentException("Odpověď musí být vedená k nějakému dotazu");
 		}
@@ -65,7 +65,10 @@ class AnswerFormFactory extends BaseFormFactory {
 			'posted' => date("Y-m-d H:i:s"),
 			'author' => $user
 		);
-		$this->database->table('answer')->insert($data);							
+		$this->database->table('answer')->insert($data);	
+		$this->database->table('question')
+				->where('id', $this->question)
+				->update(array('changed' => date("Y-m-d H:i:s")));
 	}
 	
 }
