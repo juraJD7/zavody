@@ -10,6 +10,8 @@ class File extends Nette\Object {
 	const MB = 1048576;
 	const kB = 1024;
 	
+	const ICONDIR = "/images/icons/";
+	
 	private $repository;
 	
 	private $id;

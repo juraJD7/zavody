@@ -38,4 +38,17 @@ class UserRepository {
 		$user->repository = $this;
 		return $user;
 	}
+	
+	public function save(User $user) {
+		$this->dbMapper->saveUser($user);
+	}
+
+
+	public function loadNonAdminUsers() {
+		return $this->dbMapper->loadNonAdminUsers($this);
+	}
+	
+	public function getAdmins() {
+		return $this->dbMapper->getAdmins($this);
+	}
 }

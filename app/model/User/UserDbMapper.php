@@ -21,8 +21,12 @@ class UserDbMapper {
 		$row = $this->database->table('user')->get($id);
 		if(!$row) {
 			throw new DbNotStoredException("User $id není uložen v databázi");
-		}
-		$user = new User($id);
+		}		
+		return $this->loadUserFromActiveRow($row);
+	}
+	
+	public function loadUserFromActiveRow($row) {
+		$user = new User($row->id_user);
 		$user->userName = $row->username;
 		$user->personId = $row->id_person;
 		$user->firstName = $row->firstname;
@@ -32,7 +36,8 @@ class UserDbMapper {
 		$user->admin = $row->is_admin;
 		return $user;
 	}
-	
+
+
 	public function saveUser(User $user) {
 		$data = array(
 			"id_user" => $user->id,
@@ -63,5 +68,29 @@ class UserDbMapper {
 			return FALSE;
 		}
 		return $row->is_admin;
+	}
+	
+	public function loadNonAdminUsers(UserRepository $repository) {
+		$table = $this->database->table('user')
+				->where('is_admin', FALSE);
+		$users = array();
+		foreach ($table as $row) {
+			$user = $this->loadUserFromActiveRow($row);
+			$user->repository = $repository;
+			$users[$row->id_user] = $user;
+		}
+		return $users;
+	}
+	
+	public function getAdmins(UserRepository $repository) {
+		$table = $this->database->table('user')
+				->where('is_admin', TRUE);
+		$users = array();
+		foreach ($table as $row) {
+			$user = $this->loadUserFromActiveRow($row);
+			$user->repository = $repository;
+			$users[$row->id_user] = $user;
+		}
+		return $users;
 	}
 }

@@ -7,6 +7,9 @@
  */
 class User extends Nette\Object {
 	
+	const ADMIN = 1;
+	const COMMON = 0;
+	
 	/**
 	 *
 	 * @var \UserRepository
@@ -104,6 +107,10 @@ class User extends Nette\Object {
 
 	public function getDisplayName() {
 		return "$this->userName (" . $this->getPersonName() . ")";
+	}
+	
+	public function save() {
+		$this->repository->save($this);
 	}
 	
 }

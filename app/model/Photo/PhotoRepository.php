@@ -38,11 +38,7 @@ class PhotoRepository {
 	
 	public function getPhotosByRace($paginator, $raceId) {
 		return $this->dbMapper->getPhotosByRace($this, $paginator, $raceId);
-	}
-	
-	public function getWhiteList() {
-		return $this->dbMapper->getWhiteList();
-	}			
+	}	
 	
 	public function deletePhoto($id) {
 		unlink("." . $this->getPath($id));

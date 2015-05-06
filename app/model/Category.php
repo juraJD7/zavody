@@ -10,7 +10,9 @@ class Category extends \Nette\Object {
 	private $id;
 	private $name;
 	private $short;
-	private $description;
+	private $article;
+	private $file;
+	private $question;
 	
 	public function __construct($id) {
 		if(!is_int($id)) {
@@ -39,11 +41,51 @@ class Category extends \Nette\Object {
 		$this->short = $short;
 	}
 	
-	public function getDescription() {
-		return $this->description;
+	public function isArticle() {
+		if ($this->article) {
+			return "Ano";
+		}
+		return "Ne";
 	}
 	
-	public function setDescription($description) {
-		$this->description = $description;
+	public function setArticle($article) {
+		if ($article) {
+			$this->article = TRUE;
+		} else {
+			$this->article = FALSE;
+		}
+		
+	}
+	
+	public function isFile() {
+		if ($this->file) {
+			return "Ano";
+		}
+		return "Ne";
+	}
+	
+	public function setFile($file) {
+		if ($file) {
+			$this->file = TRUE;
+		} else {
+			$this->file = FALSE;
+		}
+		
+	}
+	
+	public function isQuestion() {
+		if ($this->question) {
+			return "Ano";
+		}
+		return "Ne";
+	}
+	
+	public function setQuestion($question) {
+		if ($question) {
+			$this->question = TRUE;
+		} else {
+			$this->question = FALSE;
+		}
+		
 	}
 }

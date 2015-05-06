@@ -65,6 +65,27 @@ class FileDbMapper extends BaseDbMapper {
 		return $whiteList;
 	}
 	
+	public function getFileTypes() {
+		return $this->database->table('whitelist');		
+	}
+	
+	public function deleteFileType($mime) {
+		$row = $this->database->table('whitelist')
+			->where('mime', $mime);
+		$path = $row->fetch()->path;
+		if ($path != "default.png") {
+			unlink( "./" . \File::ICONDIR . $path);
+		}
+		$files = $this->database->table('file')
+				->where('type', $mime);
+		foreach ($files as $file) {
+			unlink (\FileRepository::BASEDIR . $file->path);
+		}
+		$files->delete();
+		$row->delete();
+	}
+
+
 	public function getIconName($type) {
 		return $this->database->table('whitelist')
 				->get($type)

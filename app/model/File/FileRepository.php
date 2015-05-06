@@ -37,13 +37,21 @@ class FileRepository {
 		return $this->dbMapper->getWhiteList();
 	}
 	
+	public function getFileTypes() {
+		return $this->dbMapper->getFileTypes();
+	}
+
 	public function getAllCategories($type) {
 		return $this->dbMapper->getAllCategories($type);
 	}
 	
 	public function getIconPath($type) {
 		$file = $this->dbMapper->getIconName($type);
-		return "/images/icons/" . $file;
+		return FILE::ICONDIR . $file;
+	}
+	
+	public function deleteFileType($mime) {
+		$this->dbMapper->deleteFileType($mime);
 	}
 	
 	public function getCategoriesByFile($id) {

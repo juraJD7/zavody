@@ -38,7 +38,7 @@ class ArticleRepository {
 		return $this->dbMapper->countAllRace($raceId);
 	}
 	
-	public function getAllCategories($type) {
+	public function getAllCategories($type = NULL) {
 		return $this->dbMapper->getAllCategories($type);
 	}
 	

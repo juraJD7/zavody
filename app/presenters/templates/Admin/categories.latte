@@ -1,0 +1,24 @@
+{block content}
+
+<h1>Správa kategorií</h1>
+
+
+<table class="table table-bordered">
+	
+	<tr>
+		<th>Název kategorie</th><th>Zkratka</th><th>Články</th><th>Otázky</th><th>Soubory</th>
+	</tr>
+	{foreach $categories as $category}
+		<tr>
+			<td>{$category->name}</td>
+			<td>{$category->short}</td>
+			<td>{$category->article}</td>
+			<td>{$category->question}</td>
+			<td>{$category->file}</td>
+	{/foreach}
+	
+</table>
+
+{control addCategoryForm}
+	
+{/block}

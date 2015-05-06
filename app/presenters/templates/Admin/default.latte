@@ -1,0 +1,19 @@
+{block content}
+
+<h1>Správa administrátorů</h1>
+
+<table class="table table-bordered">
+	<tr><th>Jméno</th><th>Login</th><th>email</th><th>&nbsp;</th></tr>
+	{foreach $admins as $admin}
+		<tr>
+			<td>{$admin->personName}</td>
+			<td>{$admin->userName}</td>
+			<td>{$admin->email}</td>
+			<td><a n:href="deleteAdmin! $admin->id">Odebrat</a></td>
+		</tr>
+	{/foreach}
+</table>
+
+{control addAdminForm}
+
+{/block}

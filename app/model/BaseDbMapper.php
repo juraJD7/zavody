@@ -47,14 +47,18 @@ class BaseDbMapper {
 	}
 	
 	public function getAllCategories($type) {
-		$table = $this->database->table('category')
-				->where($type, TRUE);
+		$table = $this->database->table('category');
+		if (!is_null($type)) {
+			$table = $table->where($type, TRUE);
+		}
 		$categories = array();
 		foreach ($table as $row) {
 			$category = new Category($row->id);
 			$category->name = $row->name;
-			$category->short = $row->short;
-			$category->description = $row->description;
+			$category->short = $row->short;			
+			$category->article = $row->article;
+			$category->file = $row->file;
+			$category->question = $row->question;
 			$categories[] = $category;
 		}
 		return $categories;

@@ -1,0 +1,30 @@
+{block content}
+
+<h1>Správa povolených typů souborů</h1>
+
+<p>
+	POZOR: Odebráním některého z existujících typů souboru se smažou všechny soubory tohoto typu.
+</p>
+
+<table class="table table-bordered">
+	<tr><th>Titulek</th><th>MIME type</th><th>Ikona</th><th>&nbsp;</th></tr>
+	{foreach $filetypes as $filetype}
+		<tr>
+			<td>{$filetype->title}</td>
+			<td>{$filetype->mime}</td>
+			<td><img src="{File::ICONDIR . $filetype->path}"></td>
+			<td><a n:href="deleteFileType! $filetype->mime">Odebrat</a></td>
+		</tr>
+	{/foreach}
+	
+</table>
+	
+	<p>
+		Jako ikonu se nahrává ikona ve formátu PNG a velikosti 24x24px.<br />
+		Pokud nebude žádný soubor vybrán, použije se defaultní ikona.
+	</p>
+	
+{control whiteListForm}
+	
+
+{/block}
