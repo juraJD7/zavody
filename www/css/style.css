@@ -79,3 +79,7 @@ form .error {
 	align: center;
 	vertical-align: middle;
 }
+
+tr.bold td {
+	font-weight: bold;
+}

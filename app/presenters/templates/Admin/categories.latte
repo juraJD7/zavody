@@ -6,7 +6,7 @@
 <table class="table table-bordered">
 	
 	<tr>
-		<th>Název kategorie</th><th>Zkratka</th><th>Články</th><th>Otázky</th><th>Soubory</th>
+		<th>Název kategorie</th><th>Zkratka</th><th>Články</th><th>Otázky</th><th>Soubory</th><th></th>
 	</tr>
 	{foreach $categories as $category}
 		<tr>
@@ -15,6 +15,7 @@
 			<td>{$category->article}</td>
 			<td>{$category->question}</td>
 			<td>{$category->file}</td>
+			<td><a n:href="deleteCategory! $category->id">Odebrat</a></td>
 	{/foreach}
 	
 </table>

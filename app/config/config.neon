@@ -58,6 +58,8 @@ services:
 	- App\Forms\MembersFormFactory
 	- App\Forms\PointsFormFactory
 	- App\Forms\MailFormFactory
+	- AdminRepository
+	- AdminDbMapper
 	- ArticleRepository
 	- ArticleDbMapper
 	- CommentRepository

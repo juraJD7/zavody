@@ -1,0 +1,23 @@
+{block content}
+
+<h1>Správa ročníků</h1>
+
+
+<table class="table table-bordered">
+	
+	<tr>
+		<th>Rok</th><th>Soutěž</th><th>Max. věk závodníků</th><th>Max. věk rádců</th>
+	</tr>
+	{foreach $seasons as $season}
+		<tr n:class="$defaultSeason == $season->id ? bold">
+			<td>{$season->year}</td>
+			<td>{$season->competition->short}</td>
+			<td>{$season->runnerAge|date:'d.m.Y'}</td>
+			<td>{$season->guideAge|date:'d.m.Y'}</td>
+	{/foreach}
+	
+</table>
+
+{control addSeasonForm}
+	
+{/block}

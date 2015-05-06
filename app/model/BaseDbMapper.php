@@ -46,7 +46,7 @@ class BaseDbMapper {
 		
 	}
 	
-	public function getAllCategories($type) {
+	public function getAllCategories($type = NULL) {
 		$table = $this->database->table('category');
 		if (!is_null($type)) {
 			$table = $table->where($type, TRUE);
@@ -62,5 +62,20 @@ class BaseDbMapper {
 			$categories[] = $category;
 		}
 		return $categories;
+	}
+	
+	public function deleteCategory($id) {
+		$this->database->table('article_category')
+			->where('category_id', $id)
+			->delete();
+		$this->database->table('category_file')
+			->where('category_id', $id)
+			->delete();
+		$this->database->table('category_question')
+			->where('category_id', $id)
+			->delete();
+		$this->database->table('category')
+			->where('id', $id)
+			->delete();
 	}
 }

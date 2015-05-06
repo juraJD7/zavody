@@ -21,10 +21,10 @@ class AdminPresenter extends BasePresenter {
 
 	/**
 	 *
-	 * @var \ArticleRepository
+	 * @var \AdminRepository
 	 * @inject
 	 */
-	public $articleRepository;
+	public $adminRepository;
 	
 	public function createComponentAddAdminForm() {
 		$form = new Form();
@@ -84,6 +84,60 @@ class AdminPresenter extends BasePresenter {
 		$this->redirect('this');
 	}	
 	
+	public function createComponentAddCategoryForm() {
+		$form = new Form();		
+		
+		$form->addGroup("Přídání nové kategorie");
+		$form->addText('name', "Jméno: ");
+		$form->addText('short', "Zkratka: ");
+		$form->addCheckbox('article', " články");
+		$form->addCheckbox('file', " soubory");
+		$form->addCheckbox('question', " otázky");
+		$form->addSubmit('send', "Odeslat");
+		$form->onSuccess[] = array($this, 'addCategoryFormSucceeded');
+		return $form;
+	}
+	
+	public function addCategoryFormSucceeded(Form $form, $values) {
+			$this->database->table('category')->insert($values);
+	}	
+	
+	public function createComponentAddSeasonForm() {
+		$form = new Form();		
+		
+		$form->addGroup("Založení nového ročníku");
+		$form->addText('year', "Rok: ")
+				->setType('number');
+		
+		$competitions = $this->adminRepository->getAllCompetitions();
+		
+		$items = array();
+		foreach ($competitions as $competition) {
+			$items[$competition->id] = $competition->name;
+		}
+		
+		$form->addSelect('competition', "Soutěž: ", $items);
+		$form->addText('runner_age', "Max. dat. nar. závodníků: ")
+				->setType('date');
+		$form->addText('guide_age', "Max. dat. nar. rádců: ")
+				->setType('date');
+		$form->addCheckbox('setDefault', " nastavit jako výchozí");
+		$form->addSubmit('send', "Založit");
+		$form->onSuccess[] = array($this, 'addSeasonFormSucceeded');
+		return $form;
+	}
+	
+	public function addSeasonFormSucceeded(Form $form, $values) {
+			$setDefault = $values->setDefault;
+			unset($values->setDefault);
+			$row = $this->database->table('season')->insert($values);
+			if ($setDefault) {
+				$this->database->table('setting')
+						->where('property', 'season')
+						->update(array('value' => $row->id));
+			}
+	}
+	
 	public function renderDefault() {
 		if ($this->user->isInRole('admin')) {
 			$this->template->admins = $this->userRepository->getAdmins();
@@ -115,7 +169,22 @@ class AdminPresenter extends BasePresenter {
 	
 	public function renderCategories() {
 		if ($this->user->isInRole('admin')) {
-			$this->template->categories = $this->articleRepository->getAllCategories();
+			$this->template->categories = $this->adminRepository->getAllCategories();
+		} else {
+			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této akci");
+		}
+	}
+	
+	public function handleDeleteCategory($id) {
+		$this->adminRepository->deleteCategory($id);
+		$this->flashMessage("Druh souboru byl odebrán.");
+		$this->redrawControl();
+	}
+	
+	public function renderSeason() {
+		if ($this->user->isInRole('admin')) {
+			$this->template->seasons = $this->adminRepository->getAllSeasons();
+			$this->template->defaultSeason = $this->adminRepository->getDefaultSeason();
 		} else {
 			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této akci");
 		}
