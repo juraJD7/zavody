@@ -36,6 +36,13 @@ class RacePresenter extends BasePresenter {
 	
 	/**
 	 *
+	 * @var \QuestionRepository
+	 * @inject
+	 */
+	public $questionRepository;
+	
+	/**
+	 *
 	 * @var \App\Forms\PointsFormFactory
 	 * @inject
 	 */
@@ -50,7 +57,7 @@ class RacePresenter extends BasePresenter {
 		$form = $this->raceFormFactory->create();
 		$form->onSuccess[] = function ($form) {
 			$this->flashMessage("Závod byl založen.");
-			$this->redirect("Race:");
+			$this->redirect('this');
 		};
 		return $form;
 		} else {
@@ -66,7 +73,7 @@ class RacePresenter extends BasePresenter {
 			$form = $this->pointsFormFactory->create();
 			$form->onSuccess[] = function () {
 				$id = $this->getParameter('id');
-				$this->sendConfirmMail($id);
+				//$this->sendConfirmMail($id);
 				$id = $this->getParameter('id');
 				$this->flashMessage("Vysledky byly zadány.");		
 				$this->redirect("Race:detail", $id);
@@ -215,7 +222,7 @@ class RacePresenter extends BasePresenter {
 			$this->template->race = $this->raceRepository->getRace($id);
 			$this->watchs = $this->watchRepository->getWatchs($id);
 			$this->template->watchs = $this->watchs;
-			//var_dump("render");exit;
+			$this->template->unansweredQuestions = $this->questionRepository->getNumUnansweredQuestion($id);			
 		} catch (\Nette\InvalidArgumentException $ex) {
 			$this->error($ex);
 		}

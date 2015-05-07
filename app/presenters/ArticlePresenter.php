@@ -87,10 +87,9 @@ class ArticlePresenter extends BasePresenter {
 			$article = $this->getParameter('articleId');
 			$this->commentFactory->setArticle($article);
 			$form = $this->commentFactory->create();
-			$form->onSuccess[] = function ($form) {	
+			$form->onSuccess[] = function () {	
 				$article = $this->getParameter('articleId');
-				$link = $this->link("Article:detail", $article);
-				$form->getPresenter()->redirectUrl($link);
+				$this->redirect("Article:detail", $article);
 			};
 			return $form;
 		} else {
@@ -106,8 +105,7 @@ class ArticlePresenter extends BasePresenter {
 			$this->commentFactory->setArticle($this->getParameter('articleId'));			
 			$form->onSuccess[] = function ($form) {					
 				$article = $this->getParameter('articleId');
-				$link = $this->link("Article:detail", $article);
-				$form->getPresenter()->redirectUrl($link);
+				$this->redirect("Article:detail", $article);
 			};
 			return $form;
 		} else {

@@ -311,7 +311,8 @@ class RaceDbMapper extends BaseDbMapper {
 	
 	public function getRacesByEditor(RaceRepository $repository, $userId) {
 		$rows = $this->database->table('editor_race')
-				->where('user_id', $userId);
+				->where('user_id', $userId)
+				->where('season', $this->season);
 		$races = array();
 		foreach ($rows as $row) {
 			$race = $this->getRace($row->race_id);
@@ -323,7 +324,8 @@ class RaceDbMapper extends BaseDbMapper {
 	
 	public function getRacesByOrganizer(RaceRepository $repository, $unitId) {
 		$rows = $this->database->table('race')
-				->where('organizer', $unitId);
+				->where('organizer', $unitId)
+				->where('season', $this->season);
 		$races = array();
 		foreach ($rows as $row) {
 			$race = $this->loadFromActiveRow($row);
@@ -341,9 +343,11 @@ class RaceDbMapper extends BaseDbMapper {
 			$raceIds = $this->database->table('participant_race')
 					->where('participant_id', $row->id);
 			foreach ($raceIds as $raceId) {
-				$race = $this->getRace($raceId);
-				$race->repository = $repository;
-				$races[$race->id] = $race;
+				$race = $this->getRace($raceId);				
+				if ($race->season == $this->season) {
+					$race->repository = $repository;
+					$races[$race->id] = $race;
+				}
 			}
 		}
 		return $races;

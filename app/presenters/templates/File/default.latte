@@ -33,7 +33,7 @@
 	</tr>
 {foreach $files as $file}
 	<tr>
-		<td><img src="{$file->getIconPath()}" title="{$file->type}"></td>
+		<td><img src="{$file->type->path}" title="{$file->type->title}"></td>
 		<td><a n:href="File:download $file->id">{$file->name}</a></td>
 		<td>{$file->description}</td>
 		<td>{$file->getFormattedSize()}</td>

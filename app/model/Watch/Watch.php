@@ -29,10 +29,7 @@ class Watch extends Nette\Object {
 	 *
 	 * @var array Person
 	 */
-	private $members = array();
-	
-	//private $oddily = array();
-	//private $season; - pozná se podle závodů	
+	private $members = array();	
 	
 	public function __construct($id = null) {
 		$this->id = $id;
@@ -206,6 +203,10 @@ class Watch extends Nette\Object {
 		
 	public function getPoints($raceId) {
 		return $this->repository->getPoints($this->id, $raceId);
+	}
+	
+	public function getNote($raceId) {
+		return $this->repository->getNote($this->id, $raceId);
 	}
 	
 	public function getOrder($raceId) {

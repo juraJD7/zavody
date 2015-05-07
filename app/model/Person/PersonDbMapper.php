@@ -7,28 +7,6 @@
  */
 class PersonDbMapper extends BaseDbMapper {
 	
-	private $watchRepositoryFactory;
-	
-	/**
-	 * 
-	 * @param \Nette\Database\Context $database
-	 * @param \UserRepository $userRepository
-	 * @param \UnitRepository $unitRepository
-	 * @param $watchRepositoryFactory
-	 */
-	public function __construct(\Nette\Database\Context $database, \UserRepository $userRepository, \UnitRepository $unitRepository, $watchRepositoryFactory) {
-		parent::__construct($database, $userRepository, $unitRepository);
-		$this->watchRepositoryFactory = $watchRepositoryFactory;
-	}
-	
-	/**
-	 * 
-	 * @return WatchRepository
-	 */
-	private function getWatchRepository() {
-		return call_user_func($this->watchRepositoryFactory);
-	}
-
 	public function getRole($systemId, $raceId) {
 		$result = $this->database->table('participant_race')
 				->where('participant_id', $systemId)

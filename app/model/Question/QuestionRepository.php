@@ -36,7 +36,7 @@ class QuestionRepository {
 	}
 	
 	public function getCategoriesByQuestion($id) {
-		return $this->dbMapper->getCatogoriesByQuestion($id);
+		return $this->dbMapper->getCategoriesByQuestion($id);
 	}
 	
 	public function getAllCategories($type) {
@@ -61,5 +61,9 @@ class QuestionRepository {
 	
 	public function loadAnswers($id) {
 		return $this->dbMapper->loadAnswers($id);
+	}
+	
+	public function getNumUnansweredQuestion($id) {
+		return $this->dbMapper->getNumUnansweredQuestion($id);
 	}
 }

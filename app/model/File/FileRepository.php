@@ -45,11 +45,6 @@ class FileRepository {
 		return $this->dbMapper->getAllCategories($type);
 	}
 	
-	public function getIconPath($type) {
-		$file = $this->dbMapper->getIconName($type);
-		return FILE::ICONDIR . $file;
-	}
-	
 	public function deleteFileType($mime) {
 		$this->dbMapper->deleteFileType($mime);
 	}

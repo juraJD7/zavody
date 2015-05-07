@@ -39,7 +39,7 @@ class Race extends \Nette\Object {
 	
 	public function __construct($id) {
 		if(!is_int($id)) {
-			throw new \Nette\MemberAccessException("Parametr id musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr id musí být integer.");
 		}
 		$this->id = $id;		
 	}
@@ -58,7 +58,7 @@ class Race extends \Nette\Object {
 	
 	public function setSeason($season) {
 		if(!is_int($season)) {
-			throw new \Nette\MemberAccessException("Parametr season musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr season musí být integer.");
 		}
 		$this->season = $season;
 	}
@@ -98,14 +98,7 @@ class Race extends \Nette\Object {
 			$this->round = $this->repository->getRound($this->id);
 		}
 		return $this->round;
-	}
-	/*
-	public function setRound($round) {
-		if(!ctype_alpha($round) || strlen($round) != 1) {
-			throw new \Nette\MemberAccessException("Parametr id musí round 1 znak.");
-		}
-		$this->round = $round;
-	}*/
+	}	
 	
 	public function getRegion() {
 		if (is_null($this->region)) {
@@ -113,14 +106,7 @@ class Race extends \Nette\Object {
 		}
 		return $this->region;
 	}
-	/*
-	public function setRegion($region) {
-		if(!is_int($region)) {
-			throw new \Nette\MemberAccessException("Parametr region musí round integer.");
-		}
-		$this->region = $region;
-	}
-	*/
+	
 	public function getAdvance() {
 		if (is_null($this->advance)) {
 			$this->advance = $this->repository->getAdvance($this->id);
@@ -157,7 +143,7 @@ class Race extends \Nette\Object {
 
 	public function setGpsY($gpsY) {
 		if(!is_double($gpsY)) {
-			throw new \Nette\MemberAccessException("Parametr gps_y musí byt cislo.");
+			throw new \Nette\InvalidArgumentException("Parametr gps_y musí byt cislo.");
 		}
 		$this->gpsY = $gpsY;
 	}
@@ -168,7 +154,7 @@ class Race extends \Nette\Object {
 
 	public function setGpsX($gpsX) {
 		if(!is_double($gpsX)) {
-			throw new \Nette\MemberAccessException("Parametr gps_x musí byt cislo.");
+			throw new \Nette\InvalidArgumentException("Parametr gps_x musí byt cislo.");
 		}
 		$this->gpsX = $gpsX;
 	}
@@ -235,7 +221,7 @@ class Race extends \Nette\Object {
 
 	public function setCapacity($capacity) {
 		if(!is_int($capacity)) {
-			throw new \Nette\MemberAccessException("Parametr capacity musí round integer.");
+			throw new \Nette\InvalidArgumentException("Parametr capacity musí round integer.");
 		}
 		$this->capacity = $capacity;
 	}
@@ -268,16 +254,8 @@ class Race extends \Nette\Object {
 			$this->membersRange = $this->repository->getMembersRange($this->id);
 		}
 		return $this->membersRange;
-	}
-	
-	/*
-	public function setMembersRange($memberRange) {
-		if(!is_int($memberRange)) {
-			throw new \Nette\MemberAccessException("Parametr membersRange musí round integer.");
-		}
-		$this->membersRange = $memberRange;
-	}*/
-	
+	}	
+		
 	public function getEditors() {
 		if (empty($this->editors)) {
 			$this->editors = $this->repository->getEditors($this->id);

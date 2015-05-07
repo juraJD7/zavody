@@ -90,7 +90,6 @@ class ArticleDbMapper extends BaseDbMapper {
 			$category = new Category($row->id);
 			$category->name = $row->name;
 			$category->short = $row->short;
-			$category->description = $row->description;
 			$categories[] = $category;
 		}
 		return $categories;

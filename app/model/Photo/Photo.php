@@ -25,7 +25,7 @@ class Photo extends \Nette\Object {
 	
 	public function __construct($id) {
 		if(!is_int($id)) {
-			throw new \Nette\MemberAccessException("Parametr id musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr id musí být integer.");
 		}
 		$this->id = $id;		
 	}
@@ -52,7 +52,7 @@ class Photo extends \Nette\Object {
 	
 	public function setRace($race) {
 		if (!is_int($race) && !is_null($race)) {
-			throw new \Nette\MemberAccessException("Parametr race musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr race musí být integer.");
 		}
 		$this->race = $race;
 	}
@@ -74,7 +74,7 @@ class Photo extends \Nette\Object {
 	
 	public function setHeight($height) {
 		if (!is_int($height)) {
-			throw new \Nette\MemberAccessException("Parametr height musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr height musí být integer.");
 		}
 		$this->height = $height;
 	}
@@ -85,7 +85,7 @@ class Photo extends \Nette\Object {
 	
 	public function setWidth($width) {
 		if (!is_int($width)) {
-			throw new \Nette\MemberAccessException("Parametr width musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr width musí být integer.");
 		}
 		$this->width = $width;
 	}
@@ -96,7 +96,7 @@ class Photo extends \Nette\Object {
 	
 	public function setSize($size) {
 		if (!is_int($size)) {
-			throw new \Nette\MemberAccessException("Parametr size musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr size musí být integer.");
 		}
 		$this->size = $size;
 	}
@@ -105,10 +105,7 @@ class Photo extends \Nette\Object {
 		return $this->author;
 	}
 	
-	public function setAuthor($author) {
-		if (!($author instanceof User)) {
-			throw new \Nette\MemberAccessException("Parametr author musí být typu User.");
-		}
+	public function setAuthor(User $author) {		
 		$this->author = $author;
 	}
 	
@@ -116,10 +113,7 @@ class Photo extends \Nette\Object {
 		return $this->created;
 	}
 
-	public function setCreated($created) {
-		if(!($created instanceof DateTime)) {
-			throw new \Nette\MemberAccessException("Parametr created musí být časový údaj.");
-		}
+	public function setCreated(DateTime $created) {		
 		$this->created = $created;
 	}
 	

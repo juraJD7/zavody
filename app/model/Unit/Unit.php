@@ -25,7 +25,7 @@ class Unit extends \Nette\Object {
 	
 	public function __construct($id) {
 		if(!is_int($id)) {
-			throw new \Nette\MemberAccessException("Parametr id musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr id musí být integer.");
 		}
 		$this->id = $id;		
 	}

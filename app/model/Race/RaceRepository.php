@@ -142,5 +142,5 @@ class RaceRepository {
 	
 	public function getRacesByParticipant($personId) {
 		return $this->getDbMapper()->getRacesByParticipant($this, $personId);
-	}	
+	}		
 }

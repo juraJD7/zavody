@@ -1,15 +1,16 @@
 {block content}
 
 <h1>Administrační rozhraní</h1>
-<br /><br />
-<h3>Závod: {$race->name}</h3>
-
-<h3>Napsat článek k závodu</h3>
-<h3>Nahrát soubor k závodu</h3>
-<h3>Nahrát fotky k závodu</h3>
-
-<h3><a n:href="Mail:race $race->id">Poslat email</a></h3>
-
+<br />
+<h2>Závod: {$race->name}</h2>
+<br />
+<h3>Odkazy:</h3>
+<ul>
+	<li><a n:href="Article:create $race->id">Napsat článek k závodu</a></li>
+	<li>K závodu existuje celkem <strong>{$unansweredQuestions}</strong> nezodpovězených dotazů:<br />
+		<a n:href="Question:race $race->id">>> Přejít na dotazy</a></li>
+	<li><a n:href="Photo:race $race->id">Nahrát fotky k závodu</a></li>
+</ul>
 <p>
 <br />
 <table>
@@ -24,12 +25,11 @@
 	<table class="table">
 		<thead>
 			<tr>
-				<td>Jméno hlídky</td>
-				<td>Středisko</td>
-				<td>Oddíl</td>
-				<td>Počet členů</td>
-				<td>Kategorie</td>
-				<td>Počet bodů</td>				
+				<th>Jméno hlídky</th>
+				<th>Středisko</th>				
+				<th>Kategorie</th>
+				<th>Počet bodů</th>
+				<th>Poznámka</th>
 			</tr>
 		</thead>
 		<tbody>		
@@ -37,11 +37,10 @@
 	{foreach $watchs as $watch}
 		<tr>
 			<td><a n:href="Watch:detail $watch->id">{$watch->name}</a></td>
-			<td>{$watch->troop->displayName}</td>
-			<td>{$watch->group->displayName}</td>
-			<td>{$watch->getNumRunners($race)}</td>
+			<td>{$watch->troop->displayName}</td>			
 			<td>{$watch->getCategory($race)}</td>
-			<td>{input $watch->id}</td>			
+			<td>{input $watch->id}</td>
+			<td>{input note$watch->id}</td>	
 		</tr>
 	{/foreach}	
 	

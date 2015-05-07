@@ -15,7 +15,7 @@ class Answer extends \Nette\Object {
 	
 	public function __construct($id) {
 		if(!is_int($id)) {
-			throw new \Nette\MemberAccessException("Parametr id musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr id musí být integer.");
 		}
 		$this->id = $id;		
 	}
@@ -30,7 +30,7 @@ class Answer extends \Nette\Object {
 	
 	public function setQuestion($question) {
 		if(!is_int($question)) {
-			throw new \Nette\MemberAccessException("Parametr question musí být integer.");
+			throw new \Nette\InvalidArgumentException("Parametr question musí být integer.");
 		}
 		$this->question = $question;
 	}
@@ -47,10 +47,7 @@ class Answer extends \Nette\Object {
 		return $this->author;
 	}
 	
-	public function setAuthor($author) {
-		if (!($author instanceof User)) {
-			throw new \Nette\MemberAccessException("Parametr author musí být typu User.");
-		}
+	public function setAuthor(User $author) {		
 		$this->author = $author;
 	}
 	
@@ -58,10 +55,7 @@ class Answer extends \Nette\Object {
 		return $this->posted;
 	}
 	
-	public function setPosted($posted) {
-		if(!($posted instanceof DateTime)) {
-			throw new \Nette\MemberAccessException("Parametr posted musí být časový údaj.");
-		}
+	public function setPosted(DateTime $posted) {		
 		$this->posted = $posted;
 	}
 	

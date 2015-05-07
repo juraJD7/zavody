@@ -45,15 +45,13 @@ class Authenticator extends Nette\Object implements Nette\Security\IAuthenticato
 			if ($admin) {
 				return new NS\Identity($admin->id_user, "admin");
 			}
-
-			$raceManagers = $this->database->table('editor_race')
-					->where('user_id',$userID);
-			if ($raceManagers->fetch()) {
-				$races = array();
-				foreach ($raceManagers as $manager) {
-					$races[] = $manager->race_id;
+			$races = $this->raceRepository->getRacesByEditor($userID);
+			if (!empty($races)) {				
+				$data = array();
+				foreach ($races as $race) {
+					$data[] = $race->race_id;
 				}
-				return new NS\Identity($userID, "raceManager", array("races" => $races));
+				return new NS\Identity($userID, "raceManager", array("races" => $data));
 			}
 			
 			return new NS\Identity($userID, "common");		

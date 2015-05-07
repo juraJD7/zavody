@@ -18,7 +18,7 @@ class LazyContainer extends Nette\Object {
 	private $raceDbMapperFactory;
 	
 	private $watchDbMapperFactory;
-
+	
 	public function __construct(\Nette\Database\Context $database, UserRepository $userRepository, UnitRepository $unitRepository, PersonIsMapper $isMapper){
 			$this->watchRepositoryFactory = $this->factory(function() use($unitRepository, $userRepository) {
 					return new WatchRepository($this->raceRepositoryFactory, $this->personRepositoryFactory, $unitRepository, $userRepository, $this->watchDbMapperFactory);
@@ -36,7 +36,7 @@ class LazyContainer extends Nette\Object {
 					return new RaceDbMapper($database, $userRepository, $unitRepository, $this->watchRepositoryFactory);
 			});
 			$this->watchDbMapperFactory = $this->factory(function()use ($database, $userRepository, $unitRepository){
-					return new WatchDbMapper($database, $userRepository, $unitRepository, $this->raceRepositoryFactory, $this->personRepositoryFactory);
+					return new WatchDbMapper($database, $userRepository, $unitRepository, $this->personRepositoryFactory);
 			});
 			
 	}

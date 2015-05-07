@@ -12,7 +12,7 @@
 		<tr>
 			<td>{$filetype->title}</td>
 			<td>{$filetype->mime}</td>
-			<td><img src="{File::ICONDIR . $filetype->path}"></td>
+			<td><img src="{$filetype->path}"></td>
 			<td><a n:href="deleteFileType! $filetype->mime">Odebrat</a></td>
 		</tr>
 	{/foreach}

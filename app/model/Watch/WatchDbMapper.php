@@ -5,25 +5,15 @@
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
-class WatchDbMapper extends BaseDbMapper {
+class WatchDbMapper extends BaseDbMapper {		
 	
-	private $raceRepositoryFactory;
 	private $personRepositoryFactory;
 
 
-	public function __construct(\Nette\Database\Context $database, \UserRepository $userRepository, \UnitRepository $unitRepository, $raceRepositoryFactory, $personRepositoryFactory) {
-		parent::__construct($database, $userRepository, $unitRepository);
-		$this->raceRepositoryFactory = $raceRepositoryFactory;
+	public function __construct(\Nette\Database\Context $database, \UserRepository $userRepository, \UnitRepository $unitRepository, $personRepositoryFactory) {
+		parent::__construct($database, $userRepository, $unitRepository);		
 		$this->personRepositoryFactory = $personRepositoryFactory;
-	}
-	
-	/**
-	 * 
-	 * @return RaceRepository
-	 */
-	private function getRaceRepository() {
-		return call_user_func($this->raceRepositoryFactory);
-	}
+	}	
 	
 	/**
 	 * 
@@ -93,6 +83,14 @@ class WatchDbMapper extends BaseDbMapper {
 				->where('watch_id', $watchId)
 				->fetch()
 				->points;
+	}
+	
+	public function getNote($watchId, $raceId) {
+		return $this->database->table('race_watch')
+				->where('race_id', $raceId)
+				->where('watch_id', $watchId)
+				->fetch()
+				->note;
 	}
 	
 	public function getAdvance($watchId, $raceId) {

@@ -44,7 +44,7 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 		
 	public function startup() {
 		parent::startup();			
-				
+			
 		if($this->skautIS->getUser()->isLoggedIn()) {			
 			$this->template->url = $this->link('Homepage:logout');
 			$this->template->text = "Odhlásit se";
@@ -53,11 +53,9 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 		} else {
 			$this->user->logout(TRUE);
 			$this->template->url = $this->skautIS->getLoginUrl($this->link('//this'));
-			$this->template->text = "Přihlásit se";
-			$this->template->role="guest";
-			$this->template->login="guest";		
+			$this->template->text = "Přihlásit se";			
 		}			
-		$this->setSeason();
+		$this->setSeason();	
 		$this->template->season = $this->season;
 		
 	}

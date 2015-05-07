@@ -70,15 +70,19 @@ class QuestionDbMapper extends BaseDbMapper {
 		return $questions;
 	}
 	
-	public function getCatogoriesByQuestion($id) {
+	public function getCategoriesByQuestion($id) {
 		$join =  $this->database->table('question')
 				->get($id)
 				->related('category_question');		
 		$categories = array();
 		foreach ($join as $category) {			
-			$categories[] = $this->database->table('category')
+			$row = $this->database->table('category')
 					->where('id', $category->category_id)
 					->fetch();
+			$category = new Category($row->id);
+			$category->name = $row->name;
+			$category->short = $row->short;
+			$categories[] = $category;
 		}
 		return $categories;
 	}
@@ -164,6 +168,23 @@ class QuestionDbMapper extends BaseDbMapper {
 			$answers[] = $answer;
 		}		
 		return $answers;
+	}
+	
+	public function getNumUnansweredQuestion($id) {
+		$questions = $this->database->table('question')
+				->where('race', $id);
+		if ($questions) {
+			$counter = 0;
+			foreach ($questions as $question) {
+				$answear = $this->database->table('answear')
+						->where('question', $question->id);
+				if (!$answear) {
+					$counter++;
+				} 
+			}
+			return $counter;
+		}
+		return 0;
 	}
 	
 }

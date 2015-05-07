@@ -29,7 +29,7 @@ class Season extends Nette\Object {
 		if (is_int($year)) {
 			$this->year = $year;
 		} else {
-			throw new InvalidArgumentException("Rok musí být číslo");
+			throw new \Nette\InvalidArgumentException("Rok musí být číslo");
 		}
 	}
 	

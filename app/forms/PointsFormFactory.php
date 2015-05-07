@@ -54,7 +54,9 @@ class PointsFormFactory extends BaseFormFactory {
 		foreach ($watchs as $watch) {
 			$form->addText($watch->id)
 				//->addRule(\Nette\Forms\Form::FLOAT, 'Musí být číselná hodnota')
-				->setAttribute('size', 5);
+				->setAttribute('size', 5)
+				->setDefaultValue($watch->getPoints($this->race));
+			$form->addTextArea("note" . $watch->id);
 		}
 		
 		$renderer = $form->getRenderer();
@@ -65,17 +67,27 @@ class PointsFormFactory extends BaseFormFactory {
 
 	public function formSucceeded(Form $form)
 	{		
-		$values = $form->getHttpData();
+		
+		$values = $form->getHttpData();		
 		$race = $this->raceRepository->getRace($this->race);
 		unset($values["send"]);
-		unset($values["do"]);
-		asort($values);
-		$data = array();
+		unset($values["do"]);		
 		$femaleOrder=0;
 		$maleOrder=0;
+		$data = array();
+		$points = array();
 		foreach ($values as $key => $value) {
-			 $id = substr($key, 1);
-			 $watch = $this->watchRepository->getWatch($id);
+			if (substr($key, 0, 1) === '_') {
+				$index = substr($key, 1);
+				$data[$index]["index"] = $index;
+				$data[$index]["points"] = $value;
+				$data[$index]["note"] = $values["note" . $index];	
+				$points[$index] = $value;
+			}
+		}	
+		array_multisort($points, SORT_DESC, $data);
+		foreach ($data as $result) {			 
+			 $watch = $this->watchRepository->getWatch($result["index"]);
 			 $category = $watch->getCategory();
 			 $order = null;
 			 $advance = false;
@@ -93,15 +105,15 @@ class PointsFormFactory extends BaseFormFactory {
 			 $watch->fixCategory();
 			 if ($advance) {				 
 				 $watch->processAdvance($race);
-			 }
-			 $points = (int) $value;			 
+			 }						 
 			 $this->database->table('race_watch')
 					 ->where('race_id', $this->race)
-					 ->where('watch_id', $id)
+					 ->where('watch_id', $result["index"])
 					 ->update(array(
-						 "points" => $points,
+						 "points" => $result["points"],
 						 "order" => $order,
-						 "advance" => $advance
+						 "advance" => $advance,
+						 "note" => $result["note"]
 						));
 			 
 		}		

@@ -16,7 +16,8 @@ class FileDbMapper extends BaseDbMapper {
 		$file->name = $row->name;
 		$file->size = $row->size;
 		$file->description = $row->description;
-		$file->type = $row->type;
+		$rowFileType = $this->database->table('whitelist')->get($row->type);
+		$file->type = new FileType($rowFileType->mime, $rowFileType->title, $rowFileType->path);
 		$file->path = $row->path;
 		$file->author = $this->userRepository->getUser($row->author);
 		$file->competition = $row->competition;
@@ -66,7 +67,12 @@ class FileDbMapper extends BaseDbMapper {
 	}
 	
 	public function getFileTypes() {
-		return $this->database->table('whitelist');		
+		$table = $this->database->table('whitelist');
+		$fileTypes = array();
+		foreach ($table as $row) {
+			$fileTypes[] = new FileType($row->mime, $row->title, $row->path);			
+		}
+		return $fileTypes;
 	}
 	
 	public function deleteFileType($mime) {
@@ -83,14 +89,7 @@ class FileDbMapper extends BaseDbMapper {
 		}
 		$files->delete();
 		$row->delete();
-	}
-
-
-	public function getIconName($type) {
-		return $this->database->table('whitelist')
-				->get($type)
-				->path;
-	}
+	}	
 	
 	public function getCatogoriesByFile($id) {
 		$join =  $this->database->table('category_file')
@@ -103,7 +102,6 @@ class FileDbMapper extends BaseDbMapper {
 			$category = new Category($row->id);
 			$category->name = $row->name;
 			$category->short = $row->short;
-			$category->description = $row->description;
 			$categories[] = $category;
 		}
 		return $categories;

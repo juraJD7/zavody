@@ -53,7 +53,7 @@ class WatchRepository extends Nette\Object {
 	private function getPersonRepository() {
 		return call_user_func($this->personRepositoryFactory);
 	}
-
+	
 
 	/**
 	 * 
@@ -103,6 +103,10 @@ class WatchRepository extends Nette\Object {
 	
 	public function getPoints($watchId, $raceId) {
 		return $this->getDbMapper()->getPoints($watchId, $raceId);
+	}
+	
+	public function getNote($watchId, $raceId) {
+		return $this->getDbMapper()->getNote($watchId, $raceId);
 	}
 	
 	public function getOrder($watchId, $raceId) {
