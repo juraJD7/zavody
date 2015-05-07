@@ -26,9 +26,19 @@ class AdminPresenter extends BasePresenter {
 	 */
 	public $adminRepository;
 	
-	public function createComponentAddAdminForm() {
+	public function startup() {
+		parent::startup();
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Musíte se přihlásit.");
+		}
+		if (!$this->user->isInRole('admin')) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
+		}
+	}
+
+	public function createComponentAddAdminForm() {		
 		$form = new Form();
-		
+
 		$users = $this->userRepository->loadNonAdminUsers();
 		$items = array();
 		foreach ($users as $user) {
@@ -39,7 +49,7 @@ class AdminPresenter extends BasePresenter {
 				->setAttribute('class', 'js-example-basic-multiple');				
 		$form->addSubmit('send', "Odeslat");
 		$form->onSuccess[] = array($this, 'addAdminFormSucceeded');
-		return $form;
+		return $form;		
 	}
 	
 	public function addAdminFormSucceeded(Form $form, $values) {
@@ -53,8 +63,7 @@ class AdminPresenter extends BasePresenter {
 	}	
 	
 	public function createComponentWhiteListForm() {
-		$form = new Form();
-		
+		$form = new Form();	
 		
 		$form->addGroup("Přídání nového typu souboru");
 		$form->addText('title', "Titulek");
@@ -99,7 +108,7 @@ class AdminPresenter extends BasePresenter {
 	}
 	
 	public function addCategoryFormSucceeded(Form $form, $values) {
-			$this->database->table('category')->insert($values);
+		$this->database->table('category')->insert($values);
 	}	
 	
 	public function createComponentAddSeasonForm() {
@@ -128,22 +137,18 @@ class AdminPresenter extends BasePresenter {
 	}
 	
 	public function addSeasonFormSucceeded(Form $form, $values) {
-			$setDefault = $values->setDefault;
-			unset($values->setDefault);
-			$row = $this->database->table('season')->insert($values);
-			if ($setDefault) {
-				$this->database->table('setting')
-						->where('property', 'season')
-						->update(array('value' => $row->id));
-			}
+		$setDefault = $values->setDefault;
+		unset($values->setDefault);
+		$row = $this->database->table('season')->insert($values);
+		if ($setDefault) {
+			$this->database->table('setting')
+					->where('property', 'season')
+					->update(array('value' => $row->id));
+		}
 	}
 	
 	public function renderDefault() {
-		if ($this->user->isInRole('admin')) {
-			$this->template->admins = $this->userRepository->getAdmins();
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této akci");
-		}
+		$this->template->admins = $this->userRepository->getAdmins();		
 	}
 	
 	public function handleDeleteAdmin($id) {
@@ -154,11 +159,7 @@ class AdminPresenter extends BasePresenter {
 	}
 	
 	public function renderWhitelist() {
-		if ($this->user->isInRole('admin')) {
-			$this->template->filetypes = $this->fileRepository->getFileTypes();
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této akci");
-		}
+		$this->template->filetypes = $this->fileRepository->getFileTypes();		
 	}
 	
 	public function handleDeleteFileType($mime) {
@@ -168,11 +169,7 @@ class AdminPresenter extends BasePresenter {
 	}
 	
 	public function renderCategories() {
-		if ($this->user->isInRole('admin')) {
-			$this->template->categories = $this->adminRepository->getAllCategories();
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této akci");
-		}
+		$this->template->categories = $this->adminRepository->getAllCategories();		
 	}
 	
 	public function handleDeleteCategory($id) {
@@ -181,12 +178,8 @@ class AdminPresenter extends BasePresenter {
 		$this->redrawControl();
 	}
 	
-	public function renderSeason() {
-		if ($this->user->isInRole('admin')) {
-			$this->template->seasons = $this->adminRepository->getAllSeasons();
-			$this->template->defaultSeason = $this->adminRepository->getDefaultSeason();
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této akci");
-		}
+	public function renderSeason() {		
+		$this->template->seasons = $this->adminRepository->getAllSeasons();
+		$this->template->defaultSeason = $this->adminRepository->getDefaultSeason();		
 	}
 }

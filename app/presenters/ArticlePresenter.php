@@ -69,10 +69,17 @@ class ArticlePresenter extends BasePresenter {
 	 */
 	protected function createComponentArticleForm()
 	{
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}		
+		if (!$this->user->isInRole('admin') && !$this->user->isInRole('raceManager')) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
+		}		
+		$articleId = $this->getParameter('articleId');
 		$this->articleFactory->setAdminOnly($this->adminOnly);		
 		$this->articleFactory->setRace($this->raceId);
 		$form = $this->articleFactory->create();
-		$articleId = $this->getParameter('articleId');					
+							
 		$this->articleFactory->setId($articleId);
 		$form->onSuccess[] = function () {
 			$this->flashMessage("Článek byl uložen.");
@@ -83,39 +90,47 @@ class ArticlePresenter extends BasePresenter {
 	
 	protected function createComponentCommentForm()
 	{
-		if($this->skautIS->getUser()->isLoggedIn()) {
-			$article = $this->getParameter('articleId');
-			$this->commentFactory->setArticle($article);
-			$form = $this->commentFactory->create();
-			$form->onSuccess[] = function () {	
-				$article = $this->getParameter('articleId');
-				$this->redirect("Article:detail", $article);
-			};
-			return $form;
-		} else {
-			throw new \Skautis\Wsdl\AuthenticationException("Pro tuto funkci je nutné se přihlásit");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		$article = $this->getParameter('articleId');
+		$this->commentFactory->setArticle($article);
+		$form = $this->commentFactory->create();
+		$form->onSuccess[] = function () {	
+			$article = $this->getParameter('articleId');
+			$this->redirect("Article:detail", $article);
+		};
+		return $form;		
 	}
 	
 	protected function createComponentEditComment()
 	{
-		if($this->skautIS->getUser()->isLoggedIn()) {
-			$this->commentFactory->setId($this->getParameter('commentId'));		
-			$form = $this->commentFactory->create();				
-			$this->commentFactory->setArticle($this->getParameter('articleId'));			
-			$form->onSuccess[] = function ($form) {					
-				$article = $this->getParameter('articleId');
-				$this->redirect("Article:detail", $article);
-			};
-			return $form;
-		} else {
-			throw new \Skautis\Wsdl\AuthenticationException("Pro tuto funkci je nutné se přihlásit");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}		
+		$commentId = $this->getParameter('commentId');
+		if ($this->commentId) {
+			$comment = $this->commentRepository->getComment($commentId);
 		}
+		if ($comment->author->id != $this->user->id) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
+		}		
+		$this->commentFactory->setId($commentId);		
+		$form = $this->commentFactory->create();				
+		$this->commentFactory->setArticle($this->getParameter('articleId'));			
+		$form->onSuccess[] = function () {					
+			$article = $this->getParameter('articleId');
+			$this->redirect("Article:detail", $article);
+		};
+		return $form;		
 	}
 	
 	public function renderCreate($id = NULL, $adminOnly = 0) {
 		$this->adminOnly = $adminOnly;
-		$this->raceId = $id;		
+		$this->raceId = $id;
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}	
 		if (!$this->user->isInRole('admin') && !($this->user->isInRole('raceManager') && in_array($id, $this->user->races))) {
 			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
 		}
@@ -140,43 +155,43 @@ class ArticlePresenter extends BasePresenter {
 	}
 	
 	public function renderAdmin() {		
-		if ($this->user->isInRole('admin') || $this->user->isInRole('raceManager')) {
-			$this->template->categories = $this->articleRepository->getAllCategories('article');
-			$page = $this->getParameter('page');
-			$this->category = $this->getParameter('category');
-			if ($this->paginator->itemCount === NULL) {		
-				$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
-				$this->paginator->setItemCount($this->articleRepository->countAll(\BaseDbMapper::ADMIN_ONLY, $this->category));
-				$this->paginator->setItemsPerPage(1); 
-				$this->paginator->setPage($page);			
-			}
-			$this->params['category'] = $this->category;
-			$this->template->paginator = $this->paginator;
-			$this->template->actionPaginator = "admin";
-			$this->template->params = $this->params;		
-
-			$this->template->articles = $this->articleRepository->getArticles($this->paginator, \BaseDbMapper::ADMIN_ONLY, $this->category);			
-			
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte potřebná oprávnění");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}		
+		if (!$this->user->isInRole('admin') && !$this->user->isInRole('raceManager')) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
+		}	
+		$this->template->categories = $this->articleRepository->getAllCategories('article');
+		$page = $this->getParameter('page');
+		$this->category = $this->getParameter('category');
+		if ($this->paginator->itemCount === NULL) {		
+			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator->setItemCount($this->articleRepository->countAll(\BaseDbMapper::ADMIN_ONLY, $this->category));
+			$this->paginator->setItemsPerPage(1); 
+			$this->paginator->setPage($page);			
 		}
+		$this->params['category'] = $this->category;
+		$this->template->paginator = $this->paginator;
+		$this->template->actionPaginator = "admin";
+		$this->template->params = $this->params;		
+
+		$this->template->articles = $this->articleRepository->getArticles($this->paginator, \BaseDbMapper::ADMIN_ONLY, $this->category);		
 	}
 	
 	public function renderMy() {
-		if ($this->user->isLoggedIn()) {			
-			$page = $this->getParameter('page');
-			$paginator = new Nette\Utils\Paginator;
-			$paginator->setItemCount($this->articleRepository->countAllAuthor($this->user->id));
-			$paginator->setItemsPerPage(5); 
-			$paginator->setPage($page);
-			$this->template->paginator = $paginator;
-			$this->template->actionPaginator = "my";
-			$this->template->params = array();
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}		
+		$page = $this->getParameter('page');
+		$paginator = new Nette\Utils\Paginator;
+		$paginator->setItemCount($this->articleRepository->countAllAuthor($this->user->id));
+		$paginator->setItemsPerPage(5); 
+		$paginator->setPage($page);
+		$this->template->paginator = $paginator;
+		$this->template->actionPaginator = "my";
+		$this->template->params = array();
 
-			$this->template->articles = $this->articleRepository->getArticlesByAuthor($paginator, $this->user->id);
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
-		}
+		$this->template->articles = $this->articleRepository->getArticlesByAuthor($paginator, $this->user->id);		
 	}
 	
 	public function renderRace($id) {
@@ -194,105 +209,99 @@ class ArticlePresenter extends BasePresenter {
 	}
 	
 	public function handleDelete($articleId) {
-		try {
-			$article = $this->articleRepository->getArticle($articleId);
-		} catch (Nette\InvalidArgumentException $ex) {
-			$this->error("Článek neexistuje");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}		
+		$article = $this->articleRepository->getArticle($articleId);
+		if ($article->author->id != $this->user->id 
+				&& !$this->user->isInRole('admin') 
+				&& !($this->user->isInRole('raceManager') && in_array($article->race, $this->user->races))) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
-		if ($article->author->id == $this->user->id || $this->user->isInRole('admin')) {
-			$result = $this->articleRepository->delete($articleId);
-			if(!$result) {
-				$this->error("Článek se nepodařilo smazat!");
-			}
-			$link = $this->link("Article:");
-			$this->redirectUrl($link);
+		$result = $this->articleRepository->delete($articleId);
+		if(!$result) {
+			$this->error("Článek se nepodařilo smazat!");
 		}
+		$this->flashMessage("Článek byl smazán.");
+		$this->redirect("Article:");		
 	}
 	
 	public function handleDeleteComment($article, $commentId, $page) {
-		try {
-			$comment = $this->commentRepository->getComment($commentId);
-		} catch (Nette\InvalidArgumentException $ex) {
-			$this->error("Komentář neexistuje");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
-		if ($comment->author->id == $this->user->id || $this->user->isInRole('admin')) {
-			$result = $this->commentRepository->delete($commentId);
-			if(!$result) {
-				$this->error("Komentář se nepodařilo smazat!");
-			}
-			$link = $this->link("Article:detail", $article);
-			$this->redirectUrl($link);
+		$comment = $this->commentRepository->getComment($commentId);	
+		$art = $this->articleRepository->getArticle($article);
+		if ($comment->author->id != $this->user->id
+				&& !$this->user->isInRole('admin') 
+				&& !($this->user->isInRole('raceManager') && in_array($art->race, $this->user->races))) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
+		$result = $this->commentRepository->delete($commentId);
+		if(!$result) {
+			$this->error("Komentář se nepodařilo smazat!");
+		}
+		$this->flashMessage("Komenrář byl smazán.");
+		$this->redirect("Article:detail", $article);
 	}
 	
 	public function handleEditComment($commentId, $page) {
-		try {
-			$comment = $this->commentRepository->getComment($commentId);
-		} catch (Nette\InvalidArgumentException $ex) {
-			$this->error("Komentář neexistuje");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
-		$this->commentId = $commentId;
-		if ($comment->author->id == $this->user->id) {
-			$this->redrawControl("comment-$comment->id");
+		$comment = $this->commentRepository->getComment($commentId);
+		if ($comment->author->id != $this->user->id) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}		
+		$this->commentId = $commentId;		
+		$this->redrawControl("comment-$comment->id");				
 		$this->template->edit=$commentId;		
 		$this['editComment']['title']->setDefaultValue($comment->title);
 		$this['editComment']['text']->setDefaultValue($comment->text);
 	}
 	
-	public function actionDetail($articleId, $commentId) {		
-		try {
-			$article = $this->articleRepository->getArticle($articleId);
-			if (($article->status != \Article::PUBLISHED) &&
-				!($this->user->isInRole('admin') || ($this->user->id == $article->author->id))) {
-				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");
-			}				
-			$page = $this->getParameter('page');
-			$paginator = new Nette\Utils\Paginator;
-			$paginator->setItemCount($this->commentRepository->countAll($articleId));
-			$paginator->setItemsPerPage(3); 
-			$paginator->setPage($page);
-			$this->template->paginator = $paginator;
-			$this->template->actionPaginator = "detail#comments";
-			$this->template->params = array($articleId);
-			$this->template->page = $page;
-			
-			$this->template->article = $article;	
-			$this->template->comments = $this->commentRepository->getComments($paginator, $articleId);			
-		} catch (\InvalidArgumentException $ex) {
-			$this->error($ex);
-		} catch (Nette\Security\AuthenticationException $ex) {
-			$this->error($ex);
-			$this->redirect("Article:default");
-		}
+	public function actionDetail($articleId, $commentId) {
+		$article = $this->articleRepository->getArticle($articleId);
+		if (($article->status != \Article::PUBLISHED) &&
+				!($this->user->isInRole('admin') 
+					|| ($this->user->isInRole('raceManager') && in_array($article->race, $this->user->races)))) {
+				throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
+		}	
+		$page = $this->getParameter('page');
+		$paginator = new Nette\Utils\Paginator;
+		$paginator->setItemCount($this->commentRepository->countAll($articleId));
+		$paginator->setItemsPerPage(3); 
+		$paginator->setPage($page);
+		$this->template->paginator = $paginator;
+		$this->template->actionPaginator = "detail#comments";
+		$this->template->params = array($articleId);
+		$this->template->page = $page;
+
+		$this->template->article = $article;	
+		$this->template->comments = $this->commentRepository->getComments($paginator, $articleId);
 	}
 	
 	public function actionEdit($articleId) {
-		try {
-			$article = $this->articleRepository->getArticle($articleId);
-			if (!($this->user->isInRole('admin') || ($this->user->id == $article->author->id))) {
-				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");
-			}
-			
-			$publish = (!is_null($article->published)) ? TRUE : FALSE;			
-			$this['articleForm']['title']->setDefaultValue($article->title);
-			$this['articleForm']['lead']->setDefaultValue($article->lead);
-			$this['articleForm']['text']->setDefaultValue($article->text);
-			$this['articleForm']['publish']->setDefaultValue($publish);	
-			$this['articleForm']['admin_only']->setDefaultValue($article->adminOnly);
-			$this['articleForm']['race']->setDefaultValue($article->race);
-			$categories = $this->articleRepository->getCategoriesByArticle($article->id);			
-			$items = array();
-			foreach ($categories as $category) {
-				$items[] = $category->id;
-			}			
-			$this['articleForm']['categories']->setDefaultValue($items);
-			
-		} catch (\InvalidArgumentException $ex) {
-			$this->error($ex);
-		} catch (Nette\Security\AuthenticationException $ex) {
-			$this->error($ex);
-			$this->redirect("Article:default");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		$article = $this->articleRepository->getArticle($articleId);
+		if (!($this->user->isInRole('admin') 
+				&& !($this->user->isInRole('raceManager') && in_array($article->race, $this->user->races)))) {
+			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
+		}			
+		$publish = (!is_null($article->published)) ? TRUE : FALSE;			
+		$this['articleForm']['title']->setDefaultValue($article->title);
+		$this['articleForm']['lead']->setDefaultValue($article->lead);
+		$this['articleForm']['text']->setDefaultValue($article->text);
+		$this['articleForm']['publish']->setDefaultValue($publish);	
+		$this['articleForm']['admin_only']->setDefaultValue($article->adminOnly);
+		$this['articleForm']['race']->setDefaultValue($article->race);
+		$categories = $this->articleRepository->getCategoriesByArticle($article->id);			
+		$items = array();
+		foreach ($categories as $category) {
+			$items[] = $category->id;
+		}			
+		$this['articleForm']['categories']->setDefaultValue($items);
 	}
 }

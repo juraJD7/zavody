@@ -51,7 +51,9 @@ class RacePresenter extends BasePresenter {
 	private $watchs;
 
 	public function createComponentRaceForm() {
-		if ($this->user->isLoggedIn()) {		
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}	
 		$raceId = $this->getParameter('id');
 		$this->raceFormFactory->setId($raceId);
 		$form = $this->raceFormFactory->create();
@@ -59,29 +61,29 @@ class RacePresenter extends BasePresenter {
 			$this->flashMessage("Závod byl založen.");
 			$this->redirect('this');
 		};
-		return $form;
-		} else {
-			throw new \Skautis\Wsdl\AuthenticationException("Pro založení závodu je třeba se přihlásit");
-		}
+		return $form;		
 	}
 	
 	public function createComponentPointsForm() {
-		if($this->skautIS->getUser()->isLoggedIn()) {						
-			$this->pointsFormFactory->setWatchs($this->watchs);
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}	
+		$id = $this->getParameter('id');
+		if (!$this->user->isInRole('admin')
+				&& !($this->user->isInRole('raceManager') && in_array($id, $this->user->races))) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
+		}						
+		$this->pointsFormFactory->setWatchs($this->watchs);		
+		$this->pointsFormFactory->setRace($id);	
+		$form = $this->pointsFormFactory->create();
+		$form->onSuccess[] = function () {
 			$id = $this->getParameter('id');
-			$this->pointsFormFactory->setRace($id);	
-			$form = $this->pointsFormFactory->create();
-			$form->onSuccess[] = function () {
-				$id = $this->getParameter('id');
-				//$this->sendConfirmMail($id);
-				$id = $this->getParameter('id');
-				$this->flashMessage("Vysledky byly zadány.");		
-				$this->redirect("Race:detail", $id);
-			};	
-			return $form;
-		} else {
-			throw new \Skautis\Wsdl\AuthenticationException("Pro tuto funkci je nutné se přihlásit");
-		}
+			//$this->sendConfirmMail($id);
+			$id = $this->getParameter('id');
+			$this->flashMessage("Vysledky byly zadány.");		
+			$this->redirect("Race:detail", $id);
+		};	
+		return $form;		
 	}	
 	
 	private function sendConfirmMail($raceId) {
@@ -142,36 +144,35 @@ class RacePresenter extends BasePresenter {
 			$this->template->token = $token;
 			$this->template->watchs = $this->watchRepository->getWatchs($raceId);
 		} else {
-			throw new \Nette\Security\AuthenticationException("Neplatný token.");
+			throw new \Race\PermissionException("Neplatný token.");
 		}	
 	}
 	
 	public function renderMy() {
-		if ($this->user->isLoggedIn()) {
-			//všechny, které založil akt. uživatel		
-			$editor = $this->raceRepository->getRacesByEditor($this->user->id);	
-			//pro činovníky / administrátory pořádající jendotky
-			if ($this->user->isOfficial()) {
-				$administrator = $this->raceRepository->getRacesByOrganizer($this->skautIS->getUser()->getUnitId());
-			}
-			//jsem účastníkem
-			$participant = $this->raceRepository->getRacesByParticipant($this->user->id);		
-			$this->template->races = $editor + $administrator + $participant;
-			krsort($this->template->races);
-			$roles = array();
-			foreach (array_keys($this->template->races) as $key) {
-				if (array_key_exists($key, $editor)) {
-					$roles[$key] = "Editor závodu";
-				} else if (array_key_exists($key, $administrator)) {
-					$roles[$key] = "Činovník pořádající jednotky";
-				} else if (array_key_exists($key, $participant)) {
-					$roles[$key] = "Účastník závodu";
-				}
-			}
-			$this->template->roles = $roles;
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		//všechny, které založil akt. uživatel		
+		$editor = $this->raceRepository->getRacesByEditor($this->user->id);	
+		//pro činovníky / administrátory pořádající jendotky
+		if ($this->user->isOfficial()) {
+			$administrator = $this->raceRepository->getRacesByOrganizer($this->skautIS->getUser()->getUnitId());
+		}
+		//jsem účastníkem
+		$participant = $this->raceRepository->getRacesByParticipant($this->user->id);		
+		$this->template->races = $editor + $administrator + $participant;
+		krsort($this->template->races);
+		$roles = array();
+		foreach (array_keys($this->template->races) as $key) {
+			if (array_key_exists($key, $editor)) {
+				$roles[$key] = "Editor závodu";
+			} else if (array_key_exists($key, $administrator)) {
+				$roles[$key] = "Činovník pořádající jednotky";
+			} else if (array_key_exists($key, $participant)) {
+				$roles[$key] = "Účastník závodu";
+			}
+		}
+		$this->template->roles = $roles;		
 	}
 	
 	public function handleConfirm() {
@@ -189,16 +190,14 @@ class RacePresenter extends BasePresenter {
 				}
 				$this->invalidateControl();
 			} else {
-				throw new \Nette\Security\AuthenticationException("Neplatný token.");
+				throw new \Race\PermissionException("Neplatný token.");
 			}
 		}		
 	}
 
 	public function renderCreate() {
-		if ($this->user->isLoggedIn()) {
-			
-		} else {
-			throw new \Skautis\Wsdl\AuthenticationException("Pro založení závodu je třeba se přihlásit");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 	}
 	
@@ -208,39 +207,39 @@ class RacePresenter extends BasePresenter {
 		$this->template->races = $this->raceRepository->getRaces($this->season);
 	}
 	
-	public function renderDetail($id) {
-		try {
-			$this->template->race = $this->raceRepository->getRace($id);
+	public function renderDetail($id) {		
+		$this->template->race = $this->raceRepository->getRace($id);
+		if ($this->user->isLoggedIn()) {
 			$this->template->watchs = $this->watchRepository->getWatchs($id);
-		} catch (\Nette\InvalidArgumentException $ex) {
-			$this->error($ex);
 		}
 	}
 	
 	public function renderAdministrate($id) {
-		try {
-			$this->template->race = $this->raceRepository->getRace($id);
-			$this->watchs = $this->watchRepository->getWatchs($id);
-			$this->template->watchs = $this->watchs;
-			$this->template->unansweredQuestions = $this->questionRepository->getNumUnansweredQuestion($id);			
-		} catch (\Nette\InvalidArgumentException $ex) {
-			$this->error($ex);
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		if (!$this->user->isInRole('admin')
+				&& !($this->user->isInRole('raceManager') && in_array($id, $this->user->races))) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
+		}
+		$this->template->race = $this->raceRepository->getRace($id);
+		$this->watchs = $this->watchRepository->getWatchs($id);
+		$this->template->watchs = $this->watchs;
+		$this->template->unansweredQuestions = $this->questionRepository->getNumUnansweredQuestion($id);
 	}
 
 	public function renderEdit($id) {
-		try {
-			$race = $this->raceRepository->getRace($id);
-			if(!$this->user->isInRole('admin') && !$race->canEdit($this->user->id)) {
-				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");				
-			}
-			$this->template->editors = $this->raceRepository->getEditors($id);
-			$this->template->race = $race;
-			//\Tracy\Dumper::dump();exit;
-			$this["raceForm"]->setDefaults($this->raceRepository->getDataForForm($id));
-		} catch (\Nette\InvalidArgumentException $ex) {
-			$this->error($ex);
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		if (!$this->user->isInRole('admin')
+				&& !($this->user->isInRole('raceManager') && in_array($id, $this->user->races))) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
+		}
+		$race = $this->raceRepository->getRace($id);			
+		$this->template->editors = $this->raceRepository->getEditors($id);
+		$this->template->race = $race;			
+		$this["raceForm"]->setDefaults($this->raceRepository->getDataForForm($id));		
 	}
 	
 }

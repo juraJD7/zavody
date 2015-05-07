@@ -39,6 +39,9 @@ class FilePresenter extends BasePresenter {
 	
 	protected function createComponentFileForm()
 	{
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}
 		$form = $this->fileFormFactory->create();
 		$fileId = $this->getParameter('id');
 		if (isset($fileId)) {
@@ -52,17 +55,13 @@ class FilePresenter extends BasePresenter {
 	}
 	
 	public function actionEdit($id) {
-		try {			
-			$file = $this->fileRepository->getFile($id);
-			if (!($this->user->isInRole('admin') || ($this->user->id == $file->author))) {
-				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");
-			}
-		} catch (\InvalidArgumentException $ex) {
-			$this->error($ex);
-		} catch (Nette\Security\AuthenticationException $ex) {
-			$this->error($ex);
-			$this->redirect("File:default");
-		}
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}		
+		$file = $this->fileRepository->getFile($id);
+		if (!($this->user->isInRole('admin') || ($this->user->id == $file->author))) {
+			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
+		}		
 		$this['fileForm']['name']->setDefaultValue($file->name);
 		$this['fileForm']['description']->setDefaultValue($file->description);
 		$categories = $this->fileRepository->getCategoriesByFile($file->id);			
@@ -74,37 +73,31 @@ class FilePresenter extends BasePresenter {
 	}
 	
 	public function renderUpload() {
-		if ($this->user->isLoggedIn()) {
-			
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 	}
 	
-	public function actionDownload($id) {
-		try {			
-			$file = $this->fileRepository->getFile($id);
-			if (!($this->user->isInRole('admin') || ($this->user->id == $file->author))) {
-				throw new Nette\Security\AuthenticationException("Nemáte požadovaná oprávnění!");
-			}
-		} catch (\InvalidArgumentException $ex) {
-			$this->error($ex);
-		} catch (Nette\Security\AuthenticationException $ex) {
-			$this->error($ex);
-			$this->redirect("File:default");
-		}	
+	public function actionDownload($id) {		
+		$file = $this->fileRepository->getFile($id);				
 		$filedownload = new \FileDownloader\FileDownload();	
 		$filedownload->sourceFile = \FileRepository::BASEDIR . $file->path;
 		$filedownload->download();
 	}
 	
 	public function actionDelete($id) {
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}
+		$file = $this->fileRepository->getFile($id);
+		if (!($this->user->isInRole('admin') || ($this->user->id == $file->author))) {
+			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
+		}
 		$this->fileRepository->deleteFile($id);
 		$this->redirect("File:");
 	}
 
-	public function renderDefault($category) {		
-		
+	public function renderDefault($category) {
 		$page = $this->getParameter('page');
 		
 		if (is_null($this->category)) {
@@ -136,20 +129,19 @@ class FilePresenter extends BasePresenter {
 	}
 	
 	public function renderMy() {		
-		if ($this->user->isLoggedIn()) {
-			$page = $this->getParameter('page');				
-			$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
-			$paginator->setItemCount($this->fileRepository->countAllAuthor($this->user->id));
-			$paginator->setItemsPerPage(10); 
-			$paginator->setPage($page);			
-
-			$this->template->paginator = $paginator;
-			$this->template->actionPaginator = "my";
-			$this->template->params = array();
-			$this->template->files = $this->fileRepository->getFilesByAuthor($paginator, $this->user->id);	
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		$page = $this->getParameter('page');				
+		$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+		$paginator->setItemCount($this->fileRepository->countAllAuthor($this->user->id));
+		$paginator->setItemsPerPage(10); 
+		$paginator->setPage($page);			
+
+		$this->template->paginator = $paginator;
+		$this->template->actionPaginator = "my";
+		$this->template->params = array();
+		$this->template->files = $this->fileRepository->getFilesByAuthor($paginator, $this->user->id);
 	}
 	
 	public function handleChangeCategory() {

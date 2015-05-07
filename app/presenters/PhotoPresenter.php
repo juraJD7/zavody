@@ -52,6 +52,9 @@ class PhotoPresenter extends BasePresenter {
 	
 	protected function createComponentPhotoUploadForm()
 	{
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}
 		$this->photoUploadFormFactory->setRace($this->raceId);
 		$form = $this->photoUploadFormFactory->create();		
 		$form->onSuccess[] = function ($form) {
@@ -62,21 +65,29 @@ class PhotoPresenter extends BasePresenter {
 	}
 	
 	protected function createComponentPhotoDescriptionForm()
-	{		
-		$photoId = $this->getParameter('photoId');		
+	{	
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}
+		$photoId = $this->getParameter('photoId');
+		$photo = $this->photoRepository->getPhoto($photoId);
+		if (!($this->user->isInRole('admin') 
+				&& ($photo->author->id != $this->user->id)
+				&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->races)))) {
+			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
+		}				
 		if (isset($photoId)) {
 			$this->photoDescriptionFormFactory->setId((int)$photoId);
 		}	
 		$form = $this->photoDescriptionFormFactory->create();
-		$form->onSuccess[] = function ($form) {
+		$form->onSuccess[] = function () {
 			$this->flashMessage("Popisek byl změněn");			
 			$this->redirect('this');
 		};
 		return $form;
 	}
 	
-	public function renderDefault() {
-		
+	public function renderDefault() {		
 		$this->page = $this->getParameter('page');
 		if ($this->paginator->itemCount === NULL) {
 			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
@@ -93,70 +104,76 @@ class PhotoPresenter extends BasePresenter {
 	}
 	
 	public function renderMy() {
-		if ($this->user->isLoggedIn()) {
-			$this->page = $this->getParameter('page');
-			if ($this->paginator->itemCount === NULL) {
-				$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
-				$this->paginator->setItemCount($this->photoRepository->countAllAuthor($this->user->id));
-				$this->paginator->setItemsPerPage(6); 
-				$this->paginator->setPage($this->page);
-			}		
-			$this->template->photos = $this->photoRepository->getPhotosByAuthor($this->paginator, $this->user->id);
-			$this->template->actionPaginator = "my";
-			$this->template->params = $this->params;
-			$this->template->paginator = $this->paginator;
-			$this->template->edit = $this->edit;
-			$this->template->page = $this->page;
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		$this->page = $this->getParameter('page');
+		if ($this->paginator->itemCount === NULL) {
+			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator->setItemCount($this->photoRepository->countAllAuthor($this->user->id));
+			$this->paginator->setItemsPerPage(6); 
+			$this->paginator->setPage($this->page);
+		}		
+		$this->template->photos = $this->photoRepository->getPhotosByAuthor($this->paginator, $this->user->id);
+		$this->template->actionPaginator = "my";
+		$this->template->params = $this->params;
+		$this->template->paginator = $this->paginator;
+		$this->template->edit = $this->edit;
+		$this->template->page = $this->page;		
 	}
 	
 	public function renderRace($race) {
-		if ($this->user->isLoggedIn()) {
-			$this->raceId = $race;
-			$this->page = $this->getParameter('page');
-			if ($this->paginator->itemCount === NULL) {
-				$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
-				$this->paginator->setItemCount($this->photoRepository->countAllRace($this->raceId));
-				$this->paginator->setItemsPerPage(6); 
-				$this->paginator->setPage($this->page);
-			}	
-			$this->template->race = $this->raceRepository->getRace($race);
-			$this->template->photos = $this->photoRepository->getPhotosByRace($this->paginator, $this->raceId);
-			$this->template->actionPaginator = "race";
-			$this->template->params = $this->params;
-			$this->template->paginator = $this->paginator;
-			$this->template->edit = $this->edit;
-			$this->template->page = $this->page;
-		} else {
-			throw new Nette\Security\AuthenticationException("Musíte být přihlášen");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		$this->raceId = $race;
+		$this->page = $this->getParameter('page');
+		if ($this->paginator->itemCount === NULL) {
+			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator->setItemCount($this->photoRepository->countAllRace($this->raceId));
+			$this->paginator->setItemsPerPage(6); 
+			$this->paginator->setPage($this->page);
+		}	
+		$this->template->race = $this->raceRepository->getRace($race);
+		$this->template->photos = $this->photoRepository->getPhotosByRace($this->paginator, $this->raceId);
+		$this->template->actionPaginator = "race";
+		$this->template->params = $this->params;
+		$this->template->paginator = $this->paginator;
+		$this->template->edit = $this->edit;
+		$this->template->page = $this->page;		
 	}
 	
 	public function handleDelete($photoId, $page, $race) {
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}		
 		$photo = $this->photoRepository->getPhoto($photoId);
-		if ($this->user->isInRole('admin') || $photo->author->id == $this->user->id) {
-			$this->page = $page;
-			$this->photoRepository->deletePhoto($photoId);
-			$this->redrawControl("photos");
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte potřebná oprávnění");
+		if (!($this->user->isInRole('admin') 
+				&& ($photo->author->id != $this->user->id)
+				&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->races)))) {
+			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 		}
+		$this->page = $page;
+		$this->photoRepository->deletePhoto($photoId);
+		$this->redrawControl("photos");		
 	}
 	
 	public function handleEdit($photoId, $page, $race) {
-		if ($this->isAjax()) {			
+		if ($this->isAjax()) {	
+			if (!$this->user->isLoggedIn()) {
+				throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+			}		
 			$photo = $this->photoRepository->getPhoto($photoId);
-			if ($this->user->isInRole('admin') || $photo->author->id == $this->user->id) {
-				$this->page = $page;				
-				$this->edit = $photoId;			
-				$this->template->photos = $this->photoRepository->getPublicPhotos($this->paginator);
-				$this["photoDescriptionForm"]["description"]->setDefaultValue($photo->description);
-				$this->redrawControl("photos");
-			} else {
-				throw new Nette\Security\AuthenticationException("Nemáte potřebná oprávnění");
-			}
+			if (!($this->user->isInRole('admin') 
+					&& ($photo->author->id != $this->user->id)
+					&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->races)))) {
+				throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
+			}			
+			$this->page = $page;				
+			$this->edit = $photoId;			
+			$this->template->photos = $this->photoRepository->getPublicPhotos($this->paginator);
+			$this["photoDescriptionForm"]["description"]->setDefaultValue($photo->description);
+			$this->redrawControl("photos");			
 		}
 	}
 }

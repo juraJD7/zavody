@@ -54,10 +54,13 @@ class QuestionPresenter extends BasePresenter {
 	private $category;
 	
 	public function createComponentQuestionForm() {
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}		
 		$this->questionFormFactory->setAdminOnly($this->adminOnly);
 		$this->questionFormFactory->setRace($this->raceId);
 		$form = $this->questionFormFactory->create();		
-		$form->onSuccess[] = function ($form) {
+		$form->onSuccess[] = function () {
 			$this->flashMessage("Otázka byla položena.");
 			$this->redirect('this');
 		};
@@ -65,19 +68,23 @@ class QuestionPresenter extends BasePresenter {
 	}
 	
 	protected function createComponentAnswerForm()
-	{		
-		if($this->skautIS->getUser()->isLoggedIn()) {
-			return new Multiplier(function ($questionId) {				
-				$this->answerFormFactory->setQuestion($questionId);
-				$form = $this->answerFormFactory->create();
-				$form->onSuccess[] = function ($form) {
-					$this->redirect('this');
-				};
-				return $form;
-			});
-		} else {
-			throw new \Skautis\Wsdl\AuthenticationException("Pro tuto funkci je nutné se přihlásit");
+	{	
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		$question = $this->questionRepository->getQuestion($questionId);
+		if (!($this->user->isInRole('admin')
+				&& !($this->user->isInRole('raceManager') && in_array($question->race, $this->user->races)))) {
+			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
+		}		
+		return new Multiplier(function ($questionId) {				
+			$this->answerFormFactory->setQuestion($questionId);
+			$form = $this->answerFormFactory->create();
+			$form->onSuccess[] = function () {
+				$this->redirect('this');
+			};
+			return $form;
+		});		
 	}
 	
 	public function renderDefault() {
@@ -113,60 +120,62 @@ class QuestionPresenter extends BasePresenter {
 	}
 	
 	public function renderAdmin() {
-		$this->adminOnly = 1;
-		if ($this->user->isInRole('admin') || $this->user->isInRole('raceManager')) {
-			$page = $this->getParameter('page');
-
-			if (is_null($this->category)) {
-				$this->category = $this->getParameter('category');
-			}
-
-			if ($this->paginator->itemCount === NULL) {		
-				$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
-				$this->paginator->setItemCount($this->questionRepository->countAll(\BaseDbMapper::ADMIN_ONLY, $this->category));
-				$this->paginator->setItemsPerPage(1); 
-				$this->paginator->setPage($page);			
-			}
-
-			if (is_null($this->actionPaginator)) {
-				$this->actionPaginator = "admin";
-			}		
-
-			if (is_null($this->questions)) {			
-				$this->questions = $this->questionRepository->getQuestions($this->paginator, \BaseDbMapper::ADMIN_ONLY, $this->category);
-			}		
-			$this->params['category'] = $this->category;		
-
-			$this->template->paginator = $this->paginator;
-			$this->template->actionPaginator = $this->actionPaginator;
-			$this->template->params = $this->params;		
-			$this->template->questions = $this->questions;
-
-			$this->template->categories = $this->questionRepository->getAllCategories('question');	
-			
-			$this->setView("default");
-		} else {
-			throw new Nette\Security\AuthenticationException("Nemáte potřebná oprávnění");
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}		
+		if (!$this->user->isInRole('admin') && !$this->user->isInRole('raceManager')) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
+		$this->adminOnly = 1;
+		
+		$page = $this->getParameter('page');
+
+		if (is_null($this->category)) {
+			$this->category = $this->getParameter('category');
+		}
+
+		if ($this->paginator->itemCount === NULL) {		
+			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator->setItemCount($this->questionRepository->countAll(\BaseDbMapper::ADMIN_ONLY, $this->category));
+			$this->paginator->setItemsPerPage(1); 
+			$this->paginator->setPage($page);			
+		}
+
+		if (is_null($this->actionPaginator)) {
+			$this->actionPaginator = "admin";
+		}		
+
+		if (is_null($this->questions)) {			
+			$this->questions = $this->questionRepository->getQuestions($this->paginator, \BaseDbMapper::ADMIN_ONLY, $this->category);
+		}		
+		$this->params['category'] = $this->category;		
+
+		$this->template->paginator = $this->paginator;
+		$this->template->actionPaginator = $this->actionPaginator;
+		$this->template->params = $this->params;		
+		$this->template->questions = $this->questions;
+
+		$this->template->categories = $this->questionRepository->getAllCategories('question');	
+
+		$this->setView("default");		
 	}
 	
-	public function renderMy() {	
-		$this->adminOnly = 0;
-		if ($this->user->isLoggedIn()) {
-			$page = $this->getParameter('page');	
-
-			$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
-			$paginator->setItemCount($this->questionRepository->countAllAuthor($this->user->id));
-			$paginator->setItemsPerPage(5); 
-			$paginator->setPage($page);	
-
-			$this->template->paginator = $paginator;
-			$this->template->actionPaginator = "my";
-			$this->template->params = array();		
-			$this->template->questions = $this->questionRepository->getQuestionsByAuthor($paginator, $this->user->id);
-		} else {
-			throw new Nette\Security\AuthenticationException("Pro tuto funkci je potřeba se přihlásit.");
+	public function renderMy() {
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		$this->adminOnly = 0;		
+		$page = $this->getParameter('page');
+
+		$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+		$paginator->setItemCount($this->questionRepository->countAllAuthor($this->user->id));
+		$paginator->setItemsPerPage(5); 
+		$paginator->setPage($page);	
+
+		$this->template->paginator = $paginator;
+		$this->template->actionPaginator = "my";
+		$this->template->params = array();		
+		$this->template->questions = $this->questionRepository->getQuestionsByAuthor($paginator, $this->user->id);		
 	}
 	
 	public function renderRace($id) {	

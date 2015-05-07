@@ -311,13 +311,14 @@ class RaceDbMapper extends BaseDbMapper {
 	
 	public function getRacesByEditor(RaceRepository $repository, $userId) {
 		$rows = $this->database->table('editor_race')
-				->where('user_id', $userId)
-				->where('season', $this->season);
+				->where('user_id', $userId);				
 		$races = array();
 		foreach ($rows as $row) {
 			$race = $this->getRace($row->race_id);
-			$race->repository = $repository;
-			$races[$race->id] = $race;
+			if ($race->season == $this->season) {
+				$race->repository = $repository;
+				$races[$race->id] = $race;
+			}
 		}
 		return $races;
 	}

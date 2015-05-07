@@ -22,11 +22,18 @@ class Authenticator extends Nette\Object implements Nette\Security\IAuthenticato
 	 * @var \Skautis\Skautis
 	 */
 	private $skautIS;
+	
+	/**
+	 *
+	 * @var \RaceRepository
+	 */
+	private $raceRepository;
 
-    function __construct(Nette\Database\Context $database, \SkautIS\SkautIS $skautIS)
+    function __construct(Nette\Database\Context $database, \SkautIS\SkautIS $skautIS, RaceRepository $raceRepository)
     {
         $this->database = $database;
 		$this->skautIS = $skautIS;
+		$this->raceRepository = $raceRepository;
     }
 	
 	/**
