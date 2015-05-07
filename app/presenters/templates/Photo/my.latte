@@ -2,7 +2,11 @@
 
 <h1>Moje fotografie</h1>
 
-{control photoUploadForm}
+{if $user->isLoggedIn()}
+	<p>
+	{control photoUploadForm}
+	</p>
+{/if}
 
 {include '../pagination.latte'}
 {snippet photos}	

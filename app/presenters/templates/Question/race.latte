@@ -2,9 +2,11 @@
 
 <h1>Otázky k závodu {$race->name}</h1>
 
-<p>
-{control questionForm}
-</p>
+{if $user->isLoggedIn()}
+	<p>
+	{control questionForm}
+	</p>
+{/if}
 
 
 {include '../pagination.latte'}

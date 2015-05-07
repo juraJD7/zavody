@@ -7,7 +7,7 @@
 	<li><a n:href="Article:race $race->id">Články k závodu</a> (Celkem: 0)</li>
 	<li><a n:href="Question:race $race->id">Dotazy k závodu</a> (Celkem 0)</li>
 	<li><a n:href="Photo:race $race->id">Fotky k závodu</a> (Celkem: 0)</li>
-{if $race->canEdit($user->id) || $user->isInRole('admin')}
+{if ($user->isInRole('raceManager') && in_array($race->id, $user->races) || $user->isInRole('admin')}
 	<li><a n:href="Race:edit $race->id">Editovat parametry závodu</a></li>
 	<li><a n:href="Race:edit $race->id">Spravovat závod (zadávání výsledků, ...)</a></li>
 {/if}

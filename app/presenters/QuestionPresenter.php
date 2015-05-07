@@ -72,9 +72,8 @@ class QuestionPresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
-		$question = $this->questionRepository->getQuestion($questionId);
 		if (!($this->user->isInRole('admin')
-				&& !($this->user->isInRole('raceManager') && in_array($question->race, $this->user->races)))) {
+				&& !$this->user->isInRole('raceManager'))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 		}		
 		return new Multiplier(function ($questionId) {				

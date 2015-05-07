@@ -35,7 +35,7 @@
 				  </tr>
 			  {/foreach}			  
 		  {/if}
-		  {if $user->isLoggedIn() && ($user->isInRole('admin') || $user->isInRole('raceManager') && in_array($question->race, $user->races))}
+		  {if ($user->isInRole('admin') || $user->isInRole('raceManager'))}
 			  {form answerForm-$question->id, class => ajax}
 				  <tr><td>{input text}</td><td>{input send}</td><tr>
 			  {/form}

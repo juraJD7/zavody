@@ -2,7 +2,11 @@
 
 <h1>Nahrávání fotek</h1>
 
-{control photoUploadForm}
+{if $user->isLoggedIn()}
+	<p>
+	{control photoUploadForm}
+	</p>
+{/if}
 
 {include '../pagination.latte'}
 {snippet photos}	
@@ -16,7 +20,7 @@
 			<img src="{$photo->thumbPath}" alt="Foto ze závodů" class="img-thumbnail">
 		</a>
 		<div class="caption">
-		{if $user->isLoggedIn() && ($user->isInRole('admin') || $user->id == $photo->author->id)}
+		{if ($user->isInRole('admin') || $user->id == $photo->author->id)}
 			{if $edit == $photo->id}
 				{form photoDescriptionForm}
 					{input description} {input send}

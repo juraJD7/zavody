@@ -32,7 +32,7 @@
 			{/if}
 				</em>
 				<br />
-				{if $user->id == $article->author->id || $user->isInRole('admin')  || ($user->isInRole('raceManager') && in_array($question->race, $user->races))}
+				{if $user->id == $article->author->id || $user->isInRole('admin')  || ($user->isInRole('raceManager') && in_array($article->race, $user->races))}
 					<a n:href="Article:edit $article->id">Upravit</a> <a n:href="delete! $article->id">Smazat</a>
 				{/if}
 			</small></h4>
