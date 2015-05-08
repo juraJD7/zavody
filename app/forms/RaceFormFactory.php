@@ -14,6 +14,8 @@ use Nette,
 class RaceFormFactory extends BaseFormFactory {
 	
 	private $raceRepository;
+	private $userRepository;
+	private $unitRepository;
 	
 	private $user;
 	private $id;
@@ -25,10 +27,14 @@ class RaceFormFactory extends BaseFormFactory {
 	 * @param \Nette\Database\Context $database
 	 * @param \RaceRepository $raceRepository
 	 * @param \Nette\Security\LoggedUser $loggedUser
+	 * @param \UserRepository $userRepository
+	 * @param \UnitRepository $unitRepository
 	 */
-	public function __construct(\Skautis\Skautis $skautIS, \Nette\Database\Context $database, \RaceRepository $raceRepository, \Nette\Security\LoggedUser $loggedUser) {
+	public function __construct(\Skautis\Skautis $skautIS, \Nette\Database\Context $database, \RaceRepository $raceRepository, \Nette\Security\LoggedUser $loggedUser, \UserRepository $userRepository, \UnitRepository $unitRepository) {
 		parent::__construct($skautIS, $database);
 		$this->raceRepository = $raceRepository;
+		$this->userRepository = $userRepository;
+		$this->unitRepository = $unitRepository;
 		$this->user = $loggedUser;
 	}	
 	
@@ -69,6 +75,7 @@ class RaceFormFactory extends BaseFormFactory {
 			//	->setOption("description", "ve formátu rrrr-mm-dd nebo vyberte datum ze zobrazeného kalendáře (Chrome, FF)");//->setRequired();
 		$form->addGroup('Pořadatel');
 		$form->addSelect("organizer", "Pořádající jednotka:", $this->loadUnits())
+				->setAttribute('class', 'js-example-basic-single')
 				->setRequired();
 		$form->addText("commander", "Velitel závodu:");//->setRequired();
 		$form->addText("commander_email", "E-mail - velitel:")
@@ -85,10 +92,7 @@ class RaceFormFactory extends BaseFormFactory {
 				->setType("date");
 				//->setOption("description", "ve formátu rrrr-mm-dd nebo 
 				//vyberte datum ze zobrazeného kalendáře (Chrome, FF)");//->setRequired();
-		$form->addText("place", "Místo:");//->setRequired();
-		$form->addText("gps_x", "GPS X:");
-				//->setOption("description", "Odkaz na google mapy");//->setRequired();
-		$form->addText("gps_y", "GPS Y:");//->setRequired();
+		$form->addText("place", "Místo:");//->setRequired();		
 		$form->addGroup('Kontakt');
 		$form->addText("telephone", "Telefon:");
 		$form->addText("email", "Kontaktní mail:")
@@ -117,8 +121,10 @@ class RaceFormFactory extends BaseFormFactory {
 		
 		$races = $this->database->table('race')
 				->where('season', $this->season)
-				->where('round', $values->round)
-				->where('id !=', $this->id);
+				->where('round', $values->round);
+		if (!is_null($this->id)) {
+			$races = $races->where('id !=', $this->id);
+		}
 		if($values->round == "C" && $races->count() > 0) {
 			$form->addError('Celostátní kolo již existuje.');
 		}
@@ -131,23 +137,30 @@ class RaceFormFactory extends BaseFormFactory {
 	public function formSucceeded(Form $form, $values)
 	{		
 		$post = $form->getHttpData();
-		$values["author"] = $this->user->id;
-		$values["season"] = $this->season;
+		if (is_null($this->id)) {
+			$values["author"] = $this->user->id;
+			$values["season"] = $this->season;			
+		}
+		$organizer = $this->unitRepository->getUnit($values->organizer);
+		$organizer->save();
+		if (substr($values->web, 0, 4) != "http") {
+			$values->web = "http://" . $values->web;
+		}
 		unset($values["editors_input"]);
 		$values["advance"] = $this->setAdvanceRace($values->region, $values->round);
 		if (isset($this->id)) {			
-			$row = $this->database->table('race')
+			$this->database->table('race')
 					->where('id', $this->id)
 					->update($values);
-			$race = $this->database->table('race')
-					->get($this->id);
+			$raceId = $this->id;
 		} else {			
 			$race = $this->database->table('race')
 				->insert($values);
+			$raceId = $race->id;
 		}		
-		$this->setSubordinateRaces($values->region, $values->round, $race->id);
+		$this->setSubordinateRaces($values->region, $values->round, $raceId);
 		if (isset($post['editors'])) {
-			$this->setNewEditors($post['editors'], $race->id);
+			$this->setNewEditors($post['editors'], $raceId);
 		}
 	}
 	
@@ -192,10 +205,10 @@ class RaceFormFactory extends BaseFormFactory {
 	}
 	
 	public function loadUnits() {
-		$subordinate = array();		
-		$myUnit = array($this->user->unit->id => "-- Moje jednotka (" . $this->user->unit->displayName . ") --");
-		
-		foreach ($this->user->unit->subordinateUnits as $unit) {
+		$types = array("ustredi", "kraj", "okres", "stredisko");		
+		$myUnit = array($this->user->unit->id => "-- Moje jednotka (" . $this->user->unit->displayName . ") --");	
+		$subordinate = array();
+		foreach ($this->unitRepository->getUnits($types) as $unit) {
 			$subordinate[$unit->id] = $unit->displayName;
 		}
 		$units = $myUnit + $subordinate;
@@ -242,6 +255,7 @@ class RaceFormFactory extends BaseFormFactory {
 				->where('race_id', $race)
 				->delete();
 		foreach ($editors as $editor) {
+			$this->userRepository->getUser($editor); // uložení editora, popř. aktualizace údajů z ISu
 			$this->database->table('editor_race')
 				->insert(array(
 					"user_id" => $editor,

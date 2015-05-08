@@ -55,8 +55,6 @@ class RaceDbMapper extends BaseDbMapper {
 		$race->season = $row->season;			
 		$race->date = $row->date;
 		$race->place = $row->place;
-		$race->gpsX = $row->gps_x;
-		$race->gpsY = $row->gps_y;
 		$race->commander = $row->commander;
 		$race->referee = $row->referee;
 		$race->telephone = $row->telephone;

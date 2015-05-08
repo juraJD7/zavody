@@ -13,8 +13,6 @@ class Person extends Nette\Object {
 	
 	const ID_MALE = 1;
 	const ID_FEMALE = 0;
-	const TEXT_MALE = "Muž";
-	const TEXT_FEMALE = "Žena";
 	
 	private $personId;
 	private $repository;
@@ -73,12 +71,7 @@ class Person extends Nette\Object {
 	}
 	
 	public function getSex() {
-		switch ($this->sex) {
-			case self::ID_FEMALE : return self::TEXT_FEMALE;
-			case self::ID_MALE : return self::TEXT_MALE;
-			default :
-				throw new \Nette\InvalidArgumentException("Neznámý typ pohlaví");
-		}
+		return $this->repository->getSexName($this->sex);
 	}
 	
 	public function getSexId() {

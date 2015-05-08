@@ -19,9 +19,14 @@ class UnitDbMapper {
 	
 	public function getUnit($id) {
 		$row = $this->database->table('unit')->get($id);
-		$unit = new Unit($id);
+		if(!$row) {
+			throw new DbNotStoredException("Jednotka $id nenalezena.");
+		}
+		$unit = new Unit($row->id);
 		$unit->registrationNumber = $row->registration_number;
 		$unit->displayName = $row->name;
+		$unit->email = $row->email;
+		$unit->telephone = $row->telephone;
 		return $unit;
 	}
 
@@ -32,6 +37,12 @@ class UnitDbMapper {
 			"registration_number" => $unit->registrationNumber,
 			"name" => $unit->displayName
 		);
+		if ($unit->email) {
+			$data["email"] = $unit->email;
+		}
+		if ($unit->telephone) {
+			$data["telephone"] = $unit->telephone;
+		}
 		$row = $this->database->table('unit')->where('id', $unit->id)->fetch();
 		if ($row) {
 			return $row->update($data);

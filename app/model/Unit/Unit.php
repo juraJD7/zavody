@@ -76,6 +76,10 @@ class Unit extends \Nette\Object {
 		return $this->telephone;
 	}
 	
+	public function setTelephone($telephone) {
+		$this->telephone = $telephone;
+	}
+
 	public function getEmail() {
 		if (is_null($this->email)) {
 			$this->email = $this->repository->getEmail($this->id);
@@ -83,11 +87,19 @@ class Unit extends \Nette\Object {
 		return $this->email;
 	}
 	
+	public function setEmail($email) {
+		$this->email = $email;
+	}
+	
 	public function getSubordinateUnits() {
 		if (empty($this->subordinateUnits)) {			
 			$this->subordinateUnits = $this->repository->getSubordinateUnits($this->id);
 		}
 		return $this->subordinateUnits;
+	}
+	
+	public function save() {
+		$this->repository->save($this);
 	}
 	
 }

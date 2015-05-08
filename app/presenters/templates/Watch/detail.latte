@@ -39,7 +39,12 @@
 				<tr>					
 					<td>{$member->displayName}</td>
 					<td>{$member->birthday|date:'d.m.Y'}</td>
-					<td>{$member->sex}</td>
+					<td>{if $member->getRoleId($race->id) == Person::TYPE_ESCORT}
+							Doprovod
+						{else}
+							{$member->sex}
+						{/if}
+					</td>
 					<td>{$member->getRoleName($race->id)}</td>
 				</tr>
 				{/foreach}

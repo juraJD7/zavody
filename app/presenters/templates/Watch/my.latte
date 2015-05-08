@@ -21,10 +21,8 @@
 				{$roles[$watch->id]}
 			</td>			
 			<td>
-				<a n:href="Watch:detail $race->id">Zobrazit</a>
-				{if $race->canEdit($user->id)}
-				<a n:href="Watch:edit $race->id">Upravit</a>
-				{/if}
+				<a n:href="Watch:detail $watch->id">Zobrazit</a>				
+				<a n:href="Watch:edit $watch->id">Upravit</a>				
 			</td>
 		</tr>
 	{/foreach}

@@ -82,7 +82,7 @@ class WatchPresenter extends BasePresenter {
 		$this->membersFormFactory->setRace($raceId);
 		$this->membersFormFactory->setTroop($this->troop);
 		$form = $this->membersFormFactory->create();
-		$form->onSuccess[] = function ($form) {
+		$form->onSuccess[] = function () {
 			$watchId = $this->getParameter('watchId');
 			$this->redrawControl("members");
 			$this->redrawControl("flashes");
@@ -243,7 +243,9 @@ class WatchPresenter extends BasePresenter {
 		$watch = $this->watchRepository->getWatch($watchId);
 		if (!$this->user->isInRole('admin') && 
 				!($this->user->isInRole('raceManager') && $watch->isInRace($this->user->race))
-				&& ($watch->author->id != $this->user->id) ) {
+				&& ($watch->author->id != $this->user->id)
+				&& !($this->skautIS->getUser()->getUnitId() == $watch->group->id && $this->user->isOfficial()) 
+				&& !($this->skautIS->getUser()->getUnitId() == $watch->troop->id && $this->user->isOfficial())) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
 		$section = $this->getSession("watch");
@@ -287,7 +289,9 @@ class WatchPresenter extends BasePresenter {
 		$watch = $this->watchRepository->getWatch($id);
 		if (!$this->user->isInRole('admin') && 
 				!($this->user->isInRole('raceManager') && $watch->isInRace($this->user->race))
-				&& ($watch->author->id != $this->user->id) ) {
+				&& ($watch->author->id != $this->user->id)
+				&& !($this->skautIS->getUser()->getUnitId() == $watch->group->id && $this->user->isOfficial()) 
+				&& !($this->skautIS->getUser()->getUnitId() == $watch->troop->id && $this->user->isOfficial())) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}			
 		$section = $this->getSession("watch");
@@ -306,7 +310,9 @@ class WatchPresenter extends BasePresenter {
 		$watch = $this->watchRepository->getWatch($id);
 		if (!$this->user->isInRole('admin') && 
 				!($this->user->isInRole('raceManager') && $watch->isInRace($this->user->race))
-				&& ($watch->author->id != $this->user->id) ) {
+				&& ($watch->author->id != $this->user->id)
+				&& !($this->skautIS->getUser()->getUnitId() == $watch->group->id && $this->user->isOfficial()) 
+				&& !($this->skautIS->getUser()->getUnitId() == $watch->troop->id && $this->user->isOfficial())) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
 		$this->template->watch = $watch;

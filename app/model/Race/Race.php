@@ -19,9 +19,7 @@ class Race extends \Nette\Object {
 	private $advance;
 	private $organizer;
 	private $date;
-	private $place;
-	private $gpsX;
-	private $gpsY;
+	private $place;	
 	private $commander;
 	private $referee;
 	private $telephone;
@@ -135,28 +133,6 @@ class Race extends \Nette\Object {
 
 	public function setPlace($place) {		
 		$this->place = $place;
-	}
-	
-	public function getGpsY() {
-		return $this->gpsY;
-	}
-
-	public function setGpsY($gpsY) {
-		if(!is_double($gpsY)) {
-			throw new \Nette\InvalidArgumentException("Parametr gps_y musí byt cislo.");
-		}
-		$this->gpsY = $gpsY;
-	}
-	
-	public function getGpsX() {
-		return $this->gpsX;
-	}
-
-	public function setGpsX($gpsX) {
-		if(!is_double($gpsX)) {
-			throw new \Nette\InvalidArgumentException("Parametr gps_x musí byt cislo.");
-		}
-		$this->gpsX = $gpsX;
 	}
 	
 	public function getCommander() {

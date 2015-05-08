@@ -115,7 +115,7 @@ class WatchFormFactory extends BaseFormFactory {
 	}
 
 	public function loadTroops() {
-		$units = $this->unitRepository->getUnits("stredisko");
+		$units = $this->unitRepository->getUnits(array("stredisko"));
 		$troops = array();
 		foreach ($units as $unit) {
 			$troops[$unit->id] = "$unit->registrationNumber - $unit->displayName";

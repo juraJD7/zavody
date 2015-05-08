@@ -63,7 +63,7 @@ class Authenticator extends Nette\Object implements Nette\Security\IAuthenticato
 			
 			return new NS\Identity($userID, "common");		
 		} else {
-			throw new \Skautis\Wsdl\AuthenticationException("Pokus o získání identity bez přihlášení ve SkautISu.");
+			throw new \Nette\Application\ApplicationException("Pokus o získání identity bez přihlášení ve SkautISu.");
 		}        
 	}
 }

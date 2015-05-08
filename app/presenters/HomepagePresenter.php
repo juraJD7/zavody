@@ -25,13 +25,13 @@ class HomepagePresenter extends BasePresenter
 				}
 			}	
 		}
-		
-		$this->template->token = $this->skautIS->getUser()->getLoginId();
 	}
 	
 	private function login($post) {
 		$this->skautIS->setLoginData($post);
-		$this->user->login($this->skautIS->user->UserDetail());
+		$userDetail = $this->skautIS->user->UserDetail();
+		$this->userRepository->getUser($userDetail->ID); // aktualizuje udaje o uživateli
+		$this->user->login($userDetail);
 		$this->user->setExpiration('30 minutes', TRUE);		
 	}
 

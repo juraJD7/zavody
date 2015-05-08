@@ -30,11 +30,12 @@ class UserRepository {
 				$user = $this->dbMapper->getUser($id);
 			}
 		} else {
-			$user = $this->dbMapper->getUser($id);
-		}
-		if (is_null($user)) {
-			throw new \Nette\InvalidArgumentException("Uživatel $id nenalezen");
-		}
+			try {
+				$user = $this->dbMapper->getUser($id);
+			} catch (DbNotStoredException $ex) {
+				throw new Nette\Security\AuthenticationException("Pro zobrazení záznamu se musíte přihlásit");
+			}
+		}		
 		$user->repository = $this;
 		return $user;
 	}

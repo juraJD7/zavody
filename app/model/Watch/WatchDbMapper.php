@@ -25,7 +25,7 @@ class WatchDbMapper extends BaseDbMapper {
 
 
 	public function getWatch($id, WatchRepository $repository) {
-		$row = $this->database->table('watch')->get($id);		
+		$row = $this->database->table('watch')->get($id);
 		if(!$row) {
 			throw new Nette\InvalidArgumentException("Hlídka $id neexistuje");
 		}
@@ -358,7 +358,9 @@ class WatchDbMapper extends BaseDbMapper {
 				->where('author', $userId);
 		$watchs = array();
 		foreach ($rows as $row) {
-			$watchs[$row->id] = $this->getWatch($row->id, $repository);			
+			if ($this->isInSeason($row->id)) {
+				$watchs[$row->id] = $this->getWatch($row->id, $repository);			
+			}
 		}
 		return $watchs;
 	}
@@ -368,7 +370,9 @@ class WatchDbMapper extends BaseDbMapper {
 				->where('group = ? OR troop = ?', $unitId, $unitId);
 		$watchs = array();
 		foreach ($rows as $row) {
-			$watchs[$row->id] = $this->getWatch($row->id, $repository);			
+			if ($this->isInSeason($row->id)) {
+				$watchs[$row->id] = $this->getWatch($row->id, $repository);			
+			}
 		}
 		return $watchs;		
 	}
@@ -378,11 +382,27 @@ class WatchDbMapper extends BaseDbMapper {
 				->where('person_id', $personId);
 		$watchs = array();
 		foreach ($rows as $row) {
-			$watchs[$row->watch] = $this->getWatch($row->watch, $repository);
+			if ($this->isInSeason($row->watch)) {
+				$watchs[$row->watch] = $this->getWatch($row->watch, $repository);
+			}
 		}
 		return $watchs;
 	}
 	
+	private function isInSeason($watchId) {
+		$row = $this->database->table('race_watch')
+				->where('watch_id', $watchId)
+				->fetch();
+		if ($row) {
+			$race = $this->database->table('race')->get($row->race_id);
+			if ($race->season == $this->season) {
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+
+
 	/**
 	 * 
 	 * @param int $seasonId

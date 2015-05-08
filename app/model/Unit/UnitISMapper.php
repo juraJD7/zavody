@@ -51,7 +51,7 @@ class UnitISMapper {
 			$tmp = $this->getUnitFromStdClass($child);
 			$tmp->repository = $repository;
 			$units[] = $tmp;
-		}
+			}
 		return $units;
 	}
 	
@@ -82,13 +82,17 @@ class UnitISMapper {
 		$units = $this->skautIS->org->UnitAllUnit(array("ID_Unit" => $parent));		
 		$unitType = array();
 		foreach ($units as $unit) {
-			if($unit->ID_UnitType == $type || is_null($type)) {
+			if(in_array($unit->ID_UnitType, $type) || is_null($type)) {
 				$tmp = $this->getUnit($unit->ID);
 				$tmp->repository = $repository;
 				$unitType[$unit->ID] = $tmp;
 			}
-		}
+		}		
 		return $unitType;	
+	}
+	
+	public function isLoggedIn() {
+		return $this->skautIS->getUser()->isLoggedIn();
 	}
 	
 }

@@ -16,6 +16,10 @@ class UserIsMapper extends BaseISMapper {
 		$user->firstName = $person->FirstName;
 		$user->lastName = $person->LastName;
 		$user->nickName = $person->NickName;
+		// WS tento atribut vůbec nevrací, pokud není email vyplněn
+		if (isset($person->Email)) {
+			$user->email = $person->Email;
+		}	
 		return $user;
 	}
 	

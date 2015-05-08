@@ -69,4 +69,8 @@ class PersonRepository {
 		return $this->getDbMapper()->getPersonsByWatch($this, $watchId, $raceId);
 	}
 	
+	public function getSexName($sexId) {
+		return $this->getDbMapper()->getSexName($sexId);
+	}
+	
 }

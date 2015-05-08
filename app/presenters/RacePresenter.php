@@ -57,9 +57,9 @@ class RacePresenter extends BasePresenter {
 		$raceId = $this->getParameter('id');
 		$this->raceFormFactory->setId($raceId);
 		$form = $this->raceFormFactory->create();
-		$form->onSuccess[] = function ($form) {
+		$form->onSuccess[] = function () {
 			$this->flashMessage("Závod byl založen.");
-			$this->redirect('this');
+			$this->redirect("Race:");
 		};
 		return $form;		
 	}

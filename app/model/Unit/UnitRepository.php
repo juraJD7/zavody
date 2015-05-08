@@ -20,12 +20,19 @@ class UnitRepository {
 		$this->dbMapper = $dbMapper;
 	}
 	
-	public function getUnit($id, $useIS = TRUE) {
-		if ($useIS) {
-			$unit = $this->isMapper->getUnit($id);
-			$this->save($unit);
+	public function getUnit($id) {
+		if ($this->isMapper->isLoggedIn()) {
+			try {
+				$unit = $this->isMapper->getUnit($id);
+			} catch (Skautis\Wsdl\PermissionException $ex) {
+				$unit = $this->dbMapper->getUnit($id);
+			}
 		} else {
-			$unit = $this->dbMapper->getUnit($id);
+			try {
+				$unit = $this->dbMapper->getUnit($id);
+			} catch (DbNotStoredException $ex) {
+				throw new Nette\Security\AuthenticationException("Pro zobrazení záznamu se musíte přihlásit");
+			}
 		}
 		$unit->repository = $this;		
 		return $unit;
@@ -45,10 +52,10 @@ class UnitRepository {
 	
 	/**
 	 * 
-	 * @param string $type Typ jednotek, které se mají zobrazit, null zobrazí všechny
+	 * @param array $type Typ jednotek, které se mají zobrazit, prázdné pole zobrazí všechny
 	 * @return int $parentUnit ID nadřízené jednotky, null použije jako default ID jednotky přihlášeného uživatele
 	 */
-	public function getUnits($type = NULL, $parentUnit = NULL) {
+	public function getUnits($type = array(), $parentUnit = NULL) {
 		return $this->isMapper->getUnits($this, $type, $parentUnit);
 	}
 	

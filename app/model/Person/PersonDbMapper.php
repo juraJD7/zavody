@@ -102,4 +102,17 @@ class PersonDbMapper extends BaseDbMapper {
 			return $row->name;
 		}
 	}
+	
+	public function getSexName($sexId) {
+		$id = $this->database->table('competition')
+				->get($this->season)->id;
+		$competition = $this->database->table('competition')
+				->get($id);
+		if ($sexId == Person::ID_MALE) {
+			return $competition->male;
+		} else if ($sexId == Person::ID_FEMALE){
+			return $competition->female;
+		}
+		throw new \Nette\InvalidArgumentException("Neplatný formát pro pohlaví člena.");
+	}
 }

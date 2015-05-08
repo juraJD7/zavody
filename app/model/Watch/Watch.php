@@ -144,8 +144,7 @@ class Watch extends Nette\Object {
 			return $this->category;
 		} else {
 			// pokud je družina přihlášena na 2. závod, musí mít předtím jasně danou kategorii
-			if (count($this->getRaces()) > 1) {
-				\Tracy\Dumper::dump($this->getRaces());exit;
+			if (count($this->getRaces()) > 1) {				
 				throw new LogicException("Není záznam o kategorii z posupového kola kola");
 			}
 			$race = $this->getRaces()[0];			
@@ -305,4 +304,22 @@ class Watch extends Nette\Object {
 		return NULL;
 	}
 	
+	public function canEdit(Nette\Security\LoggedUser $user) {
+		if ($user->isInRole('admin')) {
+			return TRUE;
+		}
+		if (($this->troop == $user->getUnit() || $this->group == $user->getUnit())
+				&& $user->isOfficial()) {
+			return TRUE;
+		}
+		if ($user->isInRole('raceManager') && $this->isInRace($user->race)) {
+			return TRUE;
+		}
+		$this->getAuthor();
+		if ($this->author->id == $user->id) {
+			return TRUE;
+		}
+		return FALSE;
+		
+	}
 }
