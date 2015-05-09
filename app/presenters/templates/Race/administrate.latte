@@ -29,6 +29,7 @@
 				<th>Středisko</th>				
 				<th>Kategorie</th>
 				<th>Počet bodů</th>
+				<th>Zrušit případný postup</th>
 				<th>Poznámka</th>
 			</tr>
 		</thead>
@@ -40,6 +41,7 @@
 			<td>{$watch->troop->displayName}</td>			
 			<td>{$watch->getCategory($race)}</td>
 			<td>{input $watch->id}</td>
+			<td>{input noAdvance$watch->id}</td>	
 			<td>{input note$watch->id}</td>	
 		</tr>
 	{/foreach}	

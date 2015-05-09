@@ -265,20 +265,21 @@ class Race extends \Nette\Object {
 	}
 	
 	public function getNumAdvance($category) {
+		
 		if ($this->getRound()->short == 'C') {
 			return 0;
 		} else if ($this->getRound()->short == 'K') {
 			return 1;
-		} else {
+		} else {			
 			$numWatchs = $this->getNumWatchs($category);			
 			if ($numWatchs > 20) {
 				$numWatchs = 20;
 			}
-			if ($numWatchs == 0) {
+			if ($numWatchs <= 1) {
 				return 0;
 			}
-			$key = $this->getKey();			
-			return $key[$numWatchs];			
+			$key = $this->getKey();
+			return $key["{$numWatchs}"];			
 		}
 	}
 	
@@ -315,6 +316,10 @@ class Race extends \Nette\Object {
 	
 	public function confirm($token) {
 		return $this->repository->confirm($this->id, $token);
+	}
+	
+	public function deleteAdvancedWatchs() {
+		$this->repository->deleteAdvancedWatchs($this->id, $this->getAdvance()->id);
 	}
 	
 }

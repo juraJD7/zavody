@@ -24,6 +24,8 @@ extensions:
     skautis: Skautis\Nette\SkautisExtension # yourNameOfExtension : SkautIS\Nette\SkautisExtension22
 
 services:
+	cacheStorage:
+		class: Nette\Caching\Storages\DevNullStorage
 	user:
 		class: Nette\Security\LoggedUser
 	lc: LazyContainer

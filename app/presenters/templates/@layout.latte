@@ -69,17 +69,38 @@
 	    <div class="blog-masthead">
       <div class="container">
         <nav class="blog-nav">
-			<a class="blog-nav-item{if $presenter->getName() == "Homepage"} active{/if}" n:href="Homepage:default">Úvod</a>
-			<a class="blog-nav-item{if $presenter->getName() == "My"} active{/if}" n:href="My:default">Moje</a>
-			<a class="blog-nav-item{if $presenter->getName() == "Article"} active{/if}" n:href="Article:default">Články</a>
-			<a class="blog-nav-item{if $presenter->getName() == "Race"} active{/if}" n:href="Race:default">Závody</a>
-			<a class="blog-nav-item{if $presenter->getName() == "Watch"} active{/if}" n:href="Watch:default">Hlídky</a>
-			<a class="blog-nav-item{if $presenter->getName() == "Question"} active{/if}" n:href="Question:default">Otázky a odpoědi</a>
-			<a class="blog-nav-item" n:href="Homepage:default">Pro organizátory</a>
-			<a class="blog-nav-item{if $presenter->getName() == "File"} active{/if}" n:href="File:default">Ke stažení</a>
-			<a class="blog-nav-item{if $presenter->getName() == "Photo"} active{/if}" n:href="Photo:default">Fotogalerie</a>
-			<a class="blog-nav-item{if $presenter->getName() == "Admin"} active{/if}" n:href="Admin:default">Administrace</a>    
-			<a class="blog-nav-item" href="{$url}">{$text}</a>
+			<ul class="nav navbar-nav">
+			<li><a class="blog-nav-item{if $presenter->getName() == "Homepage"} active{/if}" n:href="Homepage:default">Úvod</a></li>
+			{if $user->isLoggedIn()}
+				<li class="dropdown"><a class="dropdown-toggle blog-nav-item" href="#" data-toggle="dropdown" aria-expanded="false">Moje<span class="caret"></span></a>
+				<ul class="dropdown-menu" role="menu">
+					<li><a n:href="Article:my">Moje články</a></li>
+					<li><a n:href="File:my">Moje soubory</a></li>
+					<li><a n:href="Photo:my">Moje fotky</a></li>
+					<li><a n:href="Question:my">Moje otázky</a></li>
+					<li><a n:href="Race:my">Moje závody</a></li>
+					<li><a n:href="Watch:my">Moje hlídky</a></li>				
+				</ul></li>
+				</li>
+			{/if}
+			<li><a class="blog-nav-item{if $presenter->getName() == "Article"} active{/if}" n:href="Article:default">Články</a></li>
+			<li><a class="blog-nav-item{if $presenter->getName() == "Race"} active{/if}" n:href="Race:default">Závody</a></li>
+			<li><a class="blog-nav-item{if $presenter->getName() == "Question"} active{/if}" n:href="Question:default">Otázky a odpoědi</a></li>
+			{if $user->isInRole('admin') || $user->isInRole('raceManager')}
+				<li class="dropdown"><a class="dropdown-toggle blog-nav-item" href="#" data-toggle="dropdown" aria-expanded="false">Pro organizátory<span class="caret"></span></a>
+				<ul class="dropdown-menu" role="menu">
+					<li><a n:href="Article:admin">Články pro organizátory</a></li>
+					<li><a n:href="Question:admin">Otázky pro organizátory</a></li>
+					{if $user->isInRole('admin')}
+					<li class="divider"></li>
+					<li><a  n:href="Admin:default">Administrace</a></li>
+					{/if}
+				</ul></li>
+			{/if}
+			<li><a class="blog-nav-item{if $presenter->getName() == "File"} active{/if}" n:href="File:default">Ke stažení</a></li>
+			<li><a class="blog-nav-item{if $presenter->getName() == "Photo"} active{/if}" n:href="Photo:default">Fotogalerie</a></li>			
+			<li><a class="blog-nav-item" href="{$url}">{$text}</a></li>
+			</ul>
         </nav>
       </div>
     </div>

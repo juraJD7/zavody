@@ -60,9 +60,32 @@
 	</td>
 </tr>
 </table>
+	<table style="width: 100%">
+		<tr><td style="text-align: left">
 		{input preview}
+			</td><td style="text-align: center">
 		{input addMembers}
+			</td><td style="text-align: right">
 		{input send}
+			</td></tr>
+		<tr><td colspan="3" style="text-align: right; padding: 5px">
+		{input cancel}
+			</td></tr>
+	</table>
 {/form}
+
+<script type="text/javascript">		
+	
+	$("#frm-membersForm-units").on('change',function(event) {		
+		$.nette.ajax({
+            url: {link loadPersons!},
+			type: "POST",
+            data: {
+                unitID: $('#frm-membersForm-units').val()
+            }
+        });
+	});	
+
+</script>
 
 {/block}

@@ -79,12 +79,18 @@ class MembersFormFactory extends BaseFormFactory {
 		$form->addSubmit('addMembers', "Přidat vybrané členy");
 		$form->addSubmit('send', "Další krok >>");
 		$form->addSubmit('save', "Uložit členy");
+		$form->addSubmit("cancel","Zrušit přihlašování")
+				->setValidationScope(FALSE);
 		
 				
 		return $form;
 	}
 	
-	public function formSucceeded(Form $form) {		
+	public function formSucceeded(Form $form) {
+		if ($form["cancel"]->isSubmittedBy()) {
+			$this->session->getSection("watch")->remove();
+			$form->getPresenter()->redirect("Race:");
+		}
 		$values = $form->getHttpData();		
 		$section = $this->session->getSection('watch');
 		if ($form["save"]->isSubmittedBy()) {			
@@ -103,7 +109,11 @@ class MembersFormFactory extends BaseFormFactory {
 		if ($form["addMembers"]->isSubmittedBy()) {				
 			if (isset($values["members"])) {
 				foreach ($values["members"] as $member) {	
-					$race = $this->raceRepository->getRace($this->race);	
+					if (isset($section->basic)) {
+						$race = $this->raceRepository->getRace($section->basic["race"]);
+					} else {
+						$race = $this->raceRepository->getRace($this->race);
+					}
 					$memberValidation = $this->watchRepository->validateMember($member, $values["roles"][$member], $race, $this->id);
 					if ($memberValidation === TRUE) {
 						$section->members[$member] = $this->personRepository->getPerson($member)->displayName;

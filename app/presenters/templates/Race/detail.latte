@@ -9,7 +9,7 @@
 	<li><a n:href="Photo:race $race->id">Fotky k závodu</a> (Celkem: 0)</li>
 {if ($user->isInRole('raceManager') && in_array($race->id, $user->races)) || $user->isInRole('admin')}
 	<li><a n:href="Race:edit $race->id">Editovat parametry závodu</a></li>
-	<li><a n:href="Race:edit $race->id">Spravovat závod (zadávání výsledků, ...)</a></li>
+	<li><a n:href="Race:administrate $race->id">Spravovat závod (zadávání výsledků, ...)</a></li>
 {/if}
 </ul><br />
 <h3>Základní informace:</h3>
@@ -113,6 +113,7 @@
 				<td>Pořadí</td>
 				<td>Postup</td>
 				<td>Poznámka</td>
+				<td>&nbsp;</td>
 			</tr>
 		</thead>
 		<tbody>
@@ -127,6 +128,13 @@
 			<td>{$watch->getOrder($race->id)}</td>
 			<td>{$watch->getAdvance($race->id)}</td>
 			<td>{$watch->getNote($race->id)}</td>
+			<td>
+				{if ($watch->canEdit($user) || $race->canEdit($user->id))&& $race->applicationDeadline < date('Y-m-d')}
+					<a n:href="deleteWatch! $watch->id, $race->id" class="ajax">>>Odhlásit hlídku</a>
+				{else}
+				&nbsp;
+				{/if}
+			</td>
 		</tr>
 	{/foreach}
 		</tbody>

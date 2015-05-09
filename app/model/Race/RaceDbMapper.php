@@ -203,7 +203,7 @@ class RaceDbMapper extends BaseDbMapper {
 	 * @param int id zavodu
 	 * @return int id postupového závodu
 	 */
-	public function getAdvance($id) {
+	public function getAdvance($id) {		
 		return $this->database->table('race')->get($id)->advance;		
 	}
 	
@@ -214,7 +214,7 @@ class RaceDbMapper extends BaseDbMapper {
 	 */
 	public function getKey($raceId) {
 		$keyId = $this->database->table('race')->get($raceId)->key;
-		return $this->database->table('key')->get($keyId);
+		return $this->database->table('advance_key')->get($keyId);
 	}
 
 	/**
@@ -351,4 +351,37 @@ class RaceDbMapper extends BaseDbMapper {
 		}
 		return $races;
 	}	
+	
+	public function getPrevRace($watchId, Race $race) {
+		$table = $this->database->table('race_watch')
+				->where('watch_id', $watchId);		
+		foreach ($table as $row) {
+			$tmp = $this->database->table('race')
+					->get($row->race_id);
+			if ($tmp->advance == $race->id) {
+				return $this->loadFromActiveRow($tmp);				
+			}
+		}
+		throw new LogicException("Nenalezen předchozí závod hlídky");
+	}
+	
+	public function deleteAdvancedWatchs($prevId, $advanceId) {
+		$join = $this->database->table('race_watch')
+				->where('race_id', $prevId)
+				->where('advance', TRUE);
+		foreach ($join as $row) {
+			$participants = $this->database->table('participant')
+					->where('watch', $row->watch_id);
+			foreach ($participants as $participant) {
+				$this->database->table('participant_race')
+						->where('participant_id', $participant->id)
+						->where('race_id', $advanceId)
+						->delete();
+			}
+			$this->database->table('race_watch')
+					->where('race_id', $advanceId)
+					->where('watch_id', $row->watch_id)
+					->delete();
+		}
+	}
 }

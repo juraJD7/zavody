@@ -85,13 +85,19 @@ class WatchFormFactory extends BaseFormFactory {
 		$form->addText("email_guide", "E-mail na rádce družiny:");
 		$form->addSubmit("send","Další krok >>");
 		$form->addSubmit("save","Uložit změny");
+		$form->addSubmit("cancel","Zrušit přihlašování")
+				->setValidationScope(FALSE);
 		
 		$form->onSuccess[] = array($this, 'formSucceeded');
 		return $form;
 	}
 	
-	public function formSucceeded(Form $form) {		
-		$values = $form->getHttpData();
+	public function formSucceeded(Form $form) {	
+		if ($form["cancel"]->isSubmittedBy()) {
+			$this->session->getSection("watch")->remove();
+			$form->getPresenter()->redirect("Race:");
+		}
+		$values = $form->getHttpData();		
 		if ($this->id) {
 			$row = $this->database->table('watch')
 					->where('id', $this->id);

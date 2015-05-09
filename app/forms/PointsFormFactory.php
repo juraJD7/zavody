@@ -56,7 +56,16 @@ class PointsFormFactory extends BaseFormFactory {
 				//->addRule(\Nette\Forms\Form::FLOAT, 'Musí být číselná hodnota')
 				->setAttribute('size', 5)
 				->setDefaultValue($watch->getPoints($this->race));
-			$form->addTextArea("note" . $watch->id);
+			if ($this->watchRepository->getAdvance($watch->id, $this->race) === 0) {
+				$noAdvance = TRUE;
+			} else {
+				$noAdvance = FALSE;
+			}
+			$form->addCheckbox("noAdvance" . $watch->id)
+				->setDefaultValue($noAdvance);
+			$form->addTextArea("note" . $watch->id)
+				->setDefaultValue($watch->getNote($this->race));
+			
 		}
 		
 		$renderer = $form->getRenderer();
@@ -66,14 +75,16 @@ class PointsFormFactory extends BaseFormFactory {
 	}
 
 	public function formSucceeded(Form $form)
-	{		
-		
-		$values = $form->getHttpData();		
+	{
+		$values = $form->getHttpData();			
 		$race = $this->raceRepository->getRace($this->race);
+		$race->deleteAdvancedWatchs();		
 		unset($values["send"]);
 		unset($values["do"]);		
 		$femaleOrder=0;
 		$maleOrder=0;
+		$advancedMale=0;
+		$advancedFemale=0;
 		$data = array();
 		$points = array();
 		foreach ($values as $key => $value) {
@@ -81,7 +92,12 @@ class PointsFormFactory extends BaseFormFactory {
 				$index = substr($key, 1);
 				$data[$index]["index"] = $index;
 				$data[$index]["points"] = $value;
-				$data[$index]["note"] = $values["note" . $index];	
+				$data[$index]["note"] = $values["note" . $index];
+				if (isset($values["noAdvance" . $index])) {
+					$data[$index]["noAdvance"] = TRUE;
+				} else {
+					$data[$index]["noAdvance"] = FALSE;
+				}
 				$points[$index] = $value;
 			}
 		}	
@@ -90,22 +106,31 @@ class PointsFormFactory extends BaseFormFactory {
 			 $watch = $this->watchRepository->getWatch($result["index"]);
 			 $category = $watch->getCategory();
 			 $order = null;
-			 $advance = false;
+			 $advance = NULL;
 			 if ($category == \Watch::CATEGORY_FEMALE) {
 				 $femaleOrder++;
-				 $order = $femaleOrder;
-				 $advance = $order <= $race->getNumAdvance(\Watch::CATEGORY_FEMALE);
+				 $order = $femaleOrder;				 
+				 if ($advancedFemale < $race->getNumAdvance(\Watch::CATEGORY_FEMALE) && !($result["noAdvance"])) {
+					 $advance = TRUE;
+					 $advancedFemale++;
+				 }
 				
 			}
 			if ($category == \Watch::CATEGORY_MALE) {
 				 $maleOrder++;
 				 $order = $maleOrder;
-				 $advance = $order <= $race->getNumAdvance(\Watch::CATEGORY_MALE);
+				 if ($advancedMale < $race->getNumAdvance(\Watch::CATEGORY_MALE) && !($result["noAdvance"])) {
+					 $advance = TRUE;
+					 $advancedMale++;
+				 }
 			 }
 			 $watch->fixCategory();
 			 if ($advance) {				 
 				 $watch->processAdvance($race);
-			 }						 
+			 }
+			 if($result["noAdvance"])	{
+				 $advance = FALSE;
+			 }
 			 $this->database->table('race_watch')
 					 ->where('race_id', $this->race)
 					 ->where('watch_id', $result["index"])
@@ -114,19 +139,7 @@ class PointsFormFactory extends BaseFormFactory {
 						 "order" => $order,
 						 "advance" => $advance,
 						 "note" => $result["note"]
-						));
-			 
+						));			 
 		}		
-	}
-	
-	public function calculateOrder() {
-		$rows = $this->database->table('race_watch')
-				->where('race_id', $this->race);
-		$watches = array();
-		foreach ($rows as $row ) {
-			$watch = $this->watchRepository->getWatch($row->watch_id);
-			$watch->getCategory();			
-		}
-	}
-	
+	}	
 }

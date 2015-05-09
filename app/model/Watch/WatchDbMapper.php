@@ -94,15 +94,11 @@ class WatchDbMapper extends BaseDbMapper {
 	}
 	
 	public function getAdvance($watchId, $raceId) {
-		$advance = $this->database->table('race_watch')
+		return $this->database->table('race_watch')
 				->where('race_id', $raceId)
 				->where('watch_id', $watchId)
 				->fetch()
 				->advance;
-		if($advance) {
-			return TRUE;
-		}
-		return FALSE;
 	}
 	
 	public function getOrder($watchId, $raceId) {
@@ -303,8 +299,7 @@ class WatchDbMapper extends BaseDbMapper {
 	}
 	
 	public function processAdvance(Watch $watch, Race $race) {
-		
-		$advanceRace = $race->getAdvance();
+		$advanceRace = $race->getAdvance();			
 		if ($advanceRace) {			
 			$rows = $this->database->table('participant_race')
 					->where('race_id', $race->id);
@@ -412,5 +407,56 @@ class WatchDbMapper extends BaseDbMapper {
 		$season = $this->database->table('season')->get($seasonId);
 		$competition = $this->database->table('competition')->get($season->competition)->short;
 		return "$competition $season->year";
+	}
+	
+	public function deleteWatch($watchId, $raceId) {
+		$this->database->table('race_watch')
+				->where('race_id', $raceId)
+				->where('watch_id', $watchId)
+				->delete();
+		$row = $this->database->table('race_watch')
+				->where('watch_id', $watchId)
+				->count();
+		$participants =	$this->database->table('participant')
+					->where('watch', $watchId);			
+		foreach ($participants as $participant) {
+			$this->database->table('participant_race')
+					->where('race_id', $raceId)
+					->where('participant_id', $participant->id)
+					->delete();
+			if ($row == 0) {	
+				$participant->delete();
+			}
+		}
+		if ($row == 0) {
+			$this->database->table('watch')
+					->where('id', $watchId)
+					->delete();
+		}		
+		return true;
+	}
+	
+	public function unsetAdvance(WatchRepository $repository, Watch $watch, Race $prevRace) {
+		$row = $this->database->table('race_watch')
+				->where('race_id', $prevRace->id)
+				->where('watch_id', $watch->id);
+		$row->update(array(
+				"advance" => 0,
+				"note" => "Hlídka se zřekla postupu"
+			));
+		$order = $row->fetch()->order;		
+		$table = $this->database->table('race_watch')
+				->where('advance', NULL)
+				->where('order >', $order)
+				->order('order ASC');		
+		foreach ($table as $row) {
+			$tmpWatch = $this->database->table('watch')->get($row->watch_id);
+			if ($watch->category == $tmpWatch->category) {
+				$row->update(array("advance" => TRUE));
+				$advWatch = $repository->getWatch($row->watch_id);
+				$advWatch->processAdvance($prevRace);
+				break;
+			}
+		}
 	}
 }

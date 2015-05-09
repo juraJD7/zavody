@@ -222,4 +222,12 @@ class WatchRepository extends Nette\Object {
 	public function getSeasonName($seasonId) {
 		return $this->getDbMapper()->getSeasonName($seasonId);
 	}
+	
+	public function deleteWatch($watchId, $raceId) {
+		return $this->getDbMapper()->deleteWatch($watchId, $raceId);
+	}
+	
+	public function unsetAdvance(Watch $watch, Race $prevRace) {
+		return $this->getDbMapper()->unsetAdvance($this, $watch, $prevRace);
+	}
 }

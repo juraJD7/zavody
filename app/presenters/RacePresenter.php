@@ -242,4 +242,21 @@ class RacePresenter extends BasePresenter {
 		$this["raceForm"]->setDefaults($this->raceRepository->getDataForForm($id));		
 	}
 	
+	public function handleDeleteWatch($watchId, $raceId) {
+		if ($this->isAjax()) {
+			$race = $this->raceRepository->getRace($raceId);
+			if ($race->applicationDeadline < date('Y-m-d')) {
+				$res = $this->watchRepository->deleteWatch($watchId, $raceId);
+				$advancedRaces = array('K', 'C');				
+				if ($res && in_array($race->round->short, $advancedRaces)) {
+					$prevRace = $this->raceRepository->getPrevRace($watchId, $race);
+					$watch = $this->watchRepository->getWatch($watchId);
+					$this->watchRepository->unsetAdvance($watch, $prevRace);
+				}
+			}			
+			$this->redrawControl();
+		}	
+		
+	}
+	
 }

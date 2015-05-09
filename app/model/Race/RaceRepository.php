@@ -70,7 +70,9 @@ class RaceRepository {
 	public function getAdvance($id) {
 		$advanceId = $this->getDbMapper()->getAdvance($id);
 		if ($advanceId) {
-			return $this->getRace($advanceId);
+			$advance = $this->getDbMapper()->getRace($advanceId);
+			$advance->repository = $this;
+			return $advance;
 		}
 		return null;
 	}
@@ -142,5 +144,15 @@ class RaceRepository {
 	
 	public function getRacesByParticipant($personId) {
 		return $this->getDbMapper()->getRacesByParticipant($this, $personId);
-	}		
+	}	
+	
+	public function getPrevRace($watchId, Race $race) {
+		$prevRace =  $this->getDbMapper()->getPrevRace($watchId, $race);
+		$prevRace->repository = $this;
+		return $prevRace;
+	}
+	
+	public function deleteAdvancedWatchs($prevId, $advanceId) {
+		return $this->getDbMapper()->deleteAdvancedWatchs($prevId, $advanceId);
+	}
 }

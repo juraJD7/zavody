@@ -49,6 +49,7 @@ class WatchPresenter extends BasePresenter {
 	public $membersFormFactory;
 	
 	private $troop;
+	private $raceId;
 
 	public function createComponentWatchForm() {
 		if (!$this->user->isLoggedIn()) {
@@ -60,7 +61,7 @@ class WatchPresenter extends BasePresenter {
 		$this->watchFormFactory->setRace($raceId);
 		$this->watchFormFactory->setTroop($this->troop);
 		$form = $this->watchFormFactory->create();
-		$form->onSuccess[] = function ($form) {				
+		$form->onSuccess[] = function () {				
 			$watchId = $this->getParameter('id');
 			if ($this["watchForm"]["send"]->isSubmittedBy()) {
 				$this->redirect("Watch:members");
@@ -78,8 +79,8 @@ class WatchPresenter extends BasePresenter {
 		}
 		$watchId = $this->getParameter('watchId');
 		$this->membersFormFactory->setId($watchId);
-		$raceId = $this->getParameter('raceId');
-		$this->membersFormFactory->setRace($raceId);
+		$this->raceId = $this->getParameter('raceId');
+		$this->membersFormFactory->setRace($this->raceId);
 		$this->membersFormFactory->setTroop($this->troop);
 		$form = $this->membersFormFactory->create();
 		$form->onSuccess[] = function () {
@@ -109,7 +110,7 @@ class WatchPresenter extends BasePresenter {
 		}
 		$this->getSession("watch")->remove();			
 		if ($this->getSession()->hasSection('watch')) {				
-			$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));				
+			$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));	
 			$this->troop = $watch->troop;					
 			$this["watchForm"]->setDefaults($this->watchRepository->getDataForForm($watch));
 		}			
@@ -320,4 +321,26 @@ class WatchPresenter extends BasePresenter {
 		$this->template->races = $this->template->watch->getRaces();
 			
 	}	
+	
+	public function handleDeleteWatch($watchId, $raceId) {
+		if ($this->isAjax()) {
+			$race = $this->raceRepository->getRace($raceId);
+			if ($race->applicationDeadline < date('Y-m-d')) {
+				$res = $this->watchRepository->deleteWatch($watchId, $raceId);
+				$advancedRaces = array('K', 'C');				
+				if ($res && in_array($race->round->short, $advancedRaces)) {
+					$prevRace = $this->raceRepository->getPrevRace($watchId, $race);
+					$watch = $this->watchRepository->getWatch($watchId);
+					$this->watchRepository->unsetAdvance($watch, $prevRace);
+				}
+			}			
+			$this->redrawControl();
+		}	
+		
+	}
+	
+	public function handleCancelWatch() {
+		$this->session->getSection("watch")->remove();
+		$this->redirect("Race:");
+	}
 }

@@ -175,7 +175,7 @@ class RaceFormFactory extends BaseFormFactory {
 	}
 	
 	private function loadKeys() {
-		$result = $this->database->table('key');
+		$result = $this->database->table('arvance_key');
 		$keys = array();
 		foreach ($result as $row) {
 			$row = $result->fetch();
