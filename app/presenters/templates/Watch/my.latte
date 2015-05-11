@@ -4,12 +4,12 @@
 
 <table class="table table-bordered table-centred">
 	<tr>
-		<th>Název</th><th>Oddíl</th><th>Soutěž (Ročník)</th><th>Přihlášena do závodů</th><th>Funkce v hlídce</th><th>Akce</th>
+		<th>Název</th><th>Oddíl</th><th>Soutěž (Ročník)</th><th>Přihlášena do závodů</th><th>Funkce v hlídce</th>
 	</tr>
 	
 	{foreach $watchs as $watch}
 		<tr>
-			<td>{$watch->name}</td>
+			<td><a n:href="Watch:detail $watch->id">{$watch->name}</a></td>
 			<td>{$watch->group->displayName}</td>
 			<td>{$watch->seasonName}</td>
 			<td>
@@ -19,10 +19,6 @@
 			</td>
 			<td>
 				{$roles[$watch->id]}
-			</td>			
-			<td>
-				<a n:href="Watch:detail $watch->id">Zobrazit</a>				
-				<a n:href="Watch:edit $watch->id">Upravit</a>				
 			</td>
 		</tr>
 	{/foreach}

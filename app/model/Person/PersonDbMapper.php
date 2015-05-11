@@ -40,7 +40,7 @@ class PersonDbMapper extends BaseDbMapper {
 		$row = $this->database->table('participant')
 				->get($id);
 		if (!$row) {
-			throw new DbNotStoredException("Účastník $id není v databázi");
+			throw new Race\DbNotStoredException("Účastník $id není v databázi");
 		}
 		$participant = new Person($row->person_id);
 		$participant->systemId = $row->id;
@@ -72,17 +72,18 @@ class PersonDbMapper extends BaseDbMapper {
 	 * @param int $raceId
 	 * @return array Person
 	 */
-	public function getPersonsByWatch(PersonRepository $repository, $watchId, $raceId) {
+	public function getPersonsByWatch(PersonRepository $repository, $watchId, $raceId) {		
 		$rowsMembers = $this->database->table('participant')
 				->where('watch', $watchId);
 		$members = array();
 		foreach ($rowsMembers as $member) {
-			$row = $this->database->table('participant_race')
+			$query = $this->database->table('participant_race')
 					->where('participant_id', $member->id);
 			if (!is_null($raceId)) {
-				$row = $row->where('race_id', $raceId);
-			}			
-			if ($row) {
+				$query = $query->where('race_id', $raceId);
+			}
+			$row = $query->fetch();
+			if ($row) {				
 				$person = $this->getParticipant($member->id);
 				$person->repository = $repository;				
 				$members[] = $person;

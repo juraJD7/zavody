@@ -38,7 +38,7 @@ class RaceDbMapper extends BaseDbMapper {
 	public function getRace($id) {
 		$row = $this->database->table('race')->get($id);		
 		if(!$row) {
-			throw new Nette\InvalidArgumentException("Závod $id neexistuje");
+			throw new Race\DbNotStoredException("Závod $id neexistuje");
 		}
 		return $this->loadFromActiveRow($row);
 	}

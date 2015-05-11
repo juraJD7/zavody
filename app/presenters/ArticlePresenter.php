@@ -109,9 +109,9 @@ class ArticlePresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}		
 		$commentId = $this->getParameter('commentId');
-		if ($this->commentId) {
+		//if ($this->commentId) {
 			$comment = $this->commentRepository->getComment($commentId);
-		}
+		//}
 		if ($comment->author->id != $this->user->id) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}		

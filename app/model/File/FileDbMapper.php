@@ -10,7 +10,7 @@ class FileDbMapper extends BaseDbMapper {
 	public function getFile($id) {
 		$row = $this->database->table('file')->get((int)$id);
 		if(!$row) {
-			throw new Nette\InvalidArgumentException("Soubor $id neexistuje");
+			throw new Race\DbNotStoredException("Soubor $id neexistuje");
 		}
 		$file = new File($row->id);
 		$file->name = $row->name;

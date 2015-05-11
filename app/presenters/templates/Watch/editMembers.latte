@@ -5,7 +5,7 @@
 {form membersForm, class => ajax}
 
 <fieldset>
-<legend>Změna členů hlídky {$watch->name} pro závod {$race->title}</legend>	
+<legend>Změna členů hlídky {$watch->name} pro závod {$race->name}</legend>	
 
 <table>
 	<tr>
@@ -68,7 +68,7 @@
 			</td>
 			<td style="text-align: right">
 				{input save}
-				{input cancel}
+				{input cancelEdit}
 			</td>
 		</tr>
 	</table>

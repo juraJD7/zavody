@@ -16,7 +16,7 @@ class CommentDbMapper extends BaseDbMapper {
 	public function getComment($id) {
 		$row = $this->database->table('comment')->get($id);
 		if(!$row) {
-			throw new Nette\InvalidArgumentException("Komentář $id neexistuje");
+			throw new Race\DbNotStoredException("Komentář $id neexistuje");
 		}
 		$comment = new Comment($row->id);				
 		

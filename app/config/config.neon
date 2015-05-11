@@ -21,7 +21,7 @@ nette:
 		expiration: 14 days
 
 extensions:
-    skautis: Skautis\Nette\SkautisExtension # yourNameOfExtension : SkautIS\Nette\SkautisExtension22
+    skautis: Skautis\Nette\SkautisExtension
 
 services:
 	cacheStorage:

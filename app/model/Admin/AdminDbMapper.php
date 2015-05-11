@@ -29,6 +29,9 @@ class AdminDbMapper extends BaseDbMapper {
 	public function getCompetition($id) {
 		$row = $this->database->table('competition')
 				->get($id);
+		if(!$row) {
+			throw new Race\DbNotStoredException("Soutěž $id neexistuje");
+		}
 		$competition = new Competition($id);
 		$competition->name = $row->name;
 		$competition->short = $row->short;

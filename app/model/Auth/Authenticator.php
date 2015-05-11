@@ -37,7 +37,7 @@ class Authenticator extends Nette\Object implements Nette\Security\IAuthenticato
     }
 	
 	/**
-	 * Performs an authentication.
+	 * Provede autentizaci
 	 * @return Nette\Security\Identity
 	 * @throws \Skautis\Wsdl\AuthenticationException
 	 */

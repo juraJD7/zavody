@@ -28,6 +28,17 @@ class ErrorPresenter extends BasePresenter
 	 */
 	public function renderDefault($exception)
 	{
+		if ($this->isAjax()) { // AJAX request? Note this error in payload.
+			$this->payload->error = TRUE;
+			$this->payload->message = $exception->getMessage();
+			$this->terminate();
+		}
+		// Pokud nenalezeno ID záznamu a záznam nebyl nalezen, zobrazíme informaci uživateli.
+		if ($exception instanceof \Race\DbNotStoredException) {					
+			$this->flashMessage($exception->getMessage(), 'error');
+			$this->redirect("Homepage:");
+			exit;
+		}
 		// Pokud je chyba vyvolaná odhlášením, přesměrujeme na přihlašovací stránku
 		if ($exception instanceof \Skautis\Wsdl\AuthenticationException || 
 			$exception instanceof \Nette\Security\AuthenticationException) {
@@ -50,15 +61,11 @@ class ErrorPresenter extends BasePresenter
 			$this->setView(in_array($code, array(403, 404, 500)) ? $code : '4xx');
 			// log to access.log
 			$this->logger->log("HTTP code $code: {$exception->getMessage()} in {$exception->getFile()}:{$exception->getLine()}", 'access');
+			
 
 		} else {
 			$this->setView('500'); // Výchozí šablona 500.latte
 			$this->logger->log($exception, ILogger::EXCEPTION);
-		}
-
-		if ($this->isAjax()) { // AJAX request? Note this error in payload.
-			$this->payload->error = TRUE;
-			$this->terminate();
 		}
 	}
 

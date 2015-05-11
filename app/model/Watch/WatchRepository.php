@@ -156,10 +156,7 @@ class WatchRepository extends Nette\Object {
 	
 	public function getDataForForm(Watch $watch, $raceId = NULL) {
 		if (is_null($raceId)) {
-			$races = $watch->getRaces();
-			if (count($races) != 1) {
-				throw new LogicException("Nejdve vytvořit přihlášku ke 2 závodům zaráz.");
-			}
+			$races = $watch->getRaces();			
 			$raceId = $races[0]->id;
 		}
 		$raceArray = array (

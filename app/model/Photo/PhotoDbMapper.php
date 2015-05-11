@@ -10,7 +10,7 @@ class PhotoDbMapper extends BaseDbMapper {
 	public function getPhoto($id) {
 		$row = $this->database->table('photo')->get((int)$id);
 		if(!$row) {
-			throw new Nette\InvalidArgumentException("Fotka $id neexistuje");
+			throw new Race\DbNotStoredException("Fotka $id neexistuje");
 		}
 		$photo = new Photo($row->id);
 		$photo->description = $row->description;

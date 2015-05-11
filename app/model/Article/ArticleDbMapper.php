@@ -16,7 +16,7 @@ class ArticleDbMapper extends BaseDbMapper {
 	public function getArticle($id) {
 		$row = $this->database->table('article')->get($id);
 		if(!$row) {
-			throw new Nette\InvalidArgumentException("Článek $id neexistuje");
+			throw new Race\DbNotStoredException("Článek $id neexistuje");
 		}
 		$article =  new Article($row->id);				
 		
@@ -44,7 +44,7 @@ class ArticleDbMapper extends BaseDbMapper {
 				->where('race', NULL)
 				->where('season', $this->season)
 				->where('status', Article::PUBLISHED)
-				->order('modified DESC')
+				->order('changed DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());	
 		$articles = array();
 		foreach ($rows as $row) {
@@ -66,7 +66,7 @@ class ArticleDbMapper extends BaseDbMapper {
 		$table = $this->database->table('article')
 				->where('id IN', $articleIds)
 				->where('season', $this->season)
-				->order('modified DESC')
+				->order('changed DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());
 		$articles = array();
 		foreach ($table as $row) {			
@@ -156,7 +156,7 @@ class ArticleDbMapper extends BaseDbMapper {
 		$rows = $this->database->table('article')
 				->where('author', $userId)
 				->where('season', $this->season)
-				->order('modified DESC')
+				->order('changed DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());
 		$articles = array();
 		foreach ($rows as $row) {
@@ -170,7 +170,7 @@ class ArticleDbMapper extends BaseDbMapper {
 	public function getArticlesByRace(ArticleRepository $repository, $paginator, $raceId) {
 		$rows = $this->database->table('article')
 				->where('race', $raceId)
-				->order('modified DESC')
+				->order('cahnged DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());
 		$articles = array();
 		foreach ($rows as $row) {

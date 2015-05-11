@@ -32,7 +32,7 @@ class UserRepository {
 		} else {
 			try {
 				$user = $this->dbMapper->getUser($id);
-			} catch (DbNotStoredException $ex) {
+			} catch (Race\DbNotStoredException $ex) {
 				throw new Nette\Security\AuthenticationException("Pro zobrazení záznamu se musíte přihlásit");
 			}
 		}		

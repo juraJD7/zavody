@@ -29,10 +29,10 @@ class HomepagePresenter extends BasePresenter
 	
 	private function login($post) {
 		$this->skautIS->setLoginData($post);
-		$userDetail = $this->skautIS->user->UserDetail();
-		$this->userRepository->getUser($userDetail->ID); // aktualizuje udaje o uživateli
+		$userDetail = $this->skautIS->user->UserDetail();		
 		$this->user->login($userDetail);
 		$this->user->setExpiration('30 minutes', TRUE);		
+		$this->userRepository->getUser($userDetail->ID); // aktualizuje udaje o uživateli
 	}
 
 
@@ -40,6 +40,7 @@ class HomepagePresenter extends BasePresenter
 		$this->user->logout(TRUE);
 		$url = $this->skautIS->getLogoutUrl();
 		$this->skautIS->getUser()->resetLoginData();
+		$this->getSession("watch")->remove();
 		$this->redirectUrl($url);
 	}
 

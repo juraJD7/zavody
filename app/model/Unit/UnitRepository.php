@@ -30,7 +30,7 @@ class UnitRepository {
 		} else {
 			try {
 				$unit = $this->dbMapper->getUnit($id);
-			} catch (DbNotStoredException $ex) {
+			} catch (Race\DbNotStoredException $ex) {
 				throw new Nette\Security\AuthenticationException("Pro zobrazení záznamu se musíte přihlásit");
 			}
 		}

@@ -20,7 +20,7 @@ class UnitDbMapper {
 	public function getUnit($id) {
 		$row = $this->database->table('unit')->get($id);
 		if(!$row) {
-			throw new DbNotStoredException("Jednotka $id nenalezena.");
+			throw new Race\DbNotStoredException("Jednotka $id nenalezena.");
 		}
 		$unit = new Unit($row->id);
 		$unit->registrationNumber = $row->registration_number;

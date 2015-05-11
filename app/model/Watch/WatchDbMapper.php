@@ -27,7 +27,7 @@ class WatchDbMapper extends BaseDbMapper {
 	public function getWatch($id, WatchRepository $repository) {
 		$row = $this->database->table('watch')->get($id);
 		if(!$row) {
-			throw new Nette\InvalidArgumentException("Hlídka $id neexistuje");
+			throw new Race\DbNotStoredException("Hlídka $id neexistuje");
 		}
 		return $this->loadFromActiveRow($row, $repository);
 	}
@@ -226,8 +226,12 @@ class WatchDbMapper extends BaseDbMapper {
 					->where('participant_id', $member->id)
 					->where('race_id', $raceId)
 					->delete();
-		}
-		$members->delete();
+			if ($this->database->table('participant_race')
+					->where('participant_id', $member->id)
+					->count() == 0) {
+				$member->delete();
+			}
+		}		
 		return 1;
 	}
 	

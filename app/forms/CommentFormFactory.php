@@ -68,6 +68,9 @@ class CommentFormFactory extends BaseFormFactory {
 			$data['modified'] = NULL;
 			$this->database->table('comment')->insert($data);
 		}		
+		$this->database->table('article')
+				->where('id', $this->article)
+				->update(array('changed' => date("Y-m-d H:i:s")));
 	}
 	
 }

@@ -244,11 +244,21 @@ class Watch extends Nette\Object {
 	 * @param Race $race
 	 * @return array Person
 	 */
-	public function getMembers($race = null) {
+	public function getMembers($race = null) {		
 		if (empty($this->members)) {			
-			$this->members = $this->repository->getMembers($this->id, $race);
+			$this->members = $this->repository->getMembers($this->id);
 		}		
-		return $this->members;
+		if (is_null($race)) {
+			return $this->members;
+		}
+		
+		$members = array();
+		foreach ($this->members as $member) {			
+			if (in_array($race->id, $member->races)) {
+				$members[] = $member;
+			}
+		}
+		return $members;		
 	}
 
 

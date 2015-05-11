@@ -54,7 +54,8 @@ class WatchPresenter extends BasePresenter {
 	public function createComponentWatchForm() {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
-		}			
+		}	
+		//$this->getSession("watch")->remove();
 		$watchId = $this->getParameter('id');
 		$this->watchFormFactory->setId($watchId);
 		$raceId = $this->getParameter('race');
@@ -107,8 +108,7 @@ class WatchPresenter extends BasePresenter {
 	public function renderCreate($race) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
-		}
-		$this->getSession("watch")->remove();			
+		}		
 		if ($this->getSession()->hasSection('watch')) {				
 			$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));	
 			$this->troop = $watch->troop;					
@@ -254,22 +254,21 @@ class WatchPresenter extends BasePresenter {
 		$race = $this->raceRepository->getRace($raceId);								
 		$this->template->watch = $watch;
 		$this->template->race = $race;
-		if ($section->members) {
-			$this->template->members = $section->members;
+		if (!isset($section->members)) {
 			$roles = array();
-			foreach ($this->template->members as $key => $value) {
-				$rolesSession = $section->roles;
-				$roles[$key] = $this->personRepository->getRoleName($rolesSession[$key]);
-			}
-		} else {
-			$roles = array();
-			$this->template->members = array();
+			$section->members = array();
+			$section->roles = array();
 			foreach ($watch->getMembers($race) as $member) {
-				$this->template->members[$member->personId] = $member->displayName;
-				$roles[$member->personId] = $member->getRoleName($raceId);
+				$section->members[$member->personId] = $member->displayName;
+				$section->roles[$member->personId] = $member->getRoleId($raceId);
 			}
-		}				
-
+		}		
+		$this->template->members = $section->members;
+		$roles = array();
+		foreach ($this->template->members as $key => $value) {
+			$rolesSession = $section->roles;
+			$roles[$key] = $this->personRepository->getRoleName($rolesSession[$key]);
+		}	
 		$this->template->rolesPicked = $roles;				
 	}
 	

@@ -81,7 +81,8 @@ class MembersFormFactory extends BaseFormFactory {
 		$form->addSubmit('save', "Uložit členy");
 		$form->addSubmit("cancel","Zrušit přihlašování")
 				->setValidationScope(FALSE);
-		
+		$form->addSubmit("cancelEdit","Zrušit změny")
+				->setValidationScope(FALSE);
 				
 		return $form;
 	}
@@ -91,20 +92,30 @@ class MembersFormFactory extends BaseFormFactory {
 			$this->session->getSection("watch")->remove();
 			$form->getPresenter()->redirect("Race:");
 		}
+		if ($form["cancelEdit"]->isSubmittedBy()) {
+			$this->session->getSection("watch")->remove();
+			$form->getPresenter()->redirect("Watch:detail", $this->id);
+		}
 		$values = $form->getHttpData();		
 		$section = $this->session->getSection('watch');
 		if ($form["save"]->isSubmittedBy()) {			
-			$watch = $this->watchRepository->getWatch($this->id);
+			$watch = $this->watchRepository->getWatch($this->id);			
 			$watch->deleteAllMembers($this->race);				
-			if (isset($section->members)) {				
+			if (isset($section->members)) {					
 				foreach ($section->members as $key => $value) {					
 					$member = $this->personRepository->getPerson($key);
 					$member->unit = $this->unitRepository->getUnit($section->units[$key]);
 					$member->addRace($this->race, $section->roles[$key]);
 					$watch->addMember($member);					
+				}	
+				if ($this->checkCategory($watch)) {
+					$watch->save();
+				} else {
+					$form->getPresenter()->flashMessage("V postupovém závodě nelze měnit kategorii.", 'error');
+					$form->getPresenter()->redirect('this');
 				}
-				$watch->save();
-			}
+			}			
+			$section->remove();
 		}
 		if ($form["addMembers"]->isSubmittedBy()) {				
 			if (isset($values["members"])) {
@@ -140,5 +151,18 @@ class MembersFormFactory extends BaseFormFactory {
 			}
 		}
 		return $groups;
+	}
+	
+	public function checkCategory(\Watch $watch) {
+		$watchCategory = $watch->category;
+		$dbCategory = $this->database->table('watch')
+				->get($watch->id)->category;
+		
+		if ($dbCategory == null
+			|| $watchCategory == \Watch::CATEGORY_NONCOMPETIVE
+			|| $dbCategory == $watchCategory) {
+			return TRUE;
+		}			
+		return FALSE;
 	}
 }

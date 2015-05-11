@@ -28,6 +28,6 @@ class CommentRepository {
 	}
 	
 	public function delete($id) {
-		$this->dbMapper->delete($id);
+		return $this->dbMapper->delete($id);
 	}	
 }

@@ -10,7 +10,7 @@ class QuestionDbMapper extends BaseDbMapper {
 	public function getQuestion($id) {
 		$row = $this->database->table('question')->get((int)$id);
 		if(!$row) {
-			throw new Nette\InvalidArgumentException("Otázka $id neexistuje");
+			throw new Race\DbNotStoredException("Otázka $id neexistuje");
 		}
 		$question = new Question($id);
 		$question->text = $row->text;

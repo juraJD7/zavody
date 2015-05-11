@@ -43,6 +43,20 @@ class RacePresenter extends BasePresenter {
 	
 	/**
 	 *
+	 * @var \ArticleRepository
+	 * @inject
+	 */
+	public $articleRepository;
+	
+	/**
+	 *
+	 * @var \PhotoRepository
+	 * @inject
+	 */
+	public $photoRepository;
+	
+	/**
+	 *
 	 * @var \App\Forms\PointsFormFactory
 	 * @inject
 	 */
@@ -209,6 +223,10 @@ class RacePresenter extends BasePresenter {
 	
 	public function renderDetail($id) {		
 		$this->template->race = $this->raceRepository->getRace($id);
+		$this->template->numArticle = $this->articleRepository->countAllRace($id);
+		$this->template->numPhoto = $this->photoRepository->countAllRace($id);
+		$this->template->numQuestion = $this->questionRepository->countAllRace($id);
+		
 		if ($this->user->isLoggedIn()) {
 			$this->template->watchs = $this->watchRepository->getWatchs($id);
 		}
