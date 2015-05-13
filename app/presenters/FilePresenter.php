@@ -59,7 +59,7 @@ class FilePresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}		
 		$file = $this->fileRepository->getFile($id);
-		if (!($this->user->isInRole('admin') || ($this->user->id == $file->author))) {
+		if (!($this->user->isInRole('admin') || ($this->user->id == $file->author->id))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 		}		
 		$this['fileForm']['name']->setDefaultValue($file->name);
@@ -76,6 +76,7 @@ class FilePresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		$this->template->fileTypes = $this->fileRepository->getFileTypes();
 	}
 	
 	public function actionDownload($id) {		
@@ -90,7 +91,7 @@ class FilePresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 		$file = $this->fileRepository->getFile($id);
-		if (!($this->user->isInRole('admin') || ($this->user->id == $file->author))) {
+		if (!($this->user->isInRole('admin') || ($this->user->id == $file->author->id))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 		}
 		$this->fileRepository->deleteFile($id);

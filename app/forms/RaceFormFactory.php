@@ -45,62 +45,72 @@ class RaceFormFactory extends BaseFormFactory {
 	public function setEditors($editors) {
 		$this->editors = $editors;
 	}
-
+	
 	/**
 	 * @return Form
 	 */
 	public function create()
 	{
-		$form = new Form();	
-		
+		$form = new Form;
 		$form->addGroup('Základní nastavení');
-		$form->addText("name", "Název kola:");//->setRequired();		
-		$form->addSelect("round", "Druh kola:", $this->loadRounds() )
+		$form->addText("name", "Název kola* :")
+				->setRequired("Je nutné vyplnit název kola.");		
+		$form->addSelect("round", "Druh kola* :", $this->loadRounds() )
 				->setPrompt("-- vyber kolo --")
 				->setRequired();		
 		$form->addSelect("key", "Postupový klíč:", $this->loadKeys() )
 				->setPrompt("-- vyber klíč --");
-		$form->addSelect("region", "Kraj:", $this->loadRegions() )
+		$form->addSelect("region", "Kraj* :", $this->loadRegions() )
 				->setPrompt("-- vyber kraj --")
-				->setRequired();		
-		$form->addSelect("members_range", "Počet členů ve družině:", $this->loadMembersRange() )
+				->setRequired("Je nutné vybrat kraj závodu");		
+		$form->addSelect("members_range", "Počet členů ve družině* :", $this->loadMembersRange() )
 				->setPrompt("-- vyber rozsah --")
-				->setRequired();
-		$form->addText("capacity", "Max. počet družin:")
+				->setRequired("Je nutné vybrat povolený rozsah členů v závodě");
+		$form->addText("capacity", "Max. počet družin* :")
 				->setType('number')
 				->addRule(Form::INTEGER, 'Kapacita družin musí být číslo')
-				->addRule(Form::MIN, 'Kapacita nemůže být záporná', 0);//->setRequired();
-		$form->addText("application_deadline", "Uzávěrka přihlášek:")
-				->setType("date");
-			//	->setOption("description", "ve formátu rrrr-mm-dd nebo vyberte datum ze zobrazeného kalendáře (Chrome, FF)");//->setRequired();
+				->addRule(Form::MIN, 'Kapacita nemůže být záporná', 0)
+				->setRequired("Je nutné zadat max. počet přihlášených hlídek (součet za všechny kategorie)");
+		$form->addText("application_deadline", "Uzávěrka přihlášek* :")
+				->setType("date")
+				->setRequired("Je nutné zadat deadline pro přihlášky.");
 		$form->addGroup('Pořadatel');
-		$form->addSelect("organizer", "Pořádající jednotka:", $this->loadUnits())
+		$form->addSelect("organizer", "Pořádající jednotka* :", $this->loadUnits())
 				->setAttribute('class', 'js-example-basic-single')
 				->setRequired();
-		$form->addText("commander", "Velitel závodu:");//->setRequired();
-		$form->addText("commander_email", "E-mail - velitel:")
-				->setType("email");//->setRequired();
-		$form->addText("referee", "Hlavní rozhodčí:");//->setRequired();
-		$form->addText("referee_email", "E-mail - rozhodčí:")
-				->setType("email");//->setRequired();
-		$form->addSelect("editors_input", "Editoři závodu:", $this->loadUsers())
-				->setPrompt('-- vybrat další editory z ISu --')
-				->setAttribute('class', 'js-example-basic-single')
-				->setOption("descriprion", " * zadej login(y) lidí z ISu, kteří mohou upravovat parametry závodu");	
+		$form->addText("commander", "Velitel závodu* :")
+				->setRequired("Zadejte velitele závodu");
+		$form->addText("commander_email", "E-mail - velitel* :")
+				->setType("email")
+				->addRule(Form::EMAIL, 'E-mailová adresa není platná')
+				->setRequired("Zadejte email na velitele závodu");
+		$form->addText("referee", "Hlavní rozhodčí* :")
+				->setRequired("Zadejte hl. rozhodčího závodu");
+		$form->addText("referee_email", "E-mail - rozhodčí* :")
+				->setType("email")
+				->addRule(Form::EMAIL, 'E-mailová adresa není platná')
+				->setRequired();
+		$form->addMultiSelect("editors_input", "Editoři závodu:", $this->loadUsers())
+				->setAttribute('class', 'js-example-basic-multiple');	
 		$form->addGroup('Datum a Místo');
-		$form->addText("date","Termín závodu:")
-				->setType("date");
-				//->setOption("description", "ve formátu rrrr-mm-dd nebo 
-				//vyberte datum ze zobrazeného kalendáře (Chrome, FF)");//->setRequired();
-		$form->addText("place", "Místo:");//->setRequired();		
+		$form->addText("date","Termín závodu* :")
+				->setType("date")				
+				->setRequired("Je nutné zadat termín konání závodu.");
+		$form->addText("place", "Místo* :")
+				->setRequired("Je nutné zadat místo konání.");		
 		$form->addGroup('Kontakt');
 		$form->addText("telephone", "Telefon:");
-		$form->addText("email", "Kontaktní mail:")
-				->setType("email");//->setRequired();
-		$form->addText("web", "Web:");
+		$form->addText("email", "Kontaktní mail* :")
+				->addRule(Form::EMAIL, 'E-mailová adresa není platná')
+				->setType("email")
+				->setRequired("Je nutné zadat email na organizátora.");
+		$form->addText("web", "Web:")
+				->addCondition(Form::FILLED)
+				->addRule(Form::URL, 'Webová adresa není platná.');
 		$form->addGroup("Další nastavení");
-		$form->addText("target_group", "Cílová skupina (popis):");//->setRequired();	
-		//$form->addTextArea("description", "Další informace", "60", "10");
+		$form->addText("target_group", "Cílová skupina (popis):");				
+		$form->addTextArea("description", "Další informace", "60", "10")
+				->setAttribute('class', 'mceEditor');
 		$form->addSubmit("send","Odeslat");
 		
 		$renderer = $form->getRenderer();
@@ -135,8 +145,10 @@ class RaceFormFactory extends BaseFormFactory {
 	}
 	
 	public function formSucceeded(Form $form, $values)
-	{		
-		$post = $form->getHttpData();
+	{				
+		
+		$editors = $values->editors_input;
+		unset($values->editors_input);
 		if (is_null($this->id)) {
 			$values["author"] = $this->user->id;
 			$values["season"] = $this->season;			
@@ -145,8 +157,7 @@ class RaceFormFactory extends BaseFormFactory {
 		$organizer->save();
 		if (substr($values->web, 0, 4) != "http") {
 			$values->web = "http://" . $values->web;
-		}
-		unset($values["editors_input"]);
+		}		
 		$values["advance"] = $this->setAdvanceRace($values->region, $values->round);
 		if (isset($this->id)) {			
 			$this->database->table('race')
@@ -158,10 +169,8 @@ class RaceFormFactory extends BaseFormFactory {
 				->insert($values);
 			$raceId = $race->id;
 		}		
-		$this->setSubordinateRaces($values->region, $values->round, $raceId);
-		if (isset($post['editors'])) {
-			$this->setNewEditors($post['editors'], $raceId);
-		}
+		$this->setSubordinateRaces($values->region, $values->round, $raceId);		
+		$this->setNewEditors($editors, $raceId);
 	}
 	
 	private function loadRounds() {
@@ -175,7 +184,7 @@ class RaceFormFactory extends BaseFormFactory {
 	}
 	
 	private function loadKeys() {
-		$result = $this->database->table('arvance_key');
+		$result = $this->database->table('advance_key');
 		$keys = array();
 		foreach ($result as $row) {
 			$row = $result->fetch();
@@ -206,7 +215,11 @@ class RaceFormFactory extends BaseFormFactory {
 	
 	public function loadUnits() {
 		$types = array("ustredi", "kraj", "okres", "stredisko");		
-		$myUnit = array($this->user->unit->id => "-- Moje jednotka (" . $this->user->unit->displayName . ") --");	
+		if (in_array($this->user->unit->unitType, $types)) {
+			$myUnit = array($this->user->unit->id => "-- Moje jednotka (" . $this->user->unit->displayName . ") --");
+		} else {
+			$myUnit = array();
+		}
 		$subordinate = array();
 		foreach ($this->unitRepository->getUnits($types) as $unit) {
 			$subordinate[$unit->id] = $unit->displayName;
@@ -271,9 +284,8 @@ class RaceFormFactory extends BaseFormFactory {
 	public function loadUsers() {
 		$isUsers = $this->skautIS->usr->UserAll();
 		$users = array();
-		foreach ($isUsers as $isUser) {
-			$detail = $this->skautIS->usr->UserDetail(array("ID" => $isUser->ID));
-			$users[$detail->ID] = "$detail->UserName ($detail->Person)";
+		foreach ($isUsers as $isUser) {			
+			$users[$isUser->ID] = "$isUser->UserName ($isUser->DisplayName)";
 		}
 		return $users;
 	}

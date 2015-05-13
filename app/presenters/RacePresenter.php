@@ -63,6 +63,7 @@ class RacePresenter extends BasePresenter {
 	public $pointsFormFactory;
 	
 	private $watchs;
+	private $raceId;
 
 	public function createComponentRaceForm() {
 		if (!$this->user->isLoggedIn()) {
@@ -84,7 +85,7 @@ class RacePresenter extends BasePresenter {
 		}	
 		$id = $this->getParameter('id');
 		if (!$this->user->isInRole('admin')
-				&& !($this->user->isInRole('raceManager') && in_array($id, $this->user->races))) {
+				&& !($this->user->isInRole('raceManager') && in_array($id, $this->user->identity->data["races"]))) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}						
 		$this->pointsFormFactory->setWatchs($this->watchs);		
@@ -169,6 +170,7 @@ class RacePresenter extends BasePresenter {
 		//všechny, které založil akt. uživatel		
 		$editor = $this->raceRepository->getRacesByEditor($this->user->id);	
 		//pro činovníky / administrátory pořádající jendotky
+		$administrator = array();
 		if ($this->user->isOfficial()) {
 			$administrator = $this->raceRepository->getRacesByOrganizer($this->skautIS->getUser()->getUnitId());
 		}
@@ -213,22 +215,35 @@ class RacePresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		$types = array("ustredi", "kraj", "okres", "stredisko");
+		if (!in_array($this->user->unit->unitType, $types)) {
+			throw new \Race\PermissionException("S touto rolí nelze založit závod. Musíte mít alespoň oprávnění střediska.");
+		}
 	}
 	
 	public function renderDefault() {
 		$this->template->statewide = $this->raceRepository->getStatewideRound($this->season);
 		$this->template->regions = $this->raceRepository->getRegions();
+		$this->template->numRaces = $this->raceRepository->getNumRaces();
 		$this->template->races = $this->raceRepository->getRaces($this->season);
 	}
 	
 	public function renderDetail($id) {		
 		$this->template->race = $this->raceRepository->getRace($id);
+		$this->raceId = $id;
 		$this->template->numArticle = $this->articleRepository->countAllRace($id);
 		$this->template->numPhoto = $this->photoRepository->countAllRace($id);
 		$this->template->numQuestion = $this->questionRepository->countAllRace($id);
 		
 		if ($this->user->isLoggedIn()) {
 			$this->template->watchs = $this->watchRepository->getWatchs($id);
+			usort($this->template->watchs, function ($a, $b) {
+					$category = strcmp($a->category, $b->category);	
+					if ($category != 0) {
+						return $category;
+					}
+					return $a->getOrder($this->raceId) > $b->getOrder($this->raceId);
+			});
 		}
 	}
 	
@@ -237,7 +252,7 @@ class RacePresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 		if (!$this->user->isInRole('admin')
-				&& !($this->user->isInRole('raceManager') && in_array($id, $this->user->races))) {
+				&& !($this->user->isInRole('raceManager') && in_array($id, $this->user->identity->data["races"]))) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
 		$this->template->race = $this->raceRepository->getRace($id);
@@ -251,7 +266,7 @@ class RacePresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 		if (!$this->user->isInRole('admin')
-				&& !($this->user->isInRole('raceManager') && in_array($id, $this->user->races))) {
+				&& !($this->user->isInRole('raceManager') && in_array($id, $this->user->identity->data["races"]))) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
 		$race = $this->raceRepository->getRace($id);			

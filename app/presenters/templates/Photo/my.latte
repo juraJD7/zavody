@@ -37,6 +37,11 @@
 	<div class="row">
 	{/if}
 {/foreach}
+{if !$photos}
+	<p>
+		<em>Žádné fotografie k dipsozici.</em>
+	</p>
+{/if}
 {/snippet}
 {include '../pagination.latte'}
 

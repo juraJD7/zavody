@@ -20,7 +20,9 @@
 		"dg/adminer-custom": "~1.6",
 		"skautis/skautis": "2.*@dev",
 		"skautis/nette": "2.*@dev",
-		"jkuchar/filedownloader": "~1.2"
+		"jkuchar/filedownloader": "~1.2",
+		"nextras/forms": "~1.4",
+		"nella/forms-datetime": "~2.3"
 	},
 	"require-dev": {	
 		"nette/tester": "~1.3"

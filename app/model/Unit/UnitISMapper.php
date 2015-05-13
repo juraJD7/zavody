@@ -25,8 +25,15 @@ class UnitISMapper {
 	 * @return Unit
 	 */
 	public function getUnit($id) {
-		$result = $this->skautIS->org->UnitDetail(array("ID" => $id));			
-		return $this->getUnitFromStdClass($result);
+		$result = $this->skautIS->org->UnitDetail(array("ID" => $id));
+		$unit = $this->getUnitFromStdClass($result);
+		try {
+			$unit->telephone = $this->getTelephone($id);
+			$unit->email = $this->getEmail($id);
+		} catch (Exception $ex) {
+
+		}
+		return $unit;
 	}
 	
 	/**

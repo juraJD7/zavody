@@ -67,7 +67,8 @@ class ArticleFormFactory extends BaseFormFactory {
 		
 		$form->addText('title', 'Nadpis:')
 			->setRequired('Je nutné vyplnit nadpis článku.');
-		$form->addTextArea('lead', 'Krátký popis:', 30, 5);
+		$form->addTextArea('lead', 'Krátký popis:', 30, 5)
+			->setRequired('Je nutné vyplnit krátký popis článku.');
 		$form->addTextArea('text', 'Text článku', 60, 10)
 				->setAttribute('class','mceEditor');
 

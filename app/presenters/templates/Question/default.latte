@@ -45,7 +45,11 @@
 	</div>
 	<hr />
 {/foreach}
-
+{if !$questions}
+	<p>
+		<em>Žádné otázky k dipsozici.</em>
+	</p>
+{/if}
 {include '../pagination.latte'}
 
 {/snippet}

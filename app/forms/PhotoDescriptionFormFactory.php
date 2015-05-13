@@ -57,6 +57,6 @@ class PhotoDescriptionFormFactory extends BaseFormFactory {
 		$photo = $this->database->table('photo')->get($values->id);
 		$photo->update(array(
 			"description" => $values->description
-		));		
+		));			
 	}
 }

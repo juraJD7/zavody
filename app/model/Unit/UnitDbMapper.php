@@ -27,6 +27,7 @@ class UnitDbMapper {
 		$unit->displayName = $row->name;
 		$unit->email = $row->email;
 		$unit->telephone = $row->telephone;
+		$unit->unitType = $row->unit_type;
 		return $unit;
 	}
 
@@ -35,7 +36,8 @@ class UnitDbMapper {
 		$data = array(
 			"id" => (int) $unit->id,
 			"registration_number" => $unit->registrationNumber,
-			"name" => $unit->displayName
+			"name" => $unit->displayName,
+			"unit_type" => $unit->unitType
 		);
 		if ($unit->email) {
 			$data["email"] = $unit->email;

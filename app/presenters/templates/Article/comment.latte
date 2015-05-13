@@ -3,7 +3,7 @@
 <h4>
 	<strong>{$comment->title}</strong>
 	
-	<small>{$comment->authorName}, {$comment->posted|date:'d.m.Y H:i'}
+	<small>{$comment->author->userName}, {$comment->posted|date:'d.m.Y H:i'}
 	
 	{if $comment->modified}
 		, upraveno: {$comment->modified|date:'d.m.Y H:i'}

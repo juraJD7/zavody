@@ -93,7 +93,15 @@ class PhotoUploadFormFactory extends BaseFormFactory {
 	}
 	
 	private function createThumb(Nette\Http\FileUpload $file) {
+		// test, zda se jedná o podprovaný formát obrázku
+		switch ($file->getContentType()) {
+			case "image/gif" : $imgCreateFrom = "ImageCreateFromGIF"; break;
+			case "image/png" : $imgCreateFrom = "ImageCreateFromPNG"; break;
+			case "image/jpeg" : $imgCreateFrom = "ImageCreateFromJPEG"; break;
+			default : throw new Exception("Neplatný obrázek");
+		}
 		$size = $file->getImageSize();
+		//nastavení rozměrů náhledu na výšku nebo na šířku
 		if ($size[0] > $size[1]) {
 			$width = \PhotoRepository::THUMBSIZE;
 			$height = $size[1] * (\PhotoRepository::THUMBSIZE / $size[0]);
@@ -101,16 +109,12 @@ class PhotoUploadFormFactory extends BaseFormFactory {
 			$height = \PhotoRepository::THUMBSIZE;
 			$width = $size[0] * (\PhotoRepository::THUMBSIZE / $size[1]);
 		}
+		//vytvoření zatím prázdného náhledu
 		$tmp = imagecreatetruecolor($width, $height);
 		$thumb = imagecreatetruecolor(\PhotoRepository::THUMBSIZE, \PhotoRepository::THUMBSIZE);
 		$bg = imagecolorallocate($thumb, 255, 255, 255);
-		imagefill($thumb, 0, 0, $bg);
-		switch ($file->getContentType()) {
-			case "image/gif" : $imgCreateFrom = "ImageCreateFromGIF"; break;
-			case "image/png" : $imgCreateFrom = "ImageCreateFromPNG"; break;
-			case "image/jpeg" : $imgCreateFrom = "ImageCreateFromJPEG"; break;
-			default : throw new Exception("Neplatný obrázek");
-		}		
+		imagefill($thumb, 0, 0, $bg);			
+		//zkopírování původního obrázku do náhledu
 		$oldimage = $imgCreateFrom($file->temporaryFile);
 		imagecopyresized($tmp, $oldimage, 0, 0, 0, 0, $width, $height, $size[0], $size[1]);
 		imagecopy($thumb, $tmp, 0, (\PhotoRepository::THUMBSIZE - $height) / 2, 0, 0, $width, $height);

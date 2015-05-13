@@ -56,7 +56,7 @@ class Authenticator extends Nette\Object implements Nette\Security\IAuthenticato
 			if (!empty($races)) {				
 				$data = array();
 				foreach ($races as $race) {
-					$data[] = $race->race_id;
+					$data[] = $race->id;
 				}
 				return new NS\Identity($userID, "raceManager", array("races" => $data));
 			}

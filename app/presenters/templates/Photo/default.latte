@@ -26,8 +26,8 @@
 					{input description} {input send}
 				{/form}					
 			{else}
-				<a n:href="edit! $photo->id, $page" class=ajax>Upravit popisek</a>
-				<a n:href="delete! $photo->id, $page" class=ajax>Smazat</a>
+				<a n:href="edit! $photo->id, $page" class="ajax">Upravit popisek</a>
+				<a n:href="delete! $photo->id, $page" class="ajax">Smazat</a>
 			{/if}
 		{/if}
 		</div>
@@ -39,6 +39,11 @@
 	<div class="row">
 	{/if}
 {/foreach}
+{if !$photos}
+	<p>
+		<em>Žádné fotografie k dipsozici.</em>
+	</p>
+{/if}
 {/snippet}
 {include '../pagination.latte'}
 

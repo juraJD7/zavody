@@ -32,7 +32,7 @@
 				  </tr>
 			  {/foreach}			  
 		  {/if}
-		  {if $user->isLoggedIn() && ($user->isInRole('admin') || ($user->isInRole('raceManager') && in_array($question->race, $user->races)))}
+		  {if $user->isLoggedIn() && ($user->isInRole('admin') || ($user->isInRole('raceManager') && in_array($question->race, $user->identity->data["races"])))}
 			  {form answerForm-$question->id}
 				  <tr><td>{input text}</td><td>{input send}</td><tr>
 			  {/form}
@@ -42,7 +42,11 @@
 	</div>
 	<hr />
 {/foreach}
-
+{if !$questions}
+	<p>
+		<em>Žádné otázky k dipsozici.</em>
+	</p>
+{/if}
 {include '../pagination.latte'}
 
 {/block}

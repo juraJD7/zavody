@@ -49,6 +49,7 @@ class PhotoPresenter extends BasePresenter {
 	protected $params = array();
 	private $edit;
 	private $page;
+	private $photos;
 	
 	protected function createComponentPhotoUploadForm()
 	{
@@ -70,24 +71,26 @@ class PhotoPresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 		$photoId = $this->getParameter('photoId');
+		
 		$photo = $this->photoRepository->getPhoto($photoId);
-		if (!($this->user->isInRole('admin') 
+		if (!$this->user->isInRole('admin') 
 				&& ($photo->author->id != $this->user->id)
-				&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->races)))) {
+				&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->identity->data["races"]))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
-		}				
+		}
 		if (isset($photoId)) {
 			$this->photoDescriptionFormFactory->setId((int)$photoId);
 		}	
 		$form = $this->photoDescriptionFormFactory->create();
 		$form->onSuccess[] = function () {
+			$page = $this->getParameter('page');
 			$this->flashMessage("Popisek byl změněn");			
-			$this->redirect('this');
+			$this->redirect('this', array("page" => $page));
 		};
 		return $form;
 	}
 	
-	public function renderDefault() {		
+	public function renderDefault($photoId, $page) {		
 		$this->page = $this->getParameter('page');
 		if ($this->paginator->itemCount === NULL) {
 			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
@@ -98,12 +101,12 @@ class PhotoPresenter extends BasePresenter {
 		$this->template->photos = $this->photoRepository->getPublicPhotos($this->paginator);
 		$this->template->actionPaginator = $this->actionPaginator;
 		$this->template->params = $this->params;
-		$this->template->paginator = $this->paginator;
+		$this->template->paginator = $this->paginator;		
 		$this->template->edit = $this->edit;
 		$this->template->page = $this->page;
 	}
 	
-	public function renderMy() {
+	public function renderMy($photoId) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
@@ -122,7 +125,7 @@ class PhotoPresenter extends BasePresenter {
 		$this->template->page = $this->page;		
 	}
 	
-	public function renderRace($race) {
+	public function renderRace($race, $photoId) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
@@ -138,7 +141,7 @@ class PhotoPresenter extends BasePresenter {
 		$this->template->photos = $this->photoRepository->getPhotosByRace($this->paginator, $this->raceId);
 		$this->template->actionPaginator = "race";
 		$this->template->params = $this->params;
-		$this->template->paginator = $this->paginator;
+		$this->template->paginator = $this->paginator;		
 		$this->template->edit = $this->edit;
 		$this->template->page = $this->page;		
 	}
@@ -148,14 +151,15 @@ class PhotoPresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}		
 		$photo = $this->photoRepository->getPhoto($photoId);
-		if (!($this->user->isInRole('admin') 
+		if (!$this->user->isInRole('admin') 
 				&& ($photo->author->id != $this->user->id)
-				&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->races)))) {
+				&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->identity->data["races"]))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 		}
 		$this->page = $page;
 		$this->photoRepository->deletePhoto($photoId);
-		$this->redrawControl("photos");		
+		$this->flashMessage("Fotka byla smazána.");
+		$this->redirect('this', array("page" => $page));	
 	}
 	
 	public function handleEdit($photoId, $page, $race) {
@@ -163,15 +167,14 @@ class PhotoPresenter extends BasePresenter {
 			if (!$this->user->isLoggedIn()) {
 				throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 			}		
-			$photo = $this->photoRepository->getPhoto($photoId);
-			if (!($this->user->isInRole('admin') 
+			$photo = $this->photoRepository->getPhoto($photoId);			
+			if (!$this->user->isInRole('admin') 
 					&& ($photo->author->id != $this->user->id)
-					&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->races)))) {
+					&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->identity->data["races"]))) {				
 				throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 			}			
 			$this->page = $page;				
-			$this->edit = $photoId;			
-			$this->template->photos = $this->photoRepository->getPublicPhotos($this->paginator);
+			$this->edit = $photoId;						
 			$this["photoDescriptionForm"]["description"]->setDefaultValue($photo->description);
 			$this->redrawControl("photos");			
 		}

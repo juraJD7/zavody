@@ -10,7 +10,7 @@ class File extends Nette\Object {
 	const MB = 1048576;
 	const kB = 1024;
 	
-	const ICONDIR = "/images/icons/";
+	const ICONDIR = "/img/icons/";
 	
 	private $repository;
 	
@@ -105,10 +105,10 @@ class File extends Nette\Object {
 	
 	public function getFormattedSize() {		
 		if ($this->size > File::MB) { 
-			return ($this->size / File::MB) . " MB";
+			return round($this->size / File::MB, 1) . " MB";
 		}
 		if ($this->size > File::kB) { 
-			return ($this->size / File::kB) . " kB";
+			return round($this->size / File::kB, 1) . " kB";
 		}
 		return $this->size . " B";
 	}	

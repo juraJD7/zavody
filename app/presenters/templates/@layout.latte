@@ -19,24 +19,17 @@
 	<script type="text/javascript" src="{$basePath}/js/scroll-sneak.js"></script>
 	<script type="text/javascript" src="{$basePath}/js/multiselect.js"></script>
 	<script type="text/javascript" src="{$basePath}/js/nette.ajax.js"></script>
-	<script type="text/javascript" src="{$basePath}/js/multiselect.filter.js"></script>
 	<script type="text/javascript">
 	tinyMCE.init({
     mode: "specific_textareas",
-    editor_selector: "mceEditor"    
+    editor_selector: "mceEditor",
+	language: 'cs',
+	plugins: 'table image link lists textcolor colorpicker'
 	});
 	$(document).ready(function() {
 		$(".js-example-basic-single").select2();
 		$(".js-example-basic-multiple").select2({ width: 'resolve' });
-	});
-	$(function(){
-		$(".multiselect").multiselect({
-			checkAllText: "Vybrat vše",
-			uncheckAllText: "Zrušit výběr",
-			noneSelectedText: "-- vybrat --",
-			selectedText: "vybrány # položky"
-		}).multiselectfilter(); 
-	 });
+	});	
 	</script>
 	
 	<link rel="stylesheet" href="{$basePath}/css/style.css">
@@ -45,7 +38,6 @@
 	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
 	<!-- Select 2 - search in select -->
 	<link href="{$basePath}/select2/select2.css" rel="stylesheet" />
-	<link href="{$basePath}/css/multiselect.css" rel="stylesheet" />
 	<!-- Bootstrap -->
     <link href="{$basePath}/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 	

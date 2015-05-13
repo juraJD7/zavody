@@ -37,8 +37,7 @@ class CommentFormFactory extends BaseFormFactory {
 		$form = new Form;
 		$form->addText('title', 'Předmět:', 20, 255)
 			->setRequired('Je nutné vyplnit předmět.');
-		$form->addTextArea('text', 'Text:', 40, 3);
-			//	->setAttribute('class','mceEditor');		
+		$form->addTextArea('text', 'Text:', 40, 3);				
 		$form->addSubmit('send', 'Odeslat');
 
 		$form->onSuccess[] = array($this, 'formSucceeded');

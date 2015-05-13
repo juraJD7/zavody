@@ -28,7 +28,7 @@ class PhotoRepository {
 		return $photo;
 	}
 	
-	public function getPublicPhotos($paginator = NULL) {
+	public function getPublicPhotos($paginator = NULL) {		
 		return $this->dbMapper->getPublicPhotos($this, $paginator);
 	}
 	

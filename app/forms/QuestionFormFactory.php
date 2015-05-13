@@ -18,6 +18,7 @@ class QuestionFormFactory extends BaseFormFactory {
 	
 	private $adminOnly;
 	private $race;
+	private $id;
 	
 	/**
 	 * 

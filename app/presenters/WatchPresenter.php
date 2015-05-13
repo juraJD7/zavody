@@ -54,8 +54,7 @@ class WatchPresenter extends BasePresenter {
 	public function createComponentWatchForm() {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
-		}	
-		//$this->getSession("watch")->remove();
+		}			
 		$watchId = $this->getParameter('id');
 		$this->watchFormFactory->setId($watchId);
 		$raceId = $this->getParameter('race');
@@ -111,8 +110,15 @@ class WatchPresenter extends BasePresenter {
 		}		
 		if ($this->getSession()->hasSection('watch')) {				
 			$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));	
-			$this->troop = $watch->troop;					
-			$this["watchForm"]->setDefaults($this->watchRepository->getDataForForm($watch));
+						$data = $this->watchRepository->getDataForForm($watch);
+			if ($this->troop) {
+				unset($data["group"]);
+			}
+			if (!$this->troop) {
+				$this->troop = $watch->troop;				
+			}
+			$this["watchForm"]->setDefaults($data);
+			
 		}			
 		$this->template->form = $this->template->_form = $this['watchForm'];		
 	}

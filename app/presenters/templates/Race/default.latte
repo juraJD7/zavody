@@ -8,18 +8,17 @@
 
 <h3>Celostátní kolo</h3>
 
-<table class="table table-striped table-hover">
+<table class="table table-striped table-hover" style="width: 100%">
 	<thead>
 	<tr>
-		<th>Termín</th><th>Název<br />Pořadatel</th><th>Místo</th>
-		<th>Web<br />Email</th><th>Přihlášky/<br />kapacita</th><th>Přihlášky do</th>
+		<th>Termín</th><th>Název<br />Pořadatel</th><th>Místo</th><th>Web<br />Email</th>
 	</tr>
 	</thead>
 	<tbody>
 	<tr>
 		{if $statewide}
 			<td>{$statewide->date|date:'d.m.Y'}</td><td><a n:href="Race:detail $statewide->id">{$statewide->name}<br />{$statewide->organizer->displayName}</a></td><td><a n:href="Race:detail $statewide->id">{$statewide->place}</a></td>
-			<td><a href="{$statewide->web}">{$statewide->web}</a><br />{$statewide->email}</td><td>-/{$statewide->capacity}</td><td>{$statewide->applicationDeadline|date:'d.m.Y'}</td>
+			<td><a href="{$statewide->web}">{$statewide->web}</a><br />{$statewide->email}</td>
 		{else}
 			<td colspan="7" class="empty"><em>Celostátní kolo ještě nebylo založeno</em></td>
 		{/if}
@@ -32,30 +31,36 @@
 <h3 id="{$region->id}">{$region->name}</h3>
 
 <table class="table table-striped table-hover">
+	{if $numRaces[$region->id] > 0}
 	<thead>
 		<tr>
-			<th>Typ<br />kola</th><th>Termín</th><th>Název<br />Pořadatel</th><th>Místo</th><th>Web<br />Email</th>
-			<th>Přihlášky/<br />kapacita</th><th>Přihlášky do</th>
+			<th>Typ<br />kola</th><th>Termín / <br /> Přihlášky</th><th>Název<br />Pořadatel</th><th>Místo</th><th>Web<br />Email</th>
+			<th>Kapacita</th>
 		</tr>
 	</thead>
 	<tbody>
+	
 	{foreach $races as $race}
-		{if $race->region->id == $region->id}			
-			<tr n:class="$race->round == 'K' ? kraj">						
-				<td>{$race->round->short}</td><td>{$race->date|date:'d.m.Y'}</td><td><a n:href="Race:detail $race->id">{$race->name}<br />{$race->organizer->displayName}</a></td><td><a n:href="Race:detail $race->id">{$race->place}</a></td>
-				<td><a href="{$race->web}">{$race->web}</a><br />{$race->email}</td><td>{$race->getNumWatchs()}/{$race->capacity}</td>
-				<td>{$race->applicationDeadline|date:'d.m.Y'}
-				{if $race->isLoginActive($season)}
-				<br>
-				<a n:href="Watch:create $race->id">>>Přihlásit družinu</a>
-				{/if}
+		{if $race->region->id == $region->id && $race->round->short != "C"}			
+			<tr>						
+				<td>{$race->round->short}</td><td>{$race->date|date:'d.m.Y'}<br>{$race->applicationDeadline|date:'d.m.Y'}</td><td><a n:href="Race:detail $race->id">{$race->name}<br />{$race->organizer->displayName}</a></td><td><a n:href="Race:detail $race->id">{$race->place}</a></td>
+				<td><a href="{$race->web}">{$race->web}</a><br />{$race->email}</td>
+				<td>
+					{$race->getNumWatchs()}/{$race->capacity} <br />
+					{if $race->isLoginActive($season)}				
+					<a n:href="Watch:create $race->id">>>Přihlásit družinu</a>
+					{else}
+						&nbsp;
+					{/if}
 				</td>
 			</tr>		
 		{/if}
-	{/foreach}
+	{/foreach}	
 	</tbody>
+	{else}
+		<tr><td colspan="7"><em>V kraji nejsou založeny žádné závody.</em><td></tr>
+	{/if}
 </table>	
-
 {/foreach}
 
 

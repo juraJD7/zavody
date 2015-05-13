@@ -2,6 +2,13 @@
 
 <h3>Nahrání nového souboru</h3>
 
+<p>
+	<strong>Povolené typy souborů: </strong><br />
+{foreach $fileTypes as $fileType}
+	{$fileType->title}{sep}, {/sep}
+{/foreach}
+</p>
+
 {control fileForm}
 
 {/block}

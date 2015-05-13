@@ -131,7 +131,7 @@ class ArticlePresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}	
-		if (!$this->user->isInRole('admin') && !($this->user->isInRole('raceManager') && in_array($id, $this->user->races))) {
+		if (!$this->user->isInRole('admin') && !($this->user->isInRole('raceManager') && in_array($id, $this->user->identity->data["races"]))) {
 			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
 		}
 	}
@@ -215,7 +215,7 @@ class ArticlePresenter extends BasePresenter {
 		$article = $this->articleRepository->getArticle($articleId);
 		if ($article->author->id != $this->user->id 
 				&& !$this->user->isInRole('admin') 
-				&& !($this->user->isInRole('raceManager') && in_array($article->race, $this->user->races))) {
+				&& !($this->user->isInRole('raceManager') && in_array($article->race, $this->user->identity->data["races"]))) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
 		$result = $this->articleRepository->delete($articleId);
@@ -234,7 +234,7 @@ class ArticlePresenter extends BasePresenter {
 		$art = $this->articleRepository->getArticle($article);
 		if ($comment->author->id != $this->user->id
 				&& !$this->user->isInRole('admin') 
-				&& !($this->user->isInRole('raceManager') && in_array($art->race, $this->user->races))) {
+				&& !($this->user->isInRole('raceManager') && in_array($art->race, $this->user->identity->data["races"]))) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
 		$result = $this->commentRepository->delete($commentId);
@@ -264,7 +264,7 @@ class ArticlePresenter extends BasePresenter {
 		$article = $this->articleRepository->getArticle($articleId);
 		if (($article->status != \Article::PUBLISHED) &&
 				!($this->user->isInRole('admin') 
-					|| ($this->user->isInRole('raceManager') && in_array($article->race, $this->user->races)))) {
+					|| ($this->user->isInRole('raceManager') && in_array($article->race, $this->user->identity->data["races"])))) {
 				throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 		}	
 		$page = $this->getParameter('page');
@@ -287,7 +287,7 @@ class ArticlePresenter extends BasePresenter {
 		}
 		$article = $this->articleRepository->getArticle($articleId);
 		if (!($this->user->isInRole('admin') 
-				&& !($this->user->isInRole('raceManager') && in_array($article->race, $this->user->races)))) {
+				&& !($this->user->isInRole('raceManager') && in_array($article->race, $this->user->identity->data["races"])))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 		}			
 		$publish = (!is_null($article->published)) ? TRUE : FALSE;			

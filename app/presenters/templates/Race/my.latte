@@ -24,6 +24,11 @@
 			</td>
 		</tr>
 	{/foreach}
+	{if !$races}
+	<tr>
+		<td colspan="5"><em>Žádné závody k dipsozici.</em></td>
+	</tr>
+{/if}
 	
 </table>	
 

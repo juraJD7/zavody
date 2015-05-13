@@ -11,13 +11,14 @@
 
 {foreach $questions as $question}
 	<div class="panel panel-default">
-		<div class="panel-heading"><span style="floaft: left">{$question->author->userName}, dne: {$question->posted|date:'d.m.Y H:i'}</span>
-		<span style="float: right">
+		<div class="panel-heading">{$question->author->userName}, dne: {$question->posted|date:'d.m.Y H:i'}
+		
 			{foreach $question->categories as $category}
 				{$category->name}
 				{sep}, {/sep}
 			{/foreach}
-		</span>		
+		
+	
 		</div>
 		<div class="panel-body">
 		  {$question->text}
@@ -30,7 +31,7 @@
 				  </tr>
 			  {/foreach}			  
 		  {/if}
-		  {if $user->isInRole('admin') || $user->isInRole('raceManager'))}
+		  {if $user->isInRole('admin') || $user->isInRole('raceManager')}
 			  {form answerForm-$question->id}
 				  <tr><td>{input text}</td><td>{input send}</td><tr>
 			  {/form}
@@ -40,7 +41,11 @@
 	</div>
 	<hr />
 {/foreach}
-
+{if !$questions}
+	<p>
+		<em>Žádné otázky k dipsozici.</em>
+	</p>
+{/if}
 {include '../pagination.latte'}
 
 {/block}

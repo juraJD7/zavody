@@ -20,11 +20,11 @@ class UnitRepository {
 		$this->dbMapper = $dbMapper;
 	}
 	
-	public function getUnit($id) {
+	public function getUnit($id) {		
 		if ($this->isMapper->isLoggedIn()) {
 			try {
-				$unit = $this->isMapper->getUnit($id);
-			} catch (Skautis\Wsdl\PermissionException $ex) {
+				$unit = $this->isMapper->getUnit($id);				
+			} catch (Skautis\Wsdl\PermissionException $ex) {				
 				$unit = $this->dbMapper->getUnit($id);
 			}
 		} else {
@@ -33,8 +33,8 @@ class UnitRepository {
 			} catch (Race\DbNotStoredException $ex) {
 				throw new Nette\Security\AuthenticationException("Pro zobrazení záznamu se musíte přihlásit");
 			}
-		}
-		$unit->repository = $this;		
+		}		
+		$unit->repository = $this;			
 		return $unit;
 	}
 	

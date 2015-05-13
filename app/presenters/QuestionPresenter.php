@@ -72,8 +72,8 @@ class QuestionPresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
-		if (!($this->user->isInRole('admin')
-				&& !$this->user->isInRole('raceManager'))) {
+		if (!$this->user->isInRole('admin')
+				&& !$this->user->isInRole('raceManager')) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 		}		
 		return new Multiplier(function ($questionId) {				
@@ -97,7 +97,7 @@ class QuestionPresenter extends BasePresenter {
 		if ($this->paginator->itemCount === NULL) {		
 			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
 			$this->paginator->setItemCount($this->questionRepository->countAll(\BaseDbMapper::COMMON, $this->category));
-			$this->paginator->setItemsPerPage(1); 
+			$this->paginator->setItemsPerPage(10); 
 			$this->paginator->setPage($page);			
 		}
 		
@@ -136,7 +136,7 @@ class QuestionPresenter extends BasePresenter {
 		if ($this->paginator->itemCount === NULL) {		
 			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
 			$this->paginator->setItemCount($this->questionRepository->countAll(\BaseDbMapper::ADMIN_ONLY, $this->category));
-			$this->paginator->setItemsPerPage(1); 
+			$this->paginator->setItemsPerPage(10); 
 			$this->paginator->setPage($page);			
 		}
 
@@ -168,7 +168,7 @@ class QuestionPresenter extends BasePresenter {
 
 		$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
 		$paginator->setItemCount($this->questionRepository->countAllAuthor($this->user->id));
-		$paginator->setItemsPerPage(5); 
+		$paginator->setItemsPerPage(10); 
 		$paginator->setPage($page);	
 
 		$this->template->paginator = $paginator;
@@ -184,7 +184,7 @@ class QuestionPresenter extends BasePresenter {
 
 		$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
 		$paginator->setItemCount($this->questionRepository->countAllRace($this->raceId));
-		$paginator->setItemsPerPage(1); 
+		$paginator->setItemsPerPage(10); 
 		$paginator->setPage($page);	
 
 		$this->template->race = $this->raceRepository->getRace($id);

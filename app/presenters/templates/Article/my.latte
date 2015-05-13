@@ -17,7 +17,7 @@
 		<div class="panel-body">
 			<div class="media-body">
 			<a n:href="Article:detail $article->id">
-				<img class="media-object thumbnail pull-left" src="{$basePath}/images/articles/default.jpg" height="180" width="171">			
+				<img class="media-object thumbnail pull-left" src="{$basePath}/img/articles/default.jpg" height="180" width="171">			
 			</a>			
 			<h4 class="media-heading"><small><em>
 			{if $article->status == Article::PUBLISHED}
@@ -40,7 +40,11 @@
 	</div>	
     <hr />
 {/foreach}
-
+{if !$articles}
+	<p>
+		<em>Žádné články k dipsozici.</em>
+	</p>
+{/if}
 {include '../pagination.latte'}
 
 {/block}

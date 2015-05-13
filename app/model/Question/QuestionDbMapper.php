@@ -44,7 +44,7 @@ class QuestionDbMapper extends BaseDbMapper {
 	public function getQuestionsByAuthor(QuestionRepository $repository, $paginator, $userId) {
 		$table = $this->database->table('question')
 				->where('author', $userId)
-				->where('season', $season)
+				->where('season', $this->season)
 				->order('changed DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());	
 		$questions = array();

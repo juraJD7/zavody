@@ -43,6 +43,20 @@ class RaceDbMapper extends BaseDbMapper {
 		return $this->loadFromActiveRow($row);
 	}
 	
+	public function getNumRaces() {
+		$regions = $this->database->table('region');
+		$numRaces = array();
+		foreach ($regions as $region) {
+			$numRaces[$region->id] = $this->database->table('race')
+					->where('region', $region->id)
+					->where('season', $this->season)
+					->where('round !=', 'C')
+					->count();
+		}
+		return $numRaces;
+	}
+
+
 	/**
 	 * 
 	 * @param Nette\Database\Table\ActiveRow $row
@@ -267,7 +281,8 @@ class RaceDbMapper extends BaseDbMapper {
 	
 	public function getNumWatchs($raceId, $category) {
 		$rows = $this->database->table('race_watch')
-				->where('race_id', $raceId);
+				->where('race_id', $raceId)
+				->where('confirmed', TRUE);
 		if (is_null($category)) {
 			return $rows->count();
 		} else {

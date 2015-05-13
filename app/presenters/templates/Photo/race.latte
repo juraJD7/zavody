@@ -20,7 +20,7 @@
 			<img src="{$photo->thumbPath}" alt="Foto ze závodů" class="img-thumbnail">
 		</a>
 		<div class="caption">
-		{if ($user->isInRole('admin') || $user->id == $photo->author->id  || ($user->isInRole('raceManager') && in_array($photo->race, $user->races)))}
+		{if ($user->isInRole('admin') || $user->id == $photo->author->id  || ($user->isInRole('raceManager') && in_array($photo->race, $user->identity->data["races"])))}
 			{if $edit == $photo->id}
 				{form photoDescriptionForm}
 					{input description} {input send}
@@ -39,6 +39,11 @@
 	<div class="row">
 	{/if}
 {/foreach}
+{if !$photos}
+	<p>
+		<em>Žádné fotografie k dipsozici.</em>
+	</p>
+{/if}
 {/snippet}
 {include '../pagination.latte'}
 

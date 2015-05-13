@@ -34,7 +34,9 @@ class WatchDbMapper extends BaseDbMapper {
 	
 	public function getWatchs($raceId, WatchRepository $repository) {
 		$result = $this->database->table('race_watch')
-				->where('race_id', $raceId);
+				->where('race_id', $raceId)
+				->where('confirmed', TRUE)				
+				->order('order ASC');
 		$watchs = array();
 		foreach ($result as $row) {
 			$watchs[] = $this->getWatch($row->watch_id, $repository);
@@ -57,13 +59,7 @@ class WatchDbMapper extends BaseDbMapper {
 		$watch->emailGuide = $row->email_guide;
 		$watch->category = $row->category;
 		$watch->getRaces();
-		$watch->getMembers();
-		/*$resultMembers = $this->database->table('participant')
-				->where('watch', $watch->id);
-		foreach ($resultMembers as $row) {
-			$member = $this->getPersonRepository()->getParticipant($row->id);
-			$watch->addMember($member);
-		}	*/	
+		$watch->getMembers();		
 		return $watch;
 	}
 
@@ -141,7 +137,11 @@ class WatchDbMapper extends BaseDbMapper {
 			"town" => $watch->town,
 			"email_leader" => $watch->emailLeader,
 			"email_guide" => $watch->emailGuide
-		);			
+		);	
+		$group = $this->unitRepository->getUnit($watch->group->id);
+		$group->save();
+		$troop = $this->unitRepository->getUnit($watch->troop->id);
+		$troop->save();
 		if (!is_null($watch->id)) {			
 			$rowWatch = $this->database->table('watch')
 				->where('id', $watch->id)
@@ -323,7 +323,8 @@ class WatchDbMapper extends BaseDbMapper {
 			$this->database->table('race_watch')
 					->insert(array(
 						"race_id" => $advanceRace->id,
-						"watch_id" => $watch->id
+						"watch_id" => $watch->id,
+						"confirmed" => 1
 					));
 		}
 	}

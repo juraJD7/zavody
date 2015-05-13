@@ -75,14 +75,17 @@ class WatchFormFactory extends BaseFormFactory {
 				->setRequired('Vyber prosím středisko');
 		$form->addSelect("group", "Oddíl:", $this->loadGroups())
 				->setPrompt('-- vyber oddíl --')
-				->setAttribute('class', 'js-example-basic-single');
-				//->setRequired('Vyber prosím oddíl');
+				->setAttribute('class', 'js-example-basic-single');			
 		}
 		$form->addHidden("author", $this->user->getUserDetail()->ID);
-		$form->addText("name", "Název hlídky:")->setRequired();		
+		$form->addText("name", "Název hlídky:")
+				->setRequired();		
 		$form->addText("town","Obec:");
-		$form->addText("email_leader", "E-mail na vůdce oddílu:")->setRequired();
-		$form->addText("email_guide", "E-mail na rádce družiny:");
+		$form->addText("email_leader", "E-mail na vůdce oddílu:")
+				->setRequired()
+				->addRule(Form::EMAIL, "E-mailová adresa není platná");
+		$form->addText("email_guide", "E-mail na rádce družiny:")
+				->addRule(Form::EMAIL, "E-mailová adresa není platná");
 		$form->addSubmit("send","Další krok >>");
 		$form->addSubmit("save","Uložit změny");
 		$form->addSubmit("cancel","Zrušit přihlašování")
@@ -115,7 +118,7 @@ class WatchFormFactory extends BaseFormFactory {
 		$tmp = $this->raceRepository->getRacesToLogIn($this->season);
 		$races = array();
 		foreach ($tmp as $race) {
-			$races[$race->id] = $race->title;
+			$races[$race->id] = $race->name;
 		}
 		return $races;
 	}

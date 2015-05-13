@@ -30,6 +30,11 @@ class RaceRepository {
 		return $race;
 	}
 	
+	public function getNumRaces() {
+		return $this->getDbMapper()->getNumRaces();
+	}
+
+
 	public function getStatewideRound($season) {
 		$race = $this->getDbMapper()->getStatewideRound($this, $season);	
 		return $race;

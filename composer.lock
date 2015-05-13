@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6811cbd1c7d8fa115147415847f806c3",
+    "hash": "906f78f4ab18c54b29039aed8afdc2c5",
     "packages": [
         {
             "name": "dg/adminer-custom",
@@ -162,6 +162,64 @@
                 "twig"
             ],
             "time": "2015-03-27 10:53:51"
+        },
+        {
+            "name": "nella/forms-datetime",
+            "version": "v2.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nella/forms-datetime.git",
+                "reference": "e7afe1d2e5355f7f7f8b44949451460cf249a224"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nella/forms-datetime/zipball/e7afe1d2e5355f7f7f8b44949451460cf249a224",
+                "reference": "e7afe1d2e5355f7f7f8b44949451460cf249a224",
+                "shasum": ""
+            },
+            "require": {
+                "nette/forms": "~2.2,<2.4.0",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "jakub-onderka/php-console-highlighter": "~0.3.1",
+                "jakub-onderka/php-parallel-lint": "~0.8.0",
+                "nella/coding-standard": "~2.0.0",
+                "nette/tester": "~1.4.0",
+                "satooshi/php-coveralls": "dev-master#2fbf803"
+            },
+            "suggest": {
+                "latte/latte": "For manual rendering support"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Nella\\Forms\\DateTime\\": "src/Nella/Forms/DateTime"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Patrik Votoček",
+                    "email": "patrik@votocek.cz",
+                    "homepage": "http://patrik.votocek.cz",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Date/DateTime control for Nette Forms.",
+            "homepage": "http://doc.nellafw.org/forms/datetime",
+            "keywords": [
+                "Forms",
+                "control",
+                "date",
+                "datetime",
+                "input",
+                "nette"
+            ],
+            "time": "2015-04-20 11:43:03"
         },
         {
             "name": "nette/application",
@@ -1331,6 +1389,65 @@
             "description": "Nette Utility Classes",
             "homepage": "http://nette.org",
             "time": "2015-03-17 21:49:28"
+        },
+        {
+            "name": "nextras/forms",
+            "version": "v1.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nextras/forms.git",
+                "reference": "d19d5921a5e1667a6b3c1d5b7f0e42ff3faf88c6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nextras/forms/zipball/d19d5921a5e1667a6b3c1d5b7f0e42ff3faf88c6",
+                "reference": "d19d5921a5e1667a6b3c1d5b7f0e42ff3faf88c6",
+                "shasum": ""
+            },
+            "require": {
+                "nette/application": "~2.2",
+                "nette/component-model": "~2.2",
+                "nette/forms": "~2.2",
+                "nette/utils": "~2.2",
+                "php": "~5.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Nextras\\Forms\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause",
+                "GPL-2.0",
+                "GPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "David Grudl",
+                    "homepage": "http://davidgrudl.com"
+                },
+                {
+                    "name": "Nextras Community",
+                    "homepage": "https://github.com/nextras/forms/graphs/contributors"
+                },
+                {
+                    "name": "Jan Škrášek",
+                    "homepage": "http://jan.skrasek.com"
+                }
+            ],
+            "description": "Extra form components for Nette Framework.",
+            "keywords": [
+                "form",
+                "nette"
+            ],
+            "time": "2014-07-23 10:25:24"
         },
         {
             "name": "skautis/nette",

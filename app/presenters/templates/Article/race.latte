@@ -3,7 +3,7 @@
 <h2>Články závodu {$race->name}</h2>
 
 
-{if $user->isInRole('admin') || $user->isInRole('raceManager') && in_array($race->id, $user->races)}
+{if $user->isInRole('admin') || $user->isInRole('raceManager') && in_array($race->id, $user->identity->data["races"])}
 	<p>
 	<a n:href="Article:create $race->id">>>Přidat článek k závodu</a>	
 	</p>
@@ -19,7 +19,7 @@
 		<div class="panel-body">
 			<div class="media-body">
 			<a n:href="Article:detail $article->id">
-				<img class="media-object thumbnail pull-left" src="{$basePath}/images/articles/default.jpg" height="180" width="171">			
+				<img class="media-object img-thumbnail pull-left" src="{$basePath}/img/articles/default.jpg" height="180" width="171">			
 			</a>			
 			<h4 class="media-heading"><small><em>
 			{if $article->status == Article::PUBLISHED}
@@ -32,7 +32,7 @@
 			{/if}
 				</em>
 				<br />
-				{if $user->id == $article->author->id || $user->isInRole('admin')  || ($user->isInRole('raceManager') && in_array($article->race, $user->races))}
+				{if $user->id == $article->author->id || $user->isInRole('admin')  || ($user->isInRole('raceManager') && in_array($article->race, $user->identity->data["races"]))}
 					<a n:href="Article:edit $article->id">Upravit</a> <a n:href="delete! $article->id">Smazat</a>
 				{/if}
 			</small></h4>

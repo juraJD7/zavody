@@ -52,6 +52,11 @@
 		</td>
 	</tr>
 {/foreach}
+{if !$files}
+	<tr>
+		<td colspan="7"><em>Žádné soubory k dipsozici.</em></td>
+	</tr>
+{/if}
 </table>
 
 {include '../pagination.latte'}

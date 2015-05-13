@@ -322,8 +322,10 @@ class Watch extends Nette\Object {
 				&& $user->isOfficial()) {
 			return TRUE;
 		}
-		if ($user->isInRole('raceManager') && $this->isInRace($user->race)) {
-			return TRUE;
+		foreach ($user->identity->data["races"] as $raceId) {
+			if ($user->isInRole('raceManager') && $this->isInRace($raceId)) {
+				return TRUE;
+			}
 		}
 		$this->getAuthor();
 		if ($this->author->id == $user->id) {

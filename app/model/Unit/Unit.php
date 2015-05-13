@@ -69,10 +69,7 @@ class Unit extends \Nette\Object {
 		return $this->unitParent;
 	}
 	
-	public function getTelephone() {
-		if (is_null($this->telephone)) {
-			$this->telephone = $this->repository->getTelephone($this->id);
-		}
+	public function getTelephone() {		
 		return $this->telephone;
 	}
 	
@@ -80,10 +77,7 @@ class Unit extends \Nette\Object {
 		$this->telephone = $telephone;
 	}
 
-	public function getEmail() {
-		if (is_null($this->email)) {
-			$this->email = $this->repository->getEmail($this->id);
-		}
+	public function getEmail() {		
 		return $this->email;
 	}
 	
