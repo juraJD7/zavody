@@ -102,4 +102,9 @@ class UnitISMapper {
 		return $this->skautIS->getUser()->isLoggedIn();
 	}
 	
+	public function getUnitParentId($unitId) {
+		$isUnit = $this->skautIS->org->UnitDetail(array("ID" => $unitId));
+		return $isUnit->ID_UnitParent;		
+	}
+	
 }

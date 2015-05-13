@@ -267,6 +267,9 @@ class RaceFormFactory extends BaseFormFactory {
 		$this->database->table('editor_race')
 				->where('race_id', $race)
 				->delete();
+		if (!in_array($this->user->id, $editors)) {
+			$editors[] = $this->user->id;
+		}
 		foreach ($editors as $editor) {
 			$this->userRepository->getUser($editor); // uložení editora, popř. aktualizace údajů z ISu
 			$this->database->table('editor_race')
@@ -274,11 +277,7 @@ class RaceFormFactory extends BaseFormFactory {
 					"user_id" => $editor,
 					"race_id" => $race
 				));
-		}
-		$this->database->table('editor_race')->insert(array(
-			"user_id" => $this->user->id,
-			"race_id" => $race
-		));
+		}		
 	}
 
 	public function loadUsers() {

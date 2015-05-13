@@ -46,7 +46,11 @@ class PersonRepository {
 	}
 
 	public function getPersonsByUnit($idUnit) {
-		return $this->isMapper->getPersonsByUnit($this, $idUnit);
+		try {			
+			return $this->isMapper->getPersonsByUnit($this, $idUnit);
+		} catch (Skautis\Wsdl\PermissionException $ex) {			
+			throw new \Race\PermissionException("Nemáte oprávnění zobrazit členy v této jednotce.", NULL, $ex);
+		}
 	}
 	
 	public function getRole($systemId, $raceId) {

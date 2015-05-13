@@ -124,7 +124,13 @@ class WatchFormFactory extends BaseFormFactory {
 	}
 
 	public function loadTroops() {
-		$units = $this->unitRepository->getUnits(array("stredisko"));
+		$unit = $this->user->getUnit();
+		if ($unit->unitType == "oddil") {
+			$idParent = $unit->unitParent->id;
+		} else {
+			$idParent = $unit->id;
+		}
+		$units = $this->unitRepository->getUnits(array("stredisko"), $idParent);
 		$troops = array();
 		foreach ($units as $unit) {
 			$troops[$unit->id] = "$unit->registrationNumber - $unit->displayName";

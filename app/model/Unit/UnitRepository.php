@@ -63,4 +63,9 @@ class UnitRepository {
 		return $this->dbMapper->save($unit);
 	}
 	
+	public function getUnitParent($unitId) {
+		$idParent = $this->isMapper->getUnitParentId($unitId);
+		return $this->getUnit($idParent);
+	}
+	
 }
