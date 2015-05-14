@@ -53,7 +53,7 @@ class PointsFormFactory extends BaseFormFactory {
 		$watchs = ($this->watchs) ? $this->watchs : array();
 		foreach ($watchs as $watch) {
 			$form->addText($watch->id)
-				//->addRule(\Nette\Forms\Form::FLOAT, 'Musí být číselná hodnota')
+				->addRule(\Nette\Forms\Form::FLOAT, 'Musí být číselná hodnota')
 				->setAttribute('size', 5)
 				->setDefaultValue($watch->getPoints($this->race));
 			if ($this->watchRepository->getAdvance($watch->id, $this->race) === 0) {
