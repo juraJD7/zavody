@@ -70,15 +70,8 @@ class Article extends Nette\Object {
 	}
 
 	public function getImage() {		
-		return $this->image;		
-	}
-
-	public function setImage($image) {
-		if(!is_int($image)) {
-			throw new \Nette\MemberAccessException("Parametr image musí být integer.");
-		}
-		$this->image = $image;
-	}
+		return $this->repository->getImage($this->id);		
+	}	
 
 	public function getStatus() {
 		return $this->status;

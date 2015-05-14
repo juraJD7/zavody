@@ -86,10 +86,12 @@ class LoggedUser extends User {
 			"vedouciOkres", "cinovnikOkres", "vedouciKraj", "cinovnikKraj", "vedouciUstredi", "cinovnikUstredi"
 		);
 		$roleId = $this->getSkautISRole();
-		$roles = $this->getAllSkautISRoles();
+		$roles = $this->skautIS->usr->RoleAll();
 		foreach ($roles as $role) {
 			if ($role->ID == $roleId) {
-				return in_array($role->Key, $officialKeys);
+				if (isset($role->Key)) {
+					return in_array($role->Key, $officialKeys);
+				}
 			}
 		}
 	}

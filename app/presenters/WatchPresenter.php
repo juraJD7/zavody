@@ -193,6 +193,7 @@ class WatchPresenter extends BasePresenter {
 		//všechny, které založil akt. uživatel		
 		$author = $this->watchRepository->getWatchsByAuthor($this->user->id);	
 		//pro činovníky / administrátory střediska / oddílu
+		$administrator = array();
 		if ($this->user->isOfficial()) {
 			$administrator = $this->watchRepository->getWatchsByUnit($this->skautIS->getUser()->getUnitId());
 		}
@@ -249,7 +250,7 @@ class WatchPresenter extends BasePresenter {
 		}
 		$watch = $this->watchRepository->getWatch($watchId);
 		if (!$this->user->isInRole('admin') && 
-				!($this->user->isInRole('raceManager') && $watch->isInRace($this->user->race))
+				!($this->user->isInRole('raceManager') && $watch->isInRace($raceId))
 				&& ($watch->author->id != $this->user->id)
 				&& !($this->skautIS->getUser()->getUnitId() == $watch->group->id && $this->user->isOfficial()) 
 				&& !($this->skautIS->getUser()->getUnitId() == $watch->troop->id && $this->user->isOfficial())) {
@@ -294,7 +295,7 @@ class WatchPresenter extends BasePresenter {
 		}
 		$watch = $this->watchRepository->getWatch($id);
 		if (!$this->user->isInRole('admin') && 
-				!($this->user->isInRole('raceManager') && $watch->isInRace($this->user->race))
+				!($this->user->isInRole('raceManager') && $watch->isInRaces($this->user->identity->data["races"]))
 				&& ($watch->author->id != $this->user->id)
 				&& !($this->skautIS->getUser()->getUnitId() == $watch->group->id && $this->user->isOfficial()) 
 				&& !($this->skautIS->getUser()->getUnitId() == $watch->troop->id && $this->user->isOfficial())) {
@@ -315,7 +316,7 @@ class WatchPresenter extends BasePresenter {
 		}
 		$watch = $this->watchRepository->getWatch($id);
 		if (!$this->user->isInRole('admin') && 
-				!($this->user->isInRole('raceManager') && $watch->isInRace($this->user->race))
+				!($this->user->isInRole('raceManager') && $watch->isInRaces($this->user->identity->data["races"]))
 				&& ($watch->author->id != $this->user->id)
 				&& !($this->skautIS->getUser()->getUnitId() == $watch->group->id && $this->user->isOfficial()) 
 				&& !($this->skautIS->getUser()->getUnitId() == $watch->troop->id && $this->user->isOfficial())) {

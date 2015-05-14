@@ -77,7 +77,7 @@
 			{/if}
 			<li><a class="blog-nav-item{if $presenter->getName() == "Article"} active{/if}" n:href="Article:default">Články</a></li>
 			<li><a class="blog-nav-item{if $presenter->getName() == "Race"} active{/if}" n:href="Race:default">Závody</a></li>
-			<li><a class="blog-nav-item{if $presenter->getName() == "Question"} active{/if}" n:href="Question:default">Otázky a odpoědi</a></li>
+			<li><a class="blog-nav-item{if $presenter->getName() == "Question"} active{/if}" n:href="Question:default">Otázky a odpovědi</a></li>
 			{if $user->isInRole('admin') || $user->isInRole('raceManager')}
 				<li class="dropdown"><a class="dropdown-toggle blog-nav-item" href="#" data-toggle="dropdown" aria-expanded="false">Pro organizátory<span class="caret"></span></a>
 				<ul class="dropdown-menu" role="menu">
@@ -144,9 +144,14 @@
           <div class="sidebar-module">
             <h4>Rychlé odkazy</h4>
             <ol class="list-unstyled">
-              <li><a href="#">Moje závody</a></li>
-              <li><a href="#">Pravidla</a></li>
-			  <li><a href="#">...</a></li>
+				<li><a n:href="Race:create">Nový závod</a></li>
+				<li><a n:href="Watch:create">Přihlásit hlídku</a></li>
+				{if $user->isLoggedIn()}
+				<li><a n:href="Race:my">Moje závody</a></li>
+				<li><a n:href="Watch:my">Moje hlídky</a></li>
+				{/if}
+				<li><a n:href="Race:">Přehled kol</a></li>
+				<li><a n:href="File:default 1">Pravidla</a></li>				
             </ol>
           </div>          
         </div><!-- /.blog-sidebar -->

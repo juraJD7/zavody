@@ -95,7 +95,12 @@
 	<a n:href="Watch:create $race->id">>>Přihlásit družinu k tomuto závodu</a>
 	</p>
 {/if}
-
+{if $race->description}
+<p>
+	<h3>Další informace:</h3>
+	{$race->description}
+</p>
+{/if}
 <hr />
 {if $user->isLoggedIn()}	
 	

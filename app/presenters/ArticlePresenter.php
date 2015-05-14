@@ -130,7 +130,7 @@ class ArticlePresenter extends BasePresenter {
 		$this->raceId = $id;
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
-		}	
+		}
 		if (!$this->user->isInRole('admin') && !($this->user->isInRole('raceManager') && in_array($id, $this->user->identity->data["races"]))) {
 			throw new Nette\Security\AuthenticationException("Nemáte oprávnění k této operaci");
 		}
@@ -285,9 +285,9 @@ class ArticlePresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
-		$article = $this->articleRepository->getArticle($articleId);
-		if (!($this->user->isInRole('admin') 
-				&& !($this->user->isInRole('raceManager') && in_array($article->race, $this->user->identity->data["races"])))) {
+		$article = $this->articleRepository->getArticle($articleId);		
+		if (!$this->user->isInRole('admin') 
+				&& !($this->user->isInRole('raceManager') && in_array($article->race, $this->user->identity->data["races"]))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
 		}			
 		$publish = (!is_null($article->published)) ? TRUE : FALSE;			

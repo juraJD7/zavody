@@ -65,11 +65,11 @@ class WatchFormFactory extends BaseFormFactory {
 	public function create() {
 		$form = new Form;
 		if(is_null($this->id)) {
-			$form->addSelect("race", "Závod: ", $this->loadRaces())
+			$form->addSelect("race", "Závod *: ", $this->loadRaces())
 					->setPrompt("-- vyber závod --")
 					->setDefaultValue($this->race)
 					->setRequired('Vyber prosím závod.');
-			$form->addSelect("troop", "Středisko:", $this->loadTroops())
+			$form->addSelect("troop", "Středisko *:", $this->loadTroops())
 				->setPrompt('-- vyber středisko --')
 				->setAttribute('class', 'js-example-basic-single')
 				->setRequired('Vyber prosím středisko');
@@ -78,10 +78,10 @@ class WatchFormFactory extends BaseFormFactory {
 				->setAttribute('class', 'js-example-basic-single');			
 		}
 		$form->addHidden("author", $this->user->getUserDetail()->ID);
-		$form->addText("name", "Název hlídky:")
+		$form->addText("name", "Název hlídky *:")
 				->setRequired();		
 		$form->addText("town","Obec:");
-		$form->addText("email_leader", "E-mail na vůdce oddílu:")
+		$form->addText("email_leader", "E-mail na vůdce oddílu *:")
 				->setRequired()
 				->addRule(Form::EMAIL, "E-mailová adresa není platná");
 		$form->addText("email_guide", "E-mail na rádce družiny:")

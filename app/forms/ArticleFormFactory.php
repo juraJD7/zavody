@@ -90,14 +90,17 @@ class ArticleFormFactory extends BaseFormFactory {
 		$values->race = $values->race ?: NULL;		
 		$status = $values->publish ? 1 : 0;
 		$published = $values->publish ? date("Y-m-d H:i:s") : NULL;
-		$user = $this->skautIS->usr->UserDetail()->ID;		
+		$user = $this->skautIS->usr->UserDetail()->ID;
+		// validace HTML dat
+		$config = \HTMLPurifier_Config::createDefault();
+		$purifier = new \HTMLPurifier($config);
+		$cleanText = $purifier->purify($values->text);
 		$data = array(
 			'status' => $status,
 			'author' => $user,
 			'title' => $values->title,
 			'lead' => $values->lead,
-			'text' => $values->text,
-			'image' => 1,
+			'text' => $cleanText,
 			'modified' => date("Y-m-d H:i:s"),
 			'changed' => date("Y-m-d H:i:s"),
 			'admin_only' => $values->admin_only,

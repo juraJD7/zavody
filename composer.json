@@ -22,7 +22,8 @@
 		"skautis/nette": "2.*@dev",
 		"jkuchar/filedownloader": "~1.2",
 		"nextras/forms": "~1.4",
-		"nella/forms-datetime": "~2.3"
+		"nella/forms-datetime": "~2.3",
+		"ezyang/htmlpurifier": "~4.6"
 	},
 	"require-dev": {	
 		"nette/tester": "~1.3"

@@ -272,6 +272,16 @@ class Watch extends Nette\Object {
 		return FALSE;
 	}
 	
+	public function isInRaces($raceArray) {
+		$this->getRaces();
+		foreach ($this->races as $race) {
+			if(in_array($race->id, $raceArray)) {
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+	
 	public function getNonCompetitiveReason() {
 		$this->getCategory();
 		return $this->nonCompetitiveReason;

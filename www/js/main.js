@@ -4,7 +4,7 @@ $(function () {
 
 $("#frm-seasonForm-season").on('change',function(event) {			
 	$.cookie('season', $(this).val(), { expires: 90, path: '/' });
-	location.reload();
+	this.form.submit();
 });
 
 $( document ).ajaxError(function( event, jqxhr, settings, thrownError ) {

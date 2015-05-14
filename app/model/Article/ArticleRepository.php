@@ -9,6 +9,8 @@ class ArticleRepository {
 	
 	private $dbMapper;	
 	private $commentRepository;
+	
+	const IMAGEPATH = "/img/articles/";
 
 
 	public function __construct(ArticleDbMapper $dbMapper, CommentRepository $commentRepository) {
@@ -60,5 +62,13 @@ class ArticleRepository {
 	
 	public function getArticlesByRace($paginator, $raceId) {
 		return $this->dbMapper->getArticlesByRace($this, $paginator, $raceId);
+	}
+	
+	public function getImage($articleId) {
+		$filename = self::IMAGEPATH . "$articleId" . ".jpg";
+		if (file_exists($filename)) {
+			return $filename;
+		}
+		return self::IMAGEPATH . "default.jpg";
 	}
 }

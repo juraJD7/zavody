@@ -3,7 +3,7 @@
 <div class="panel panel-default">
 	<h3>{$article->title}</h3>
 	<div>
-	<img src="{$basePath}/img/articles/default.jpg" class="pull-left img-thumbnail">
+	<img src="{$article->image}" class="pull-left img-thumbnail">
 	<h4 class="media-heading">Vydal: {$article->author->userName}</h4>
 	<h4 class="media-heading"><small><em>
 		Vydáno: {$article->published|date:'d.m.Y H:i'}

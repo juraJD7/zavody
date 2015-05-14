@@ -50,8 +50,9 @@ class RaceFormFactory extends BaseFormFactory {
 	 * @return Form
 	 */
 	public function create()
-	{
+	{		
 		$form = new Form;
+		
 		$form->addGroup('Základní nastavení');
 		$form->addText("name", "Název kola* :")
 				->setRequired("Je nutné vyplnit název kola.");		
@@ -71,8 +72,7 @@ class RaceFormFactory extends BaseFormFactory {
 				->addRule(Form::INTEGER, 'Kapacita družin musí být číslo')
 				->addRule(Form::MIN, 'Kapacita nemůže být záporná', 0)
 				->setRequired("Je nutné zadat max. počet přihlášených hlídek (součet za všechny kategorie)");
-		$form->addText("application_deadline", "Uzávěrka přihlášek* :")
-				->setType("date")
+		$form->addDatePicker("application_deadline", "Uzávěrka přihlášek* :")
 				->setRequired("Je nutné zadat deadline pro přihlášky.");
 		$form->addGroup('Pořadatel');
 		$form->addSelect("organizer", "Pořádající jednotka* :", $this->loadUnits())
@@ -91,10 +91,10 @@ class RaceFormFactory extends BaseFormFactory {
 				->addRule(Form::EMAIL, 'E-mailová adresa není platná')
 				->setRequired();
 		$form->addMultiSelect("editors_input", "Editoři závodu:", $this->loadUsers())
-				->setAttribute('class', 'js-example-basic-multiple');	
+				->setAttribute('class', 'js-example-basic-multiple')
+				->setOption('description', 'Ten, kdo závod zakládá, je editorem automaticky.');
 		$form->addGroup('Datum a Místo');
-		$form->addText("date","Termín závodu* :")
-				->setType("date")				
+		$form->addDatePicker("date","Termín závodu* :")				
 				->setRequired("Je nutné zadat termín konání závodu.");
 		$form->addText("place", "Místo* :")
 				->setRequired("Je nutné zadat místo konání.");		
@@ -153,11 +153,12 @@ class RaceFormFactory extends BaseFormFactory {
 			$values["author"] = $this->user->id;
 			$values["season"] = $this->season;			
 		}
+		// validace HTML dat
+		$config = \HTMLPurifier_Config::createDefault();
+		$purifier = new \HTMLPurifier($config);
+		$values->text = $purifier->purify($values->text);
 		$organizer = $this->unitRepository->getUnit($values->organizer);
-		$organizer->save();
-		if (substr($values->web, 0, 4) != "http") {
-			$values->web = "http://" . $values->web;
-		}		
+		$organizer->save();				
 		$values["advance"] = $this->setAdvanceRace($values->region, $values->round);
 		if (isset($this->id)) {			
 			$this->database->table('race')

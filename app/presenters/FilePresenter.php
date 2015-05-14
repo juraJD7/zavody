@@ -49,7 +49,7 @@ class FilePresenter extends BasePresenter {
 		}
 		$form->onSuccess[] = function () {
 			$this->flashMessage("Soubor byl uložen.");
-			$this->redirect('this');
+			$this->redirect('File:');
 		};
 		return $form;
 	}

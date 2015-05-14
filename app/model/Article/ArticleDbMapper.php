@@ -24,7 +24,6 @@ class ArticleDbMapper extends BaseDbMapper {
 		$article->title = $row->title;
 		$article->lead = $row->lead;
 		$article->text = $row->text;
-		$article->image = $row->image;
 		$article->status = $row->status;
 		$article->modified = $row->modified;
 		$article->published = $row->published;
@@ -170,7 +169,7 @@ class ArticleDbMapper extends BaseDbMapper {
 	public function getArticlesByRace(ArticleRepository $repository, $paginator, $raceId) {
 		$rows = $this->database->table('article')
 				->where('race', $raceId)
-				->order('cahnged DESC')
+				->order('changed DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());
 		$articles = array();
 		foreach ($rows as $row) {

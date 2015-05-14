@@ -77,9 +77,20 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 		$form->addSelect('season', "Aktuální závod:", $seasons)
 				->setDefaultValue($this->season)
 				->setAttribute('class','form-control');
+		$form->onSuccess[] = array($this, 'seasonFormSucceeded');
 		return $form;
 	}
 	
+	public function seasonFormSucceeded($form, $values) {
+		if ($this->user->isLoggedIn()) {
+			$userDetail = $this->skautIS->user->UserDetail();		
+			$this->user->login($userDetail);
+			$this->user->setExpiration('30 minutes', TRUE);		
+			$this->userRepository->getUser($userDetail->ID); // aktualizuje udaje o uživateli
+		}
+	}
+
+
 	/**
 	 * @return \Form
 	 */
