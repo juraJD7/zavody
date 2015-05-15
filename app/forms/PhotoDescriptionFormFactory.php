@@ -2,12 +2,13 @@
 
 namespace App\Forms;
 
-use Nette,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+use Nette\Application\UI\Form;
+	
 
 /**
- * Description of PhotoDescriptionFactory
+ * PhotoDescriptionFactory
+ * 
+ * Továrna na formuláře pro popisky fotografií
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */

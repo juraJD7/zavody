@@ -3,12 +3,12 @@
 namespace App\Forms;
 
 use Nette,
-	Nette\Forms\Controls,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+	Nette\Application\UI\Form;
 
 /**
- * Description of AnswerFormFactory
+ * AnswerFormFactory
+ * 
+ * Továrna na formuláře na odpovědi k dotazům
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -29,8 +29,13 @@ class AnswerFormFactory extends BaseFormFactory {
 		$this->questionRepository = $questionRepository;
 	}
 	
-	public function setQuestion($question) {
-		$this->question = $question;
+	/**
+	 * Nastaví otázku, ke které se odpověď vztahuje
+	 * 
+	 * @param int $questionId
+	 */
+	public function setQuestion($questionId) {
+		$this->question = $questionId;
 	}
 	
 	/**
@@ -54,7 +59,7 @@ class AnswerFormFactory extends BaseFormFactory {
 	}
 	
 	public function formSucceeded(Form $form, $values)
-	{
+	{		
 		if(is_null($this->question)) {
 			throw new Nette\InvalidArgumentException("Odpověď musí být vedená k nějakému dotazu");
 		}
@@ -65,6 +70,7 @@ class AnswerFormFactory extends BaseFormFactory {
 			'posted' => date("Y-m-d H:i:s"),
 			'author' => $user
 		);
+		// aktualizace dotazu pro řazení podle poslední změny
 		$this->database->table('answer')->insert($data);	
 		$this->database->table('question')
 				->where('id', $this->question)

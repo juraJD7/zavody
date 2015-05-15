@@ -35,6 +35,14 @@ class BaseFormFactory extends Nette\Object
 		$this->season = $_COOKIE["season"];
 	}
 	
+	/**
+	 * Přidává základní formátování formulářům podle Bootsteap
+	 * 
+	 * převzato z https://github.com/nette/forms/blob/master/examples/bootstrap3-rendering.php
+	 * 
+	 * @param IFormRenderer $renderer
+	 * @param Application\UI\Form $form
+	 */
 	protected function addBootstrapRendering(&$renderer, &$form) {
 		//bootstrap rendering		
 		$renderer->wrappers['controls']['container'] = NULL;

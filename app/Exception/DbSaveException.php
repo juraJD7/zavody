@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Description of DbSaveException
+ * DbSaveException
+ * 
+ * Obecná výjimka při špatném uložení do databáze
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */

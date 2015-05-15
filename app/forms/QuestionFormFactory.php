@@ -2,13 +2,14 @@
 
 namespace App\Forms;
 
-use Nette,
-	Nette\Forms\Controls,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+use Nette\Forms\Controls,
+	Nette\Application\UI\Form;
+	
 
 /**
- * Description of QuestionFormFactory
+ * QuestionFormFactory
+ * 
+ * Továrna na formuláře pro pokládání otázek
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -46,25 +47,19 @@ class QuestionFormFactory extends BaseFormFactory {
 	 */
 	public function create()
 	{		
-		$categories = $this->questionRepository->getAllCategories('question');
-		
+		//vytvoření seznamu kategorií jako vlastní komponenta
+		$categories = $this->questionRepository->getAllCategories('question');		
 		$items = array();
 		foreach ($categories as $category) {
 			$items[$category->id] = $category->name;
 		}
-		
-		$form = new Form;	
-		
-		$form->addGroup('Nová otázka');
-		
-		//$form->addCheckboxList('categories', 'Zobrazovat v kategoriích', $items)
-			//	->setAttribute('class', 'inline');
-		
 		$checkboxList = new Controls\MyCheckboxList();
 		$checkboxList->setItems($items);
 		
-		$form->addComponent($checkboxList, 'categories');
+		$form = new Form;		
+		$form->addGroup('Nová otázka');
 		
+		$form->addComponent($checkboxList, 'categories');		
 		$form->addTextArea('text', 'Otázka:')
 			->setRequired('Je nutné vyplnit text otázky.');
 		$form->addHidden('admin_only', $this->adminOnly);
@@ -96,12 +91,20 @@ class QuestionFormFactory extends BaseFormFactory {
 		$this->updateCategories($values->categories, $question);					
 	}	
 	
-	private function updateCategories($categories, $question) {	
+	/**
+	 * Smaže případné staré kategorie otázky a uloží nové
+	 * 
+	 * @param array $categories
+	 * @param Question $question
+	 */
+	private function updateCategories($categories, $question) {
+		//případné smazání
 		if (!is_null($this->id)) {
 			$this->database->table('category_question')
 				->where('question_id',  $this->id)
 				->delete();
 		}
+		//uložení nových kategorií
 		foreach ($categories as $category) {
 			$this->database->table('category_question')
 				->insert(array(

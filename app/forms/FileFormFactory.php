@@ -2,13 +2,13 @@
 
 namespace App\Forms;
 
-use Nette,
-	Nette\Forms\Controls,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+use Nette\Forms\Controls,
+	Nette\Application\UI\Form;	
 
 /**
- * Description of FileFormFactory
+ * FileFormFactory
+ * 
+ * Továrna na formuláře pro nahrávání souborů
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -50,8 +50,6 @@ class FileFormFactory extends BaseFormFactory {
 		
 		$form = new Form;	
 		
-		/*$form->addCheckboxList('categories', 'Zobrazovat v kategoriích', $items)
-				->setAttribute('class', 'inline');*/
 		$checkboxList = new Controls\MyCheckboxList();
 		$checkboxList->setItems($items);
 		
@@ -78,14 +76,16 @@ class FileFormFactory extends BaseFormFactory {
 	public function formSucceeded(Form $form, $values)
 	{
 		if($values->file->isOk()) {
+			//povolené typy souborů
 			$whiteList = $this->fileRepository->getWhiteList();
 			$user = $this->skautIS->usr->UserDetail()->ID;	
 			$type = $values->file->getContentType();
+			// pokud je soubor povolen
 			if(in_array($type, $whiteList)) {
 				$competition = $this->database->table('season')
 						->get($this->season)->competition;
 				if (!is_null($this->id)) {
-					//detele old file
+					// pokud editujeme, smažeme starou verzi souboru
 					$file = $this->database->table('file')->get($this->id);
 					unlink(\FileRepository::BASEDIR . $file->path);
 				}
@@ -101,6 +101,7 @@ class FileFormFactory extends BaseFormFactory {
 					'author' => $user,
 					'competition' => $competition
 				);
+				// vytvoření nebo aktualizace dat
 				if (!is_null($this->id)) {
 					$file->update($data);					
 				} else {
@@ -112,6 +113,7 @@ class FileFormFactory extends BaseFormFactory {
 			}
 		} else {
 			$error = $values->file->getError();
+			// pokud editujeme nejedná se o chybu, pouze aktualizujeme databázi
 			if (!is_null($this->id) && $error == UPLOAD_ERR_NO_FILE) {
 				$file = $this->database->table('file')->get($this->id);
 				$file->update(array(					
@@ -119,6 +121,7 @@ class FileFormFactory extends BaseFormFactory {
 					'description' => $values->description,
 				));
 				$this->updateCategories($values->categories, $file);
+			// pokud je chyba jeného rázu, je to skutečně chyba
 			} else {
 				$form->addError("Při nahrávání se objevila chyba. Kod: $error");
 			}
@@ -139,7 +142,13 @@ class FileFormFactory extends BaseFormFactory {
 				));
 		}
 	}
-	
+	/**
+	 * Funkce vytvoří soubor s jedinečným názevem a
+	 * příponou podle MIME typu
+	 * 
+	 * @param strin $name jméno původního souboru
+	 * @return string cesta k souboru
+	 */
 	private function getSubPath($name) {		
 		$webname = $name->getSanitizedName();
 		$folder = "downloads/";

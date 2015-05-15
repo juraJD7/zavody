@@ -1,9 +1,11 @@
 <?php
 
 /**
- * Description of SessionExpiredException
+ * SessionExpiredException
+ * 
+ * Výjmka, pokud jsou dotazována session data, která již vypršela
  *
- * @author 405245<405245@mail.muni.cz>
+ * @author 405245 <405245@mail.muni.cz>
  */
 class SessionExpiredException extends \Exception {
 	

@@ -3,7 +3,11 @@
 namespace Nette\Forms\Controls;
 
 /**
- * Description of MyCheckBoxList
+ * MyCheckBoxList
+ * 
+ * Vlastní vykreslení CheckBoxListu s checkboxy
+ * na jednom řádku (separátorem nezalomitelná mezera 
+ * místo výchozího tagu <br />
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */

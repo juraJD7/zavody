@@ -3,11 +3,12 @@
 namespace App\Forms;
 
 use Nette,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+	Nette\Application\UI\Form;
 
 /**
- * Description of PhotoUploadFormFactory
+ * PhotoUploadFormFactory
+ * 
+ * Továrna pro nahrávání fotografií
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -58,6 +59,7 @@ class PhotoUploadFormFactory extends BaseFormFactory {
 		$post = $form->getHttpData();		
 		$values->isPublic = empty($post["race"]) ? 1 : isset($post["isPublic"]);
 		foreach ($values->files as $file) {
+			// kontrola, zda se jedná o obrázek, akceptuje se PNG, JPG a GIF (podle MIME)
 			if($file->isOk() && $file->isImage()) {
 				
 				$values->race = $values->race ?: NULL;
@@ -72,9 +74,11 @@ class PhotoUploadFormFactory extends BaseFormFactory {
 					"type" => $file->getContentType(),
 					"race" => $values->race
 				);
-				$inserted = $this->database->table('photo')->insert($data);				
+				$inserted = $this->database->table('photo')->insert($data);	
+				//vytvoření cesty k souboru a uložení do filesystému
 				$path = $this->getPath($inserted->id, $file->getContentType());	
 				$file->move($path);
+				//vytvoření a uložení náhledu
 				$thumb = $this->createThumb($file);				
 				imagejpeg($thumb, $this->getThumbPath($inserted->id));
 			} else {
@@ -82,16 +86,35 @@ class PhotoUploadFormFactory extends BaseFormFactory {
 			}
 		}
 	}
-	
+	/**
+	 * Vytvoří cestu k náhledu podle ID fotografie
+	 * 
+	 * @param int $id
+	 * @return $string
+	 */
 	private function getThumbPath($id) {
 		return "./" . \PhotoRepository::THUMBDIR . $id . "_t.jpeg";
 	}
-
+	
+	/**
+	 * Vytvoří cestu k obrázku podle MIME type a ID obrázku
+	 * 
+	 * @param int $id
+	 * @param string $mimeType
+	 * @return $string výsledná cesta obrázku
+	 */
 	private function getPath($id, $mimeType) {
 		$extension = substr($mimeType, strrpos($mimeType, '/') + 1);
 		return "./" . \PhotoRepository::BASEDIR . $id . "." . $extension;
 	}
 	
+	/**
+	 * Vytvoří náhled obrázku
+	 * 
+	 * @param Nette\Http\FileUpload $file
+	 * @return file
+	 * @throws Exception pokud je neplatný obrázek
+	 */
 	private function createThumb(Nette\Http\FileUpload $file) {
 		// test, zda se jedná o podprovaný formát obrázku
 		switch ($file->getContentType()) {

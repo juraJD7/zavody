@@ -66,30 +66,30 @@ class WatchFormFactory extends BaseFormFactory {
 		$form = new Form;
 		if(is_null($this->id)) {
 			$form->addSelect("race", "Závod *: ", $this->loadRaces())
-					->setPrompt("-- vyber závod --")
-					->setDefaultValue($this->race)
-					->setRequired('Vyber prosím závod.');
+				->setPrompt("-- vyber závod --")
+				->setDefaultValue($this->race)
+				->setRequired('Vyber prosím závod.');
 			$form->addSelect("troop", "Středisko *:", $this->loadTroops())
 				->setPrompt('-- vyber středisko --')
 				->setAttribute('class', 'js-example-basic-single')
 				->setRequired('Vyber prosím středisko');
-		$form->addSelect("group", "Oddíl:", $this->loadGroups())
+			$form->addSelect("group", "Oddíl:", $this->loadGroups())
 				->setPrompt('-- vyber oddíl --')
 				->setAttribute('class', 'js-example-basic-single');			
 		}
 		$form->addHidden("author", $this->user->getUserDetail()->ID);
 		$form->addText("name", "Název hlídky *:")
-				->setRequired();		
+			->setRequired();		
 		$form->addText("town","Obec:");
 		$form->addText("email_leader", "E-mail na vůdce oddílu *:")
-				->setRequired()
-				->addRule(Form::EMAIL, "E-mailová adresa není platná");
+			->setRequired()
+			->addRule(Form::EMAIL, "E-mailová adresa není platná");
 		$form->addText("email_guide", "E-mail na rádce družiny:")
-				->addRule(Form::EMAIL, "E-mailová adresa není platná");
+			->addRule(Form::EMAIL, "E-mailová adresa není platná");
 		$form->addSubmit("send","Další krok >>");
 		$form->addSubmit("save","Uložit změny");
 		$form->addSubmit("cancel","Zrušit přihlašování")
-				->setValidationScope(FALSE);
+			->setValidationScope(FALSE);
 		
 		$form->onSuccess[] = array($this, 'formSucceeded');
 		return $form;

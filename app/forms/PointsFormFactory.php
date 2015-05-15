@@ -51,6 +51,7 @@ class PointsFormFactory extends BaseFormFactory {
 		$form->onSuccess[] = array($this, 'formSucceeded');
 
 		$watchs = ($this->watchs) ? $this->watchs : array();
+		//vytvoření formulářových komponent pro každou hlídku
 		foreach ($watchs as $watch) {
 			$form->addText($watch->id)
 				->addRule(\Nette\Forms\Form::FLOAT, 'Musí být číselná hodnota')
@@ -78,13 +79,16 @@ class PointsFormFactory extends BaseFormFactory {
 	{
 		$values = $form->getHttpData();			
 		$race = $this->raceRepository->getRace($this->race);
+		//vynulují se staré postupy (a odhlásí hlídky z postupových závodů)
 		$race->deleteAdvancedWatchs();		
 		unset($values["send"]);
-		unset($values["do"]);		
+		unset($values["do"]);
+		//proměnné pro pamatování aktuálního pořadí
 		$femaleOrder=0;
 		$maleOrder=0;
 		$advancedMale=0;
 		$advancedFemale=0;
+		//vstupní pole pro data
 		$data = array();
 		$points = array();
 		foreach ($values as $key => $value) {
@@ -92,7 +96,7 @@ class PointsFormFactory extends BaseFormFactory {
 				$index = substr($key, 1);
 				$data[$index]["index"] = $index;
 				$data[$index]["points"] = $value;
-				$data[$index]["note"] = $values["note" . $index];
+				$data[$index]["note"] = $values["note" . $index];				
 				if (isset($values["noAdvance" . $index])) {
 					$data[$index]["noAdvance"] = TRUE;
 				} else {
@@ -101,12 +105,16 @@ class PointsFormFactory extends BaseFormFactory {
 				$points[$index] = $value;
 			}
 		}	
+		//seřazení obou polí shodně podle počtu bodů
 		array_multisort($points, SORT_DESC, $data);
+		// smyčka bere hlídky podle bodů a postupně jim přiděluje místa v pořadí (tedy vzestupně)
+		// podle zjištěné kategorie
 		foreach ($data as $result) {			 
 			 $watch = $this->watchRepository->getWatch($result["index"]);
 			 $category = $watch->getCategory();
 			 $order = null;
 			 $advance = NULL;
+			 // pokud je aktuální přidělované místo postupové a hlídka se nezřekla postupu, postoupí
 			 if ($category == \Watch::CATEGORY_FEMALE) {
 				 $femaleOrder++;
 				 $order = $femaleOrder;				 
@@ -116,6 +124,7 @@ class PointsFormFactory extends BaseFormFactory {
 				 }
 				
 			}
+			// pokud je aktuální přidělované místo postupové a hlídka se nezřekla postupu, postoupí
 			if ($category == \Watch::CATEGORY_MALE) {
 				 $maleOrder++;
 				 $order = $maleOrder;
@@ -124,13 +133,19 @@ class PointsFormFactory extends BaseFormFactory {
 					 $advancedMale++;
 				 }
 			 }
+			 //hlídka již nemůže měnit kategorii
 			 $watch->fixCategory();
+			 //přihlášení k postupovému závodu
 			 if ($advance) {				 
 				 $watch->processAdvance($race);
 			 }
+			 //nastavení NEpostupu napevno
+			 //pokud nebylo ve formuláři zvoleno, platí hodnota null a hlídka
+			 //se v budoucnu může posunout na postupové místo
 			 if($result["noAdvance"])	{
 				 $advance = FALSE;
 			 }
+			 //uložení
 			 $this->database->table('race_watch')
 					 ->where('race_id', $this->race)
 					 ->where('watch_id', $result["index"])

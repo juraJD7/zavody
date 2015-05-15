@@ -3,8 +3,7 @@
 namespace App\Forms;
 
 use Nette,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+	Nette\Application\UI\Form;
 
 /**
  * Description of MembersFormFactory
@@ -31,7 +30,7 @@ class MembersFormFactory extends BaseFormFactory {
 	 * @param \RaceRepository $raceRepository
 	 * @param \UnitRepository $unitRepository
 	 * @param \Nette\Security\LoggedUser $loggedUser
-	 * @param \Nette\Http\Session $session
+	 * @param Nette\Http\Session $session
 	 * @param \PersonRepository $personRepository
 	 */
 	public function __construct(\Skautis\Skautis $skautIS, \Nette\Database\Context $database, \WatchRepository $watchRepository, \RaceRepository $raceRepository, \UnitRepository $unitRepository, \Nette\Security\LoggedUser $loggedUser, Nette\Http\Session $session, \PersonRepository $personRepository) {
@@ -63,6 +62,8 @@ class MembersFormFactory extends BaseFormFactory {
 	public function create() {
 		
 		$form = new Form;	
+		//načtení střediska z editované hlídky nebo 
+		//ze session při vytváření hlídky nové
 		if (!isset($this->id)) {			
 			$troopId = $this->session->getSection('watch')->basic["troop"];
 			$this->troop = $this->unitRepository->getUnit($troopId);
@@ -88,6 +89,8 @@ class MembersFormFactory extends BaseFormFactory {
 	}
 	
 	public function formSucceeded(Form $form) {
+		//uživatel nechce uložit změny - vymaže se
+		//session a dojde k přesměrování
 		if ($form["cancel"]->isSubmittedBy()) {
 			$this->session->getSection("watch")->remove();
 			$form->getPresenter()->redirect("Race:");
@@ -96,8 +99,10 @@ class MembersFormFactory extends BaseFormFactory {
 			$this->session->getSection("watch")->remove();
 			$form->getPresenter()->redirect("Watch:detail", $this->id);
 		}
+		// zpracování formuláře
 		$values = $form->getHttpData();		
 		$section = $this->session->getSection('watch');
+		// uložení hlídky
 		if ($form["save"]->isSubmittedBy()) {			
 			$watch = $this->watchRepository->getWatch($this->id);			
 			$watch->deleteAllMembers($this->race);				
@@ -108,6 +113,7 @@ class MembersFormFactory extends BaseFormFactory {
 					$member->addRace($this->race, $section->roles[$key]);
 					$watch->addMember($member);					
 				}	
+				//kontrola, zda není hlídka v jiné kategorii, než byla v předchozím závodě
 				if ($this->checkCategory($watch)) {
 					$watch->save();
 				} else {
@@ -117,6 +123,7 @@ class MembersFormFactory extends BaseFormFactory {
 			}			
 			$section->remove();
 		}
+		// přidání členů do hlídky
 		if ($form["addMembers"]->isSubmittedBy()) {				
 			if (isset($values["members"])) {
 				foreach ($values["members"] as $member) {	
@@ -125,7 +132,9 @@ class MembersFormFactory extends BaseFormFactory {
 					} else {
 						$race = $this->raceRepository->getRace($this->race);
 					}
+					// kontrola kritérií člena s pravidly (věk, ...)
 					$memberValidation = $this->watchRepository->validateMember($member, $values["roles"][$member], $race, $this->id);
+					//uložení do session
 					if ($memberValidation === TRUE) {
 						$section->members[$member] = $this->personRepository->getPerson($member)->displayName;
 						$section->roles[$member] = $values["roles"][$member];

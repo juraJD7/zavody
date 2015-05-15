@@ -2,9 +2,8 @@
 
 namespace App\Forms;
 
-use Nette,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+use Nette\Application\UI\Form;
+	
 
 /**
  * Description of RaceFormFactory
@@ -74,6 +73,8 @@ class RaceFormFactory extends BaseFormFactory {
 				->setRequired("Je nutné zadat max. počet přihlášených hlídek (součet za všechny kategorie)");
 		$form->addDatePicker("application_deadline", "Uzávěrka přihlášek* :")
 				->setRequired("Je nutné zadat deadline pro přihlášky.");
+		
+		
 		$form->addGroup('Pořadatel');
 		$form->addSelect("organizer", "Pořádající jednotka* :", $this->loadUnits())
 				->setAttribute('class', 'js-example-basic-single')
@@ -93,11 +94,15 @@ class RaceFormFactory extends BaseFormFactory {
 		$form->addMultiSelect("editors_input", "Editoři závodu:", $this->loadUsers())
 				->setAttribute('class', 'js-example-basic-multiple')
 				->setOption('description', 'Ten, kdo závod zakládá, je editorem automaticky.');
+		
+		
 		$form->addGroup('Datum a Místo');
 		$form->addDatePicker("date","Termín závodu* :")				
 				->setRequired("Je nutné zadat termín konání závodu.");
 		$form->addText("place", "Místo* :")
-				->setRequired("Je nutné zadat místo konání.");		
+				->setRequired("Je nutné zadat místo konání.");
+		
+		
 		$form->addGroup('Kontakt');
 		$form->addText("telephone", "Telefon:");
 		$form->addText("email", "Kontaktní mail* :")
@@ -107,6 +112,8 @@ class RaceFormFactory extends BaseFormFactory {
 		$form->addText("web", "Web:")
 				->addCondition(Form::FILLED)
 				->addRule(Form::URL, 'Webová adresa není platná.');
+		
+		
 		$form->addGroup("Další nastavení");
 		$form->addText("target_group", "Cílová skupina (popis):");				
 		$form->addTextArea("description", "Další informace", "60", "10")
@@ -122,7 +129,7 @@ class RaceFormFactory extends BaseFormFactory {
 	}
 	
 	/**
-	 * Validace formuláře
+	 * Validace formuláře na duplicitu krajských nebo celostátních kol
 	 * 
 	 * @param type $form
 	 */
@@ -145,20 +152,22 @@ class RaceFormFactory extends BaseFormFactory {
 	}
 	
 	public function formSucceeded(Form $form, $values)
-	{				
-		
+	{
 		$editors = $values->editors_input;
 		unset($values->editors_input);
 		if (is_null($this->id)) {
 			$values["author"] = $this->user->id;
 			$values["season"] = $this->season;			
 		}
-		// validace HTML dat
+		
+		// validace HTML dat z WYSIWYG editoru
 		$config = \HTMLPurifier_Config::createDefault();
 		$purifier = new \HTMLPurifier($config);
-		$values->text = $purifier->purify($values->text);
+		$values->description = $purifier->purify($values->description);
+		//uložení jednotky načtené z ISu do databáze
 		$organizer = $this->unitRepository->getUnit($values->organizer);
-		$organizer->save();				
+		$organizer->save();		
+		//uložení kola, aktualizace vazeb na ostatní kola (v obou směrech)
 		$values["advance"] = $this->setAdvanceRace($values->region, $values->round);
 		if (isset($this->id)) {			
 			$this->database->table('race')
@@ -170,10 +179,16 @@ class RaceFormFactory extends BaseFormFactory {
 				->insert($values);
 			$raceId = $race->id;
 		}		
-		$this->setSubordinateRaces($values->region, $values->round, $raceId);		
+		$this->setSubordinateRaces($values->region, $values->round, $raceId);
+		//nastavení editorů závodu
 		$this->setNewEditors($editors, $raceId);
 	}
 	
+	/**
+	 * Načte druhy kol do formuláře ve formě pro tag select
+	 * 
+	 * @return array
+	 */
 	private function loadRounds() {
 		$result = $this->database->table('round');
 		$rounds = array();
@@ -184,6 +199,11 @@ class RaceFormFactory extends BaseFormFactory {
 		return $rounds;
 	}
 	
+	/**
+	 * Načte postupové klíče do formuláře ve formě pro tag select
+	 * 
+	 * @return array
+	 */
 	private function loadKeys() {
 		$result = $this->database->table('advance_key');
 		$keys = array();
@@ -194,6 +214,11 @@ class RaceFormFactory extends BaseFormFactory {
 		return $keys;
 	}
 	
+	/**
+	 * Načte kraje do formuláře ve formě pro tag select
+	 * 
+	 * @return array
+	 */
 	private function loadRegions() {
 		$result = $this->database->table('region');
 		$regions = array();
@@ -204,6 +229,11 @@ class RaceFormFactory extends BaseFormFactory {
 		return $regions;
 	}
 	
+	/**
+	 * Načte seznam růzsahů pro velikost družin do formuláře ve formě pro tag select
+	 * 
+	 * @return array
+	 */
 	private function loadMembersRange() {
 		$result = $this->database->table('members_range');
 		$ranges = array();
@@ -214,13 +244,21 @@ class RaceFormFactory extends BaseFormFactory {
 		return $ranges;
 	}
 	
+	/**
+	 * Načte organizační jednotky do formuláře ve formě pro tag select
+	 * 
+	 * @return array
+	 */
 	public function loadUnits() {
-		$types = array("ustredi", "kraj", "okres", "stredisko");		
+		//seznam organizačních jednotek
+		$types = array("ustredi", "kraj", "okres", "stredisko");	
+		//přidání vlastní jednotky na začátek pole
 		if (in_array($this->user->unit->unitType, $types)) {
 			$myUnit = array($this->user->unit->id => "-- Moje jednotka (" . $this->user->unit->displayName . ") --");
 		} else {
 			$myUnit = array();
 		}
+		//přidání všech podřízených organizačních jednotek, jsou-li
 		$subordinate = array();
 		foreach ($this->unitRepository->getUnits($types) as $unit) {
 			$subordinate[$unit->id] = $unit->displayName;
@@ -228,14 +266,21 @@ class RaceFormFactory extends BaseFormFactory {
 		$units = $myUnit + $subordinate;
 		return $units;
 	}
-	
-	private function setSubordinateRaces($region, $round, $id) {		
+	/**
+	 * 
+	 * @param int $region
+	 * @param char $round druh kola zakládaného závodu
+	 * @param int $id ID zakládaného závodu
+	 */
+	private function setSubordinateRaces($region, $round, $id) {
+		// celostátní kolo se nastaví jako postupové pro všechna krajská kola
 		if($round == "C") {
 			$this->database->table('race')
 				->where('round', 'K')
 				->where('season', $this->season)
 				->update(array("advance" => $id));			
-		} 
+		}
+		// krajské kolo se nastaví jako postupové u všech základních kol v daném kraji
 		if($round == "K") {
 			$this->database->table('race')
 				->where('round', 'Z')
@@ -244,7 +289,13 @@ class RaceFormFactory extends BaseFormFactory {
 				->update(array("advance" => $id));			
 		}
 	}
-
+	/**
+	 * Vyhledá a nastaví postupové kolo pro zakládaný závod, existuje-li
+	 * 
+	 * @param int $region
+	 * @param char $round
+	 * @return mixed ID nalezeného závodu nebo null v případě nenalezení
+	 */
 	private function setAdvanceRace($region, $round) {
 		if($round == "K") {
 			$race = $this->database->table('race')
@@ -264,9 +315,15 @@ class RaceFormFactory extends BaseFormFactory {
 		return $race->fetch()->id;
 	}
 	
-	public function setNewEditors($editors, $race) {
+	/**
+	 * Nastaví editory závodu (včetně autora)
+	 * 
+	 * @param array $editors
+	 * @param int $race
+	 */
+	public function setNewEditors($editors, $raceId) {
 		$this->database->table('editor_race')
-				->where('race_id', $race)
+				->where('race_id', $raceId)
 				->delete();
 		if (!in_array($this->user->id, $editors)) {
 			$editors[] = $this->user->id;
@@ -276,11 +333,16 @@ class RaceFormFactory extends BaseFormFactory {
 			$this->database->table('editor_race')
 				->insert(array(
 					"user_id" => $editor,
-					"race_id" => $race
+					"race_id" => $raceId
 				));
 		}		
 	}
-
+	
+	/**
+	 * Načte seznam uživatelů pro formulář
+	 * 
+	 * @return array
+	 */
 	public function loadUsers() {
 		$isUsers = $this->skautIS->usr->UserAll();
 		$users = array();

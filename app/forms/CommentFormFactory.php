@@ -2,12 +2,13 @@
 
 namespace App\Forms;
 
-use Nette,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+use Nette\Application\UI\Form;
+	
 
 /**
- * Description of CommentFormFactory
+ * CommentFormFactory
+ * 
+ * Továrna na formuláře komentářů k článkům
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -32,8 +33,7 @@ class CommentFormFactory extends BaseFormFactory {
 	 * @return Form
 	 */
 	public function create()
-	{
-		
+	{		
 		$form = new Form;
 		$form->addText('title', 'Předmět:', 20, 255)
 			->setRequired('Je nutné vyplnit předmět.');
@@ -58,6 +58,7 @@ class CommentFormFactory extends BaseFormFactory {
 			'text' => $values->text
 		);
 		
+		// vytvoření nebo editace komentáře
 		if($this->id) {
 			$article = $this->database->table('comment')->get($this->id);
 			$data['modified'] = date("Y-m-d H:i:s");
@@ -66,7 +67,8 @@ class CommentFormFactory extends BaseFormFactory {
 			$data['posted'] = date("Y-m-d H:i:s");
 			$data['modified'] = NULL;
 			$this->database->table('comment')->insert($data);
-		}		
+		}	
+		//aktualizace článku pro potřeby řazení podle nejpozdější změny
 		$this->database->table('article')
 				->where('id', $this->article)
 				->update(array('changed' => date("Y-m-d H:i:s")));

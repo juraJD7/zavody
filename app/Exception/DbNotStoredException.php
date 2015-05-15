@@ -3,9 +3,11 @@
 namespace Race;
 
 /**
- * Description of DbNotStoredException
+ * DbNotStoredException
+ * 
+ * Výjmka při přístupu k neexistujícím položkám
  *
- * @author 405245<405245@mail.muni.cz>
+ * @author 405245 <405245@mail.muni.cz>
  */
 class DbNotStoredException extends \Exception {
 }

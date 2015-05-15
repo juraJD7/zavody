@@ -2,13 +2,14 @@
 
 namespace App\Forms;
 
-use Nette,
-	Nette\Forms\Controls,
-	Nette\Application\UI\Form,
-	Nette\Security\User;
+use Nette\Forms\Controls,
+	Nette\Application\UI\Form;
+	
 
 /**
- * Description of ArticleFormFactory
+ * ArticleFormFactory
+ * 
+ * Továrna na formuláře pro články
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -53,15 +54,17 @@ class ArticleFormFactory extends BaseFormFactory {
 	 */
 	public function create()
 	{	
+		// vytvoření seznamu kategorií pomocí vlastní komponenty
 		$categories = $this->articleRepository->getAllCategories('article');
 		$items = array();
 		foreach ($categories as $category) {
 			$items[$category->id] = $category->name;
 		}		
-		$form = new Form;
-		
 		$checkboxList = new Controls\MyCheckboxList();
 		$checkboxList->setItems($items);
+		
+		// samotný formulář
+		$form = new Form;
 		
 		$form->addComponent($checkboxList, 'categories');
 		
@@ -91,10 +94,12 @@ class ArticleFormFactory extends BaseFormFactory {
 		$status = $values->publish ? 1 : 0;
 		$published = $values->publish ? date("Y-m-d H:i:s") : NULL;
 		$user = $this->skautIS->usr->UserDetail()->ID;
+		
 		// validace HTML dat
 		$config = \HTMLPurifier_Config::createDefault();
 		$purifier = new \HTMLPurifier($config);
 		$cleanText = $purifier->purify($values->text);
+		
 		$data = array(
 			'status' => $status,
 			'author' => $user,
@@ -108,6 +113,7 @@ class ArticleFormFactory extends BaseFormFactory {
 			'season' => $this->season
 		);
 		
+		//uložení nebo aktualizace
 		if($this->id) {
 			$article = $this->database->table('article')->get($this->id);
 			$article->update($data);
@@ -120,12 +126,20 @@ class ArticleFormFactory extends BaseFormFactory {
 		
 	}
 	
-	private function updateCategories($categories, $articleId) {	
+	/**
+	 * Aktualizuje vazby kategorie na článek
+	 * 
+	 * @param array $categories
+	 * @param int $articleId
+	 */
+	private function updateCategories($categories, $articleId) {
+		// pokud se článek edituje, smažou se staré kategorie
 		if (!is_null($this->id)) {
 			$this->database->table('article_category')
 				->where('article_id',  $this->id)
 				->delete();
 		}
+		// uložení nově zvolených kategorií článku
 		foreach ($categories as $category) {
 			$this->database->table('article_category')
 				->insert(array(

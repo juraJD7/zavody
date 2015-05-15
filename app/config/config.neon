@@ -6,7 +6,6 @@
 #
 parameters:
 
-
 php:
 	date.timezone: Europe/Prague
 
@@ -16,6 +15,9 @@ nette:
 		errorPresenter: Error
 		mapping:
 			*: App\*Module\Presenters\*Presenter
+	latte:
+		macros:
+			- Nextras\Forms\Bridges\Latte\Macros\BS3InputMacros
 
 	session:
 		expiration: 14 days
@@ -59,7 +61,6 @@ services:
 	- App\Forms\WatchFormFactory
 	- App\Forms\MembersFormFactory
 	- App\Forms\PointsFormFactory
-	- App\Forms\MailFormFactory
 	- AdminRepository
 	- AdminDbMapper
 	- ArticleRepository
@@ -70,12 +71,8 @@ services:
 	- FileRepository
 	- MailRepository
 	- MailDbMapper
-#	- PersonRepository
-#	- PersonDbMapper
 	- PersonIsMapper
 	- PhotoRepository
-#	- RaceRepository
-#	- RaceDbMapper
 	- PhotoDbMapper
 	- UnitRepository
 	- UnitISMapper
@@ -83,9 +80,7 @@ services:
 	- UserRepository
 	- UserIsMapper
 	- UserDbMapper
-#	- WatchRepository
 	- WatchIsMapper
-#	- WatchDbMapper
 	- QuestionRepository
 	- QuestionDbMapper
 	- LazyContainer
