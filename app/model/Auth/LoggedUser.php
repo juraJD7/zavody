@@ -46,7 +46,12 @@ class LoggedUser extends User {
 		return $this->unit;
 	}
 
-
+	/**
+	 * Vrátí všechny skautIS role přihlášeného uživatele
+	 * 
+	 * @param type $activeOnly TRUE omezí výběr na aktivní role
+	 * @return StdClass[]
+	 */
 	public function getAllSkautISRoles($activeOnly = true) {
         return $this->skautIS->user->UserRoleAll(array(
 			"ID_User" => $this->getUserDetail()->ID,
@@ -54,6 +59,11 @@ class LoggedUser extends User {
 		));
 	}
 	
+	/**
+	 * Aktualizuje uživatelovu roli v ISu
+	 * 
+	 * @param int $id ID nové role
+	 */
 	public function updateSkautISRole($id) {
         $response = $this->skautIS->user->LoginUpdate(array(
 			"ID_UserRole" => $id, 
@@ -63,10 +73,14 @@ class LoggedUser extends User {
         }
     }
 	
+	/**
+	 * Vrátí informace o přihlášeném uživateli
+	 * 
+	 * @return StdClass
+	 */
 	public function getUserDetail() {
 		return $this->skautIS->user->UserDetail();
 	}
-
 
 	public function getUserName() {
 		if (is_null($this->userName)) {

@@ -1,26 +1,90 @@
 <?php
 
 /**
- * Description of Photo
+ * Photo
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class Photo extends \Nette\Object {	
 	
+	/**
+	 *
+	 * @var PhotoRepository
+	 */
 	private $repository;
 	
+	/**
+	 *
+	 * @var int 
+	 */
 	private $id;
+	
+	/**
+	 *
+	 * @var string 
+	 */
 	private $description;
+	
+	/**
+	 *
+	 * @var int 
+	 */
 	private $race;
+	
+	/**
+	 * True, pokud se zobrazuje ve veřejné galerii
+	 * 
+	 * @var bool 
+	 */
 	private $public;
+	
+	/**
+	 *
+	 * @var User 
+	 */
 	private $author;
+	
+	/**
+	 *
+	 * @var int 
+	 */
 	private $size;
+	
+	/**
+	 *
+	 * @var int 
+	 */
 	private $height;
+	
+	/**
+	 *
+	 * @var int 
+	 */
 	private $width;
+	
+	/**
+	 *
+	 * @var DateTime 
+	 */
 	private $created;
+	
+	/**
+	 * MIME type
+	 * 
+	 * @var string 
+	 */
 	private $type;
 	
+	/**
+	 *
+	 * @var string 
+	 */
 	private $path;
+	
+	/**
+	 *
+	 * @var string 
+	 */
 	private $thumbPath;
 	
 	public function __construct($id) {

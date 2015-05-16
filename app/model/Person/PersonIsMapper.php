@@ -1,12 +1,19 @@
 <?php
 
 /**
- * Description of PersonIsMapper
+ * PersonIsMapper
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class PersonIsMapper extends BaseISMapper {
 	
+	/**
+	 * Vrátí osobu z ISu
+	 * 
+	 * @param type $personId
+	 * @return \Person
+	 * @throws InvalidArgumentException
+	 */
 	public function getPerson($personId) {		
 		$isPerson = $this->skautIS->org->PersonDetail(array("ID" => $personId)); 
 		if ($personId) {
@@ -15,6 +22,7 @@ class PersonIsMapper extends BaseISMapper {
 			$person->lastName = $isPerson->LastName;
 			$person->nickName = $isPerson->NickName;
 			$person->sex = ($isPerson->ID_Sex == "male") ? Person::ID_MALE : Person::ID_FEMALE;
+			//převod formátu z ISovského stringu do DateTime
 			$person->birthday = DateTime::createFromFormat('Y-m-d', substr($isPerson->Birthday, 0, 10));				
 			return $person;
 		} else {

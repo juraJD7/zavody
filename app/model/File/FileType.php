@@ -1,14 +1,28 @@
 <?php
 
 /**
- * Description of FileType
+ * FileType
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class FileType extends Nette\Object {
 	
+	/**
+	 *
+	 * @var string
+	 */
 	private $mime;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $title;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $path;
 	
 	public function __construct($mime, $title, $path) {

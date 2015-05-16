@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of PersonRepository
+ * PersonRepository
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */

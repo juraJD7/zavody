@@ -1,12 +1,19 @@
 <?php
 
 /**
- * Description of PersonDbMapper
+ * PersonDbMapper
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class PersonDbMapper extends BaseDbMapper {
 	
+	/**
+	 * Vrátí jméno účastníkovy role
+	 * 
+	 * @param int $systemId ID účastníka
+	 * @param int $raceId ID vztažného závodu
+	 * @return steing
+	 */
 	public function getRole($systemId, $raceId) {
 		$result = $this->database->table('participant_race')
 				->where('participant_id', $systemId)
@@ -20,6 +27,13 @@ class PersonDbMapper extends BaseDbMapper {
 		}
 	}
 	
+	/**
+	 * Vrátí id účastníkovy role
+	 * 
+	 * @param int $systemId ID účastníka
+	 * @param int $raceId ID vztažného závodu
+	 * @return steing
+	 */
 	public function getRoleId($systemId, $raceId) {
 		$result = $this->database->table('participant_race')
 				->where('participant_id', $systemId)
@@ -33,6 +47,7 @@ class PersonDbMapper extends BaseDbMapper {
 	}
 	
 	/**
+	 * Vrátí účastníka
 	 * 
 	 * @param int $id 
 	 */
@@ -55,6 +70,12 @@ class PersonDbMapper extends BaseDbMapper {
 		return $participant;
 	}
 	
+	/**
+	 * Vrátí pole rolí účastníka ve všech jeho závodech
+	 * 
+	 * @param int $participantId ID účastníka
+	 * @return int[]
+	 */
 	public function getParticipantRoles($participantId) {
 		$result = $this->database->table('participant_race')
 				->where('participant_id', $participantId);
@@ -70,18 +91,21 @@ class PersonDbMapper extends BaseDbMapper {
 	 * @param PersonRepository $repository
 	 * @param int $watchId
 	 * @param int $raceId
-	 * @return array Person
+	 * @return Person[]
 	 */
 	public function getPersonsByWatch(PersonRepository $repository, $watchId, $raceId) {		
+		//nalezení všech členů hlídky
 		$rowsMembers = $this->database->table('participant')
 				->where('watch', $watchId);
 		$members = array();
 		foreach ($rowsMembers as $member) {
+			//pokud je uživatel účastníkem závodu
 			$query = $this->database->table('participant_race')
 					->where('participant_id', $member->id);
 			if (!is_null($raceId)) {
 				$query = $query->where('race_id', $raceId);
 			}
+			// přidá se účastník do pole k vrácení
 			$row = $query->fetch();
 			if ($row) {				
 				$person = $this->getParticipant($member->id);
@@ -92,10 +116,21 @@ class PersonDbMapper extends BaseDbMapper {
 		return $members;
 	}
 	
+	/**
+	 * Vrátí seznam všech dostupných rolí
+	 * 
+	 * @return \Nette\Database\Selection
+	 */
 	public function getRoles() {
 		return $this->database->table('role');
 	}
 	
+	/**
+	 * Vrátí název role podle jejího ID
+	 * 
+	 * @param int $id ID role
+	 * @return string název role
+	 */
 	public function getRoleName($id) {
 		$row = $this->database->table('role')
 				->get($id);
@@ -104,11 +139,20 @@ class PersonDbMapper extends BaseDbMapper {
 		}
 	}
 	
+	/**
+	 * Vrátí pojmenování pohlaví pro aktuální soutěž
+	 * 
+	 * @param inr $sexId
+	 * @return string
+	 * @throws \Nette\InvalidArgumentException
+	 */
 	public function getSexName($sexId) {
+		//zjištění soutěže
 		$id = $this->database->table('competition')
 				->get($this->season)->id;
 		$competition = $this->database->table('competition')
 				->get($id);
+		//pohlaví na základě ID
 		if ($sexId == Person::ID_MALE) {
 			return $competition->male;
 		} else if ($sexId == Person::ID_FEMALE){

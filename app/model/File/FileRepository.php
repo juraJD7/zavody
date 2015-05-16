@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of FileRepository
+ * FileRepository
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -54,7 +54,9 @@ class FileRepository {
 	}	
 		
 	public function deleteFile($id) {
+		//smaže soubor fyzicky v souborovém systému
 		unlink($this->getPath($id));
+		//vymaže záznam z databáze
 		$this->dbMapper->deleteFile($id);
 	}
 	

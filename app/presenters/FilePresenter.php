@@ -32,8 +32,18 @@ class FilePresenter extends BasePresenter {
 	 */
 	public $paginator;
 	
+	/**
+	 *
+	 * @var string výchozí akce při stránkování
+	 */
 	private $actionPaginator;
+	
+	/**
+	 *
+	 * @var array parametry pro URL při stránkování
+	 */
 	protected $params = array();
+	
 	private $files;
 	private $category;
 	
@@ -58,6 +68,7 @@ class FilePresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}		
+		//oprávnění má autor a administrátoři
 		$file = $this->fileRepository->getFile($id);
 		if (!($this->user->isInRole('admin') || ($this->user->id == $file->author->id))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
@@ -90,6 +101,7 @@ class FilePresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		//oprávnění má autor a administrátoři
 		$file = $this->fileRepository->getFile($id);
 		if (!($this->user->isInRole('admin') || ($this->user->id == $file->author->id))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
@@ -104,9 +116,9 @@ class FilePresenter extends BasePresenter {
 		if (is_null($this->category)) {
 			$this->category = $this->getParameter('category');
 		}
-		
+		// pokud není nastaveno, nastaví se stránkování
 		if ($this->paginator->itemCount === NULL) {		
-			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator = new Nette\Utils\Paginator();
 			$this->paginator->setItemCount($this->fileRepository->countAll($this->category));
 			$this->paginator->setItemsPerPage(10); 
 			$this->paginator->setPage($page);			
@@ -133,8 +145,9 @@ class FilePresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		// nastaví se stránkování
 		$page = $this->getParameter('page');				
-		$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+		$paginator = new Nette\Utils\Paginator();
 		$paginator->setItemCount($this->fileRepository->countAllAuthor($this->user->id));
 		$paginator->setItemsPerPage(10); 
 		$paginator->setPage($page);			
@@ -145,6 +158,9 @@ class FilePresenter extends BasePresenter {
 		$this->template->files = $this->fileRepository->getFilesByAuthor($paginator, $this->user->id);
 	}
 	
+	/**
+	 * Signál pro změnu kategorie
+	 */
 	public function handleChangeCategory() {
 		if($this->isAjax()) {				
 			$httpRequest = $this->context->getByType('Nette\Http\Request');
@@ -152,7 +168,7 @@ class FilePresenter extends BasePresenter {
 			$page = $this->getParameter('page');
 			$this->paginator->setItemCount($this->fileRepository->countAll($this->category));			
 			$this->paginator->setItemsPerPage(5); 
-			$this->paginator->setPage($page); //vzdy nastavit na 1?			
+			$this->paginator->setPage($page);		
 			$this->actionPaginator = "default";					
 			$this->files = $this->fileRepository->getFiles($this->paginator, $this->category);			
 			$this->redrawControl('category');

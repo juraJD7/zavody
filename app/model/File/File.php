@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Description of File
+ * File
+ * 
+ * Třída pro práci se soubory
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -14,16 +16,58 @@ class File extends Nette\Object {
 	
 	private $repository;
 	
+	/**
+	 *
+	 * @var int
+	 */
 	private $id;
-	private $path;
-	private $name;
-	private $description;
-	private $type;
-	private $size;
-	private $author;
-	private $competition;
 	
-	private $iconPath;
+	/**
+	 *
+	 * @var string
+	 */
+	private $path;
+	
+	/**
+	 *
+	 * @var string
+	 */
+	private $name;
+	
+	/**
+	 *
+	 * @var string
+	 */
+	private $description;
+	
+	/**
+	 *
+	 * @var \FileType
+	 */
+	private $type;
+	
+	/**
+	 *
+	 * @var int
+	 */
+	private $size;
+	
+	/**
+	 *
+	 * @var User
+	 */
+	private $author;
+	
+	/**
+	 *
+	 * @var int
+	 */
+	private $competition;	
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $categories;
 	
 	public function __construct($id) {

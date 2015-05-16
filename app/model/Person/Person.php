@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Description of Person
+ * Person
+ * 
+ * třída pro správu osob a účastníků
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -14,17 +16,72 @@ class Person extends Nette\Object {
 	const ID_MALE = 1;
 	const ID_FEMALE = 0;
 	
+	/**
+	 *
+	 * @var int ID osoby z ISu 
+	 */
 	private $personId;
+	
+	/**
+	 *
+	 * @var \PersonRepository
+	 */
 	private $repository;
+	
+	/**
+	 *
+	 * @var int jedinečné ID účasníka
+	 */
 	private $systemId;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $firstName;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $lastName;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $nickName;
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $sex;
+	
+	/**
+	 *
+	 * @var DateTime
+	 */
 	private $birthday;
-	private $unit;	
+	
+	/**
+	 *
+	 * @var \Unit
+	 */
+	private $unit;
+	
+	/**
+	 *
+	 * @var int ID hlídky
+	 */
 	private $watch;
-	private $roles = array(); //Key - ID race, Value - ID role
+	
+	/**
+	 * Pole rolí (hodnota) v jednotlivých závodech(klíč)
+	 * 
+	 * @var int[]
+	 */
+	private $roles = array();
 	
 	public function __construct($personId) {
 		$this->personId = $personId;
@@ -105,12 +162,8 @@ class Person extends Nette\Object {
 		return $this->watch;
 	}
 	
-	/**
-	 * 
-	 * @param int $watch watch ID
-	 */
-	public function setWatch($watch) {
-		$this->watch = $watch;
+	public function setWatch($watchId) {
+		$this->watch = $watchId;
 	}
 	
 	public function getRoleName($raceId) {		

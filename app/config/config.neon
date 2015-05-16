@@ -69,8 +69,6 @@ services:
 	- CommentDbMapper
 	- FileDbMapper
 	- FileRepository
-	- MailRepository
-	- MailDbMapper
 	- PersonIsMapper
 	- PhotoRepository
 	- PhotoDbMapper

@@ -45,7 +45,15 @@ class PhotoPresenter extends BasePresenter {
 	public $paginator;
 	
 	private $raceId;
+	/**
+	 *
+	 * @var string výchozí akce pro stránkování
+	 */
 	private $actionPaginator;
+	/**
+	 *
+	 * @var array parametry pro URL při stránkování
+	 */
 	protected $params = array();
 	private $edit;
 	private $page;
@@ -92,8 +100,9 @@ class PhotoPresenter extends BasePresenter {
 	
 	public function renderDefault($photoId, $page) {		
 		$this->page = $this->getParameter('page');
+		//nastavení stránkování
 		if ($this->paginator->itemCount === NULL) {
-			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator = new Nette\Utils\Paginator();
 			$this->paginator->setItemCount($this->photoRepository->countAllPublic());
 			$this->paginator->setItemsPerPage(6); 
 			$this->paginator->setPage($this->page);
@@ -110,9 +119,10 @@ class PhotoPresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		//nastavení stránkování
 		$this->page = $this->getParameter('page');
 		if ($this->paginator->itemCount === NULL) {
-			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator = new Nette\Utils\Paginator();
 			$this->paginator->setItemCount($this->photoRepository->countAllAuthor($this->user->id));
 			$this->paginator->setItemsPerPage(6); 
 			$this->paginator->setPage($this->page);
@@ -130,9 +140,10 @@ class PhotoPresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 		$this->raceId = $race;
+		//nastavení stránkování
 		$this->page = $this->getParameter('page');
 		if ($this->paginator->itemCount === NULL) {
-			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator = new Nette\Utils\Paginator();
 			$this->paginator->setItemCount($this->photoRepository->countAllRace($this->raceId));
 			$this->paginator->setItemsPerPage(6); 
 			$this->paginator->setPage($this->page);
@@ -151,6 +162,7 @@ class PhotoPresenter extends BasePresenter {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}		
 		$photo = $this->photoRepository->getPhoto($photoId);
+		//mazat může autor, administrátoři a editoři závodu pro foto ze svého závodu
 		if (!$this->user->isInRole('admin') 
 				&& ($photo->author->id != $this->user->id)
 				&& !($this->user->isInRole('raceManager') && in_array($photo->race, $this->user->identity->data["races"]))) {
@@ -167,6 +179,7 @@ class PhotoPresenter extends BasePresenter {
 			if (!$this->user->isLoggedIn()) {
 				throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 			}		
+			//upravovat může autor, administrátoři a editoři závodu pro foto ze svého závodu
 			$photo = $this->photoRepository->getPhoto($photoId);			
 			if (!$this->user->isInRole('admin') 
 					&& ($photo->author->id != $this->user->id)

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of PhotoRepository
+ * PhotoRepository
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -41,8 +41,10 @@ class PhotoRepository {
 	}	
 	
 	public function deletePhoto($id) {
+		//smazání souboru a náhledu
 		unlink("." . $this->getPath($id));
 		unlink("." . $this->getThumbPath($id));
+		//vymazání z databáze
 		$this->dbMapper->deletePhoto($id);
 	}
 	

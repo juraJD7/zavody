@@ -1,12 +1,19 @@
 <?php
 
 /**
- * Description of FileDbMapper
+ * FileDbMapper
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class FileDbMapper extends BaseDbMapper {
 
+	/**
+	 * Vrátí soubor
+	 * 
+	 * @param int $id
+	 * @return \File
+	 * @throws Race\DbNotStoredException
+	 */
 	public function getFile($id) {
 		$row = $this->database->table('file')->get((int)$id);
 		if(!$row) {
@@ -24,15 +31,29 @@ class FileDbMapper extends BaseDbMapper {
 		return $file;
 	}
 	
-	public function getFiles($repository, $paginator, $category = null) {	
-		
-		if (!is_null($category) && !empty($category)) {
-			return $this->getFilesByCategory($repository, $paginator, $category);
-		}
+	/**
+	 * Vrátí všechny soubory
+	 * 
+	 * @param FileRepository $repository
+	 * @param Nette\Utils\Paginator $paginator
+	 * @param int $category Omezí výběr na kategorii
+	 * @return Files[]
+	 */
+	public function getFiles($repository, $paginator, $category = null) {
 		$table = $this->database->table('file')
 				->where('competition', $this->competition)
 				->order('id DESC')
-				->limit($paginator->getLength(), $paginator->getOffset());	
+				->limit($paginator->getLength(), $paginator->getOffset());
+		if (!empty($category)) {
+			$join =  $this->database->table('category_file')
+				->where('category_id', $id);				
+			$fileIds = array();
+			foreach ($join as $row) {
+				$fileIds[] = $row->file_id;
+			}
+			$table = $table->where('id IN', $fileIds);
+		}
+		$table = $table->limit($paginator->getLength(), $paginator->getOffset());
 		$files = array();
 		foreach ($table as $row) {
 			$file = $this->getFile($row->id);
@@ -42,6 +63,14 @@ class FileDbMapper extends BaseDbMapper {
 		return $files;
 	}
 	
+	/**
+	 * Vrátí soubory podle autora
+	 * 
+	 * @param FileRepository $repository
+	 * @param Nette\Utils\Paginator $paginator
+	 * @param int $userId
+	 * @return File[]
+	 */
 	public function getFilesByAuthor(FileRepository $repository, $paginator, $userId) {
 		$table = $this->database->table('file')
 				->where('author', $userId)
@@ -57,6 +86,11 @@ class FileDbMapper extends BaseDbMapper {
 		return $files;
 	}
 
+	/**
+	 * Vrátí pole povolených MIME typů
+	 * 
+	 * @return string[]
+	 */
 	public function getWhiteList() {
 		$table = $this->database->table('whitelist');
 		$whiteList = array();
@@ -66,6 +100,11 @@ class FileDbMapper extends BaseDbMapper {
 		return $whiteList;
 	}
 	
+	/**
+	 * Vrátí pole všech povolených druhů souboru
+	 * 
+	 * @return \FileType[]
+	 */
 	public function getFileTypes() {
 		$table = $this->database->table('whitelist');
 		$fileTypes = array();
@@ -75,22 +114,36 @@ class FileDbMapper extends BaseDbMapper {
 		return $fileTypes;
 	}
 	
+	/**
+	 * Smaže druh souboru podle zadaného mime typu
+	 * 
+	 * @param string $mime Mime typ souboru
+	 */
 	public function deleteFileType($mime) {
 		$row = $this->database->table('whitelist')
 			->where('mime', $mime);
+		// smazání ikony, pokud existuje
 		$path = $row->fetch()->path;
 		if ($path != "default.png") {
 			unlink( "./" . \File::ICONDIR . $path);
 		}
 		$files = $this->database->table('file')
 				->where('type', $mime);
+		//smazání všech nově nepovolených souborů
 		foreach ($files as $file) {
 			unlink (\FileRepository::BASEDIR . $file->path);
 		}
 		$files->delete();
+		//smazání druhu souboru
 		$row->delete();
 	}	
 	
+	/**
+	 * Vrátí seznam kategorií podle souboru
+	 * 
+	 * @param int $id ID souboru
+	 * @return \Category[]
+	 */
 	public function getCatogoriesByFile($id) {
 		$join =  $this->database->table('category_file')
 					->where('file_id', $id);
@@ -105,29 +158,13 @@ class FileDbMapper extends BaseDbMapper {
 			$categories[] = $category;
 		}
 		return $categories;
-	}
+	}	
 	
-	public function getFilesByCategory($repository,  $paginator, $id) {
-		$join =  $this->database->table('category_file')
-				->where('category_id', $id);				
-		$fileIds = array();
-		foreach ($join as $row) {
-			$fileIds[] = $row->file_id;
-		}
-		$table = $this->database->table('file')
-				->where('id IN', $fileIds)
-				->where('competition', $this->competition)
-				->order('id DESC')
-				->limit($paginator->getLength(), $paginator->getOffset());
-		$files = array();
-		foreach ($table as $row) {			
-			$file = $this->getFile($row->id);
-			$file->repository = $repository;			
-			$files[] = $file;			
-		}
-		return $files;		
-	}
-	
+	/**
+	 * Smaže soubor
+	 * 
+	 * @param int $id
+	 */
 	public function deleteFile($id) {
 		$this->database->table('category_file')
 				->where('file_id', $id)
@@ -137,8 +174,14 @@ class FileDbMapper extends BaseDbMapper {
 				->delete();
 	}
 	
+	/**
+	 * Vrátí počet souborů
+	 * 
+	 * @param int $category Omezí výběr na kategorii
+	 * @return int
+	 */
 	public function countAll($category) {
-		if (!is_null($category) && !empty($category)) {
+		if (!empty($category)) {
 			$table = $this->database->table('category_file')
 					->where('category_id',$category);
 			$counter = 0;
@@ -156,6 +199,12 @@ class FileDbMapper extends BaseDbMapper {
 				->count();
 	}
 	
+	/**
+	 * Vrátí počet souborů podle autora
+	 * 
+	 * @param int $userId
+	 * @return int
+	 */
 	public function countAllAuthor($userId) {
 		return $this->database->table('file')
 				->where('author', $userId)
