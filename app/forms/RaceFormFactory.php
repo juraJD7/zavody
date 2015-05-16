@@ -51,6 +51,7 @@ class RaceFormFactory extends BaseFormFactory {
 	public function create()
 	{		
 		$form = new Form;
+		$form->addProtection();
 		
 		$form->addGroup('Základní nastavení');
 		$form->addText("name", "Název kola* :")

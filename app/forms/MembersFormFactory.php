@@ -61,7 +61,8 @@ class MembersFormFactory extends BaseFormFactory {
 	 */
 	public function create() {
 		
-		$form = new Form;	
+		$form = new Form;
+		$form->addProtection();
 		//načtení střediska z editované hlídky nebo 
 		//ze session při vytváření hlídky nové
 		if (!isset($this->id)) {			

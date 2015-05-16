@@ -49,6 +49,7 @@ class FileFormFactory extends BaseFormFactory {
 		}
 		
 		$form = new Form;	
+		$form->addProtection();
 		
 		$checkboxList = new Controls\MyCheckboxList();
 		$checkboxList->setItems($items);

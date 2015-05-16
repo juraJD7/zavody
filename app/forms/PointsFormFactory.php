@@ -47,6 +47,7 @@ class PointsFormFactory extends BaseFormFactory {
 	{	
 		
 		$form = new Nette\Application\UI\Form();
+		$form->addProtection();
 		$form->addSubmit('send', 'Uložit a odeslat ke schválení veliteli');
 		$form->onSuccess[] = array($this, 'formSucceeded');
 

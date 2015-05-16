@@ -64,6 +64,7 @@ class WatchFormFactory extends BaseFormFactory {
 	 */
 	public function create() {
 		$form = new Form;
+		$form->addProtection();
 		if(is_null($this->id)) {
 			$form->addSelect("race", "Závod *: ", $this->loadRaces())
 				->setPrompt("-- vyber závod --")

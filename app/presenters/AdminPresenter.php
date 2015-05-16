@@ -38,7 +38,7 @@ class AdminPresenter extends BasePresenter {
 
 	public function createComponentAddAdminForm() {		
 		$form = new Form();
-
+		$form->addProtection();
 		$users = $this->userRepository->loadNonAdminUsers();
 		$items = array();
 		foreach ($users as $user) {
@@ -64,7 +64,7 @@ class AdminPresenter extends BasePresenter {
 	
 	public function createComponentWhiteListForm() {
 		$form = new Form();	
-		
+		$form->addProtection();
 		$form->addGroup("Přídání nového typu souboru");
 		$form->addText('title', "Titulek");
 		$form->addText('mime', "MIME type");
@@ -95,7 +95,7 @@ class AdminPresenter extends BasePresenter {
 	
 	public function createComponentAddCategoryForm() {
 		$form = new Form();		
-		
+		$form->addProtection();
 		$form->addGroup("Přídání nové kategorie");
 		$form->addText('name', "Jméno: ");
 		$form->addText('short', "Zkratka: ");
@@ -113,7 +113,7 @@ class AdminPresenter extends BasePresenter {
 	
 	public function createComponentAddSeasonForm() {
 		$form = new Form();		
-		
+		$form->addProtection();
 		$form->addGroup("Založení nového ročníku");
 		$form->addText('year', "Rok: ")
 				->setType('number');
