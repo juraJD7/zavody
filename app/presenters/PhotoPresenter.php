@@ -5,7 +5,7 @@ namespace App\Presenters;
 use Nette;
 
 /**
- * Description of PhotoPresenter
+ * PhotoPresenter
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -45,14 +45,18 @@ class PhotoPresenter extends BasePresenter {
 	public $paginator;
 	
 	private $raceId;
+	
 	/**
+	 * Výchozí akce pro stránkování
 	 *
-	 * @var string výchozí akce pro stránkování
+	 * @var string 
 	 */
 	private $actionPaginator;
+	
 	/**
-	 *
-	 * @var array parametry pro URL při stránkování
+	 * Parametry pro URL při stránkování
+	 * 
+	 * @var array
 	 */
 	protected $params = array();
 	private $edit;

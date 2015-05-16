@@ -1,22 +1,70 @@
 <?php
 
 /**
- * Description of Question
+ * Question
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class Question extends \Nette\Object {
 	
+	/**
+	 *
+	 * @var QuestionRepository 
+	 */
 	private $repository;
 	
+	/**
+	 *
+	 * @var int
+	 */
 	private $id;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $text;
+	
+	/**
+	 *
+	 * @var User
+	 */
 	private $author;
+	
+	/**
+	 *
+	 * @var DateTime
+	 */
 	private $posted;
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $race;
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $season;
+	
+	/**
+	 *
+	 * @var Answer[]
+	 */
 	private $answers;
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $adminOnly;
+	
+	/**
+	 *
+	 * @var Category[]
+	 */
 	private $categories = array();
 	
 	public function __construct($id) {

@@ -44,9 +44,10 @@ class FileDbMapper extends BaseDbMapper {
 				->where('competition', $this->competition)
 				->order('id DESC')
 				->limit($paginator->getLength(), $paginator->getOffset());
+		//pokud je zadaná kategorie
 		if (!empty($category)) {
 			$join =  $this->database->table('category_file')
-				->where('category_id', $id);				
+				->where('category_id', $category);				
 			$fileIds = array();
 			foreach ($join as $row) {
 				$fileIds[] = $row->file_id;
@@ -185,15 +186,18 @@ class FileDbMapper extends BaseDbMapper {
 			$table = $this->database->table('category_file')
 					->where('category_id',$category);
 			$counter = 0;
+			//prochází se pouze soubory se zvolenou kategorií
 			foreach ($table as $row) {
 				$file = $this->database->table('file')
 						->get($row->file_id);
+				//pokud patří do aktuální soutěže, započítá se
 				if ($file->competition == $this->competition) {
 					$counter++;
 				}						
 			}
 			return $counter;
-		}		
+		}	
+		//pokud není zadána kategorie, sečtou se všechyn záznamy aktuální soutěže
 		return $this->database->table('file')
 				->where('competition', $this->competition)
 				->count();

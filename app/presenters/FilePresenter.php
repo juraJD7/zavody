@@ -6,7 +6,7 @@ use Nette;
 	
 
 /**
- * Description of FilePresenter
+ * FilePresenter
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -33,14 +33,16 @@ class FilePresenter extends BasePresenter {
 	public $paginator;
 	
 	/**
-	 *
-	 * @var string výchozí akce při stránkování
+	 * Výchozí akce při stránkování
+	 * 
+	 * @var string
 	 */
 	private $actionPaginator;
 	
 	/**
-	 *
-	 * @var array parametry pro URL při stránkování
+	 * Parametry pro URL při stránkování
+	 * 
+	 * @var array
 	 */
 	protected $params = array();
 	

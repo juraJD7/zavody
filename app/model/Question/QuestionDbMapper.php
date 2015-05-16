@@ -1,12 +1,19 @@
 <?php
 
 /**
- * Description of QuestionDbMapper
+ * QuestionDbMapper
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class QuestionDbMapper extends BaseDbMapper {		
 	
+	/**
+	 * Vrátí otázku
+	 * 
+	 * @param int $id
+	 * @return \Question
+	 * @throws Race\DbNotStoredException
+	 */
 	public function getQuestion($id) {
 		$row = $this->database->table('question')->get((int)$id);
 		if(!$row) {
@@ -22,16 +29,31 @@ class QuestionDbMapper extends BaseDbMapper {
 		return $question;
 	}
 	
+	/**
+	 * Vrátí otázky podle kritérií
+	 * 
+	 * @param QuestionRepository $repository
+	 * @param Nette\Utils\Paginator $paginator
+	 * @param int $adminOnly
+	 * @param int $category
+	 * @return Question[]
+	 */
 	public function getQuestions($repository, $paginator, $adminOnly, $category = null) {			
-		if (!is_null($category) && !empty($category)) {
-			return $this->getQuestionsByCategory($repository, $paginator, $adminOnly, $category);
-		}
 		$table = $this->database->table('question')
 				->where('admin_only', $adminOnly)
 				->where('race', NULL)
 				->where('season', $this->season)
-				->order('changed DESC')
-				->limit($paginator->getLength(), $paginator->getOffset());	
+				->order('changed DESC');
+		if (!empty($category)) {
+			$join =  $this->database->table('category_question')
+					->where('category_id', $category);
+			$questionIds = array();
+			foreach ($join as $row) {
+				$questionIds[] = $row->question_id;
+			}
+			$table = $table->where('id IN', $questionIds);
+		}
+		$table = $table->limit($paginator->getLength(), $paginator->getOffset());
 		$questions = array();
 		foreach ($table as $row) {
 			$question = $this->getQuestion($row->id);
@@ -41,6 +63,14 @@ class QuestionDbMapper extends BaseDbMapper {
 		return $questions;
 	}
 	
+	/**
+	 * Vrátí otázky podle autora
+	 * 
+	 * @param QuestionRepository $repository
+	 * @param Nette\Utils\Paginator $paginator
+	 * @param int $userId
+	 * @return Question[]
+	 */
 	public function getQuestionsByAuthor(QuestionRepository $repository, $paginator, $userId) {
 		$table = $this->database->table('question')
 				->where('author', $userId)
@@ -56,6 +86,14 @@ class QuestionDbMapper extends BaseDbMapper {
 		return $questions;
 	}
 	
+	/**
+	 * Vrátí otázky týkající se závodu
+	 * 
+	 * @param QuestionRepository $repository
+	 * @param Nette\Utils\Paginator $paginator
+	 * @param int $raceId
+	 * @return Question[]
+	 */
 	public function getQuestionsByRace(QuestionRepository $repository, $paginator, $raceId) {
 		$table = $this->database->table('question')
 				->where('race', $raceId)
@@ -70,6 +108,12 @@ class QuestionDbMapper extends BaseDbMapper {
 		return $questions;
 	}
 	
+	/**
+	 * Vrátí pole kategorií podle otázky
+	 * 
+	 * @param int $id
+	 * @return \Category
+	 */
 	public function getCategoriesByQuestion($id) {
 		$join =  $this->database->table('question')
 				->get($id)
@@ -87,53 +131,51 @@ class QuestionDbMapper extends BaseDbMapper {
 		return $categories;
 	}
 	
-	public function getQuestionsByCategory($repository, $paginator, $adminOnly, $id) {
-		$join =  $this->database->table('category_question')
-					->where('category_id', $id);			
-				
-		$questionIds = array();
-		foreach ($join as $row) {
-			$questionIds[] = $row->question_id;
-		}
-		$table = $this->database->table('question')
-				->where('id IN', $questionIds)
-				->where('season', $this->season)
-				->order('changed DESC')
-				->limit($paginator->getLength(), $paginator->getOffset());
-		$questions = array();
-		foreach ($table as $row) {			
-			$question = $this->getQuestion($row->id);
-			$question->repository = $repository;
-			if ($question->adminOnly == $adminOnly) {
-				$questions[] = $question;
-			}
-		}
-		return $questions;
-	}
-	
+	/**
+	 * Smaže otázku
+	 * 
+	 * @param int $id
+	 */
 	public function deleteQuestion($id) {
+		//smazání všech kategorií
 		$this->database->table('category_question')
 				->where('question_id', $id)
 				->delete();
-		$this->database->table('question')
+		//smazání komentářů
+		$this->database->table('answer')
+				->where('question', $id)
+				->delete();
+		//smazání otázky
+		return $this->database->table('question')
 				->where('id', $id)
 				->delete();
 	}
 	
+	/**
+	 * Vrátí počet otázek ve zvoleném ročníku
+	 * 
+	 * @param int $adminOnly
+	 * @param int $category
+	 * @return int
+	 */
 	public function countAll($adminOnly, $category = NULL) {
-		if (!is_null($category) && !empty($category)) {
+		if (!empty($category)) {
 			$table = $this->database->table('category_question')
 					->where('category_id',$category);	
 			$counter = 0;
 			foreach ($table as $row) {
 				$question = $this->database->table('question')
 					->get($row->question_id);
-				if ($question->admin_only == $adminOnly && $question->season == $this->season) {
+				if ($question->admin_only == $adminOnly && $question->season == $this->season && is_null($question->race)) {
 					$counter++;
 				}
 			}
 			return $counter;
 		}
+		/**
+		 * pokud není zadaná kategorie, sečtou se všechny záznamy pro účastníky, které nepatří
+		 * k žádnému závodu a patří do aktuálního ročníku
+		 */
 		return $this->database->table('question')
 				->where('admin_only', $adminOnly)
 				->where('season', $this->season)
@@ -141,6 +183,12 @@ class QuestionDbMapper extends BaseDbMapper {
 				->count();
 	}
 	
+	/**
+	 * Vrátí počet otázek položených vybraným autorem
+	 * 
+	 * @param int $userId
+	 * @return int
+	 */
 	public function countAllAuthor($userId) {		
 		return $this->database->table('question')
 				->where('season', $this->season)
@@ -148,12 +196,24 @@ class QuestionDbMapper extends BaseDbMapper {
 				->count();
 	}	
 	
+	/**
+	 * Vrátí počet otázek položených k vybranému závodu
+	 * 
+	 * @param int $raceId
+	 * @return int
+	 */
 	public function countAllRace($raceId) {		
 		return $this->database->table('question')
 				->where('race', $raceId)
 				->count();
 	}	
 	
+	/**
+	 * Vrátí odpovědi k otázce
+	 * 
+	 * @param int $id ID otázky
+	 * @return \Answer[]
+	 */
 	public function loadAnswers($id) {		
 		$table = $this->database->table('answer')
 				->where('question',$id)
@@ -170,6 +230,12 @@ class QuestionDbMapper extends BaseDbMapper {
 		return $answers;
 	}
 	
+	/**
+	 * Vrátí počet nezodpovězených otázek k závodu
+	 * 
+	 * @param int $id ID závodu
+	 * @return int
+	 */
 	public function getNumUnansweredQuestion($id) {
 		$questions = $this->database->table('question')
 				->where('race', $id);

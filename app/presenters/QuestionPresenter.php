@@ -48,7 +48,18 @@ class QuestionPresenter extends BasePresenter {
 	
 	private $adminOnly;
 	private $raceId;
+	/**
+	 * Výchozí akce pro stránkování
+	 * 
+	 * @var string 
+	 */
 	private $actionPaginator;
+	
+	/**
+	 * Parametry pro URL při stránkování
+	 * 
+	 * @var array 
+	 */
 	protected $params = array();
 	private $questions;
 	private $category;
@@ -72,6 +83,7 @@ class QuestionPresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		//odpovídat může pouze administrátor nebo editor závodu
 		if (!$this->user->isInRole('admin')
 				&& !$this->user->isInRole('raceManager')) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
@@ -94,10 +106,11 @@ class QuestionPresenter extends BasePresenter {
 			$this->category = $this->getParameter('category');
 		}
 		
+		//nastavení stránkování
 		if ($this->paginator->itemCount === NULL) {		
-			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator = new Nette\Utils\Paginator();
 			$this->paginator->setItemCount($this->questionRepository->countAll(\BaseDbMapper::COMMON, $this->category));
-			$this->paginator->setItemsPerPage(10); 
+			$this->paginator->setItemsPerPage(1); 
 			$this->paginator->setPage($page);			
 		}
 		
@@ -118,13 +131,48 @@ class QuestionPresenter extends BasePresenter {
 		$this->template->categories = $this->questionRepository->getAllCategories('question');		
 	}
 	
+	/**
+	 * Signál pro smazání otázky
+	 * 
+	 * @param int $questionId
+	 * @throws Nette\Security\AuthenticationException
+	 * @throws \Race\PermissionException
+	 */
+	public function handleDelete($questionId) {		
+		if (!$this->user->isLoggedIn()) {
+			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
+		}	
+		//mazat otázku může autor otázky, admin nebo editor závodu pro svůj závod
+		$question = $this->questionRepository->getQuestion((int)$questionId);
+		if ($question->author->id != $this->user->id 
+				&& !$this->user->isInRole('admin') 
+				&& !($this->user->isInRole('raceManager') && in_array($question->race, $this->user->identity->data["races"]))) {
+			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
+		}
+		$result = $this->questionRepository->deleteQuestion($questionId);
+		//informace o výsledku
+		if(!$result) {
+			$this->error("Otázku se nepodařilo smazat!");
+		}
+		$this->flashMessage("Otázka byl smazán.");
+		$this->redirect("Question:");		
+	}
+	
+	/**
+	 * Otázky pro administrátory
+	 * 
+	 * @throws Nette\Security\AuthenticationException
+	 * @throws \Race\PermissionException
+	 */
 	public function renderAdmin() {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}		
+		//přístup mají pouze administrátoři a editoři kol
 		if (!$this->user->isInRole('admin') && !$this->user->isInRole('raceManager')) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
+		//automatické nastavení orázek na "jen pro administrátory"
 		$this->adminOnly = 1;
 		
 		$page = $this->getParameter('page');
@@ -132,9 +180,9 @@ class QuestionPresenter extends BasePresenter {
 		if (is_null($this->category)) {
 			$this->category = $this->getParameter('category');
 		}
-
+		//nastavení stránkování
 		if ($this->paginator->itemCount === NULL) {		
-			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator = new Nette\Utils\Paginator(); 
 			$this->paginator->setItemCount($this->questionRepository->countAll(\BaseDbMapper::ADMIN_ONLY, $this->category));
 			$this->paginator->setItemsPerPage(10); 
 			$this->paginator->setPage($page);			
@@ -165,8 +213,9 @@ class QuestionPresenter extends BasePresenter {
 		}
 		$this->adminOnly = 0;		
 		$page = $this->getParameter('page');
-
-		$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+		
+		//stránkování
+		$paginator = new Nette\Utils\Paginator();
 		$paginator->setItemCount($this->questionRepository->countAllAuthor($this->user->id));
 		$paginator->setItemsPerPage(10); 
 		$paginator->setPage($page);	
@@ -181,8 +230,9 @@ class QuestionPresenter extends BasePresenter {
 		$this->adminOnly = 0;
 		$this->raceId = $id;
 		$page = $this->getParameter('page');	
-
-		$paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+		
+		//stránkování
+		$paginator = new Nette\Utils\Paginator();
 		$paginator->setItemCount($this->questionRepository->countAllRace($this->raceId));
 		$paginator->setItemsPerPage(10); 
 		$paginator->setPage($page);	

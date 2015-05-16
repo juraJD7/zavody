@@ -23,7 +23,11 @@
 
 {foreach $questions as $question}
 	<div class="panel panel-default">
-		<div class="panel-heading">{$question->author->userName}, dne: {$question->posted|date:'d.m.Y H:i'}</div>
+		<div class="panel-heading">{$question->author->userName}, dne: {$question->posted|date:'d.m.Y H:i'}
+		{if $user->id == $question->author->id || $user->isInRole('admin') || ($user->isInRole('raceManager') && in_array($question->race, $user->identity->data['races']))}
+			<a n:href="delete! $question->id" class="ajax">Smazat otázku</a>	
+		{/if}
+		</div>
 		<div class="panel-body">
 		  {$question->text}
 		   <table class="table">

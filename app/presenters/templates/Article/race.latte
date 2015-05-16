@@ -3,7 +3,7 @@
 <h2>Články závodu {$race->name}</h2>
 
 
-{if $user->isInRole('admin') || $user->isInRole('raceManager') && in_array($race->id, $user->identity->data["races"])}
+{if $user->isInRole('admin') || $user->isInRole('raceManager') && in_array($race->id, $user->identity->data['races'])}
 	<p>
 	<a n:href="Article:create $race->id">>>Přidat článek k závodu</a>	
 	</p>
@@ -32,7 +32,7 @@
 			{/if}
 				</em>
 				<br />
-				{if $user->id == $article->author->id || $user->isInRole('admin')  || ($user->isInRole('raceManager') && in_array($article->race, $user->identity->data["races"]))}
+				{if $user->id == $article->author->id || $user->isInRole('admin')  || ($user->isInRole('raceManager') && in_array($article->race, $user->identity->data['races']))}
 					<a n:href="Article:edit $article->id">Upravit</a> <a n:href="delete! $article->id">Smazat</a>
 				{/if}
 			</small></h4>

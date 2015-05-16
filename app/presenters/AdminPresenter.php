@@ -6,7 +6,7 @@ use Nette,
 	Nette\Application\UI\Form;
 
 /**
- * Description of AdminPresenter
+ * AdminPresenter
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */

@@ -1,16 +1,42 @@
 <?php
 
 /**
- * Description of Answer
+ * Answer
+ * 
+ * Odpovědi na otázky a dotazy
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class Answer extends \Nette\Object {
 	
+	/**
+	 *
+	 * @var int
+	 */
 	private $id;
+	
+	/**
+	 *
+	 * @var int ID otázky
+	 */
 	private $question;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $text;
+	
+	/**
+	 *
+	 * @var User
+	 */
 	private $author;
+	
+	/**
+	 *
+	 * @var DateTime;
+	 */
 	private $posted;
 	
 	public function __construct($id) {

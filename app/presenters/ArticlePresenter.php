@@ -8,7 +8,7 @@ use Nette,
 
 
 /**
- * Description of ArticlePresenter
+ * ArticlePresenter
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of QuestionRepository
+ * QuestionRepository
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -44,7 +44,7 @@ class QuestionRepository {
 	}
 	
 	public function deleteQuestion($id) {
-		$this->dbMapper->deleteQuestion($id);
+		return $this->dbMapper->deleteQuestion($id);
 	}
 	
 	public function countAll($adminOnly = 0, $category = NULL) {
