@@ -7,10 +7,34 @@
  */
 class Season extends Nette\Object {
 	
+	/**
+	 *
+	 * @var int
+	 */
 	private $id;
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $year;
+	
+	/**
+	 *
+	 * @var \Competition
+	 */
 	private $competition;
+	
+	/**
+	 *
+	 * @var DateTime
+	 */
 	private $runnerAge;
+	
+	/**
+	 *
+	 * @var DateTime
+	 */
 	private $guideAge;
 	
 	public function __construct($id) {

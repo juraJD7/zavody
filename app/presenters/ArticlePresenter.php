@@ -59,12 +59,19 @@ class ArticlePresenter extends BasePresenter {
 	private $page;
 	private $adminOnly;
 	private $actionPaginator;
+	
+	/**
+	 * Parametry URL při stránkování
+	 * 
+	 * @var array 
+	 */
 	protected $params = array();
 	private $articles;
 	private $category;	
 	
 	/**
-	 * Article form factory
+	 * Formulář článku
+	 * 
 	 * @return Nette\Application\UI\Form
 	 */
 	protected function createComponentArticleForm()
@@ -74,7 +81,8 @@ class ArticlePresenter extends BasePresenter {
 		}		
 		if (!$this->user->isInRole('admin') && !$this->user->isInRole('raceManager')) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
-		}		
+		}	
+		// v přápadě editace článku zjištění ID z url
 		$articleId = $this->getParameter('articleId');
 		$this->articleFactory->setAdminOnly($this->adminOnly);		
 		$this->articleFactory->setRace($this->raceId);
@@ -88,11 +96,17 @@ class ArticlePresenter extends BasePresenter {
 		return $form;
 	}
 	
+	/**
+	 * Formulář pro nový komentář
+	 * 
+	 * @return Nette\Application\UI\Form
+	 */
 	protected function createComponentCommentForm()
 	{
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		//zjištšní ID článku z URL
 		$article = $this->getParameter('articleId');
 		$this->commentFactory->setArticle($article);
 		$form = $this->commentFactory->create();
@@ -103,15 +117,20 @@ class ArticlePresenter extends BasePresenter {
 		return $form;		
 	}
 	
+	/**
+	 * Formulář pro editaci formuláře 
+	 * 
+	 * @return Nette\Application\UI\Form
+	 */
 	protected function createComponentEditComment()
 	{
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}		
-		$commentId = $this->getParameter('commentId');
-		//if ($this->commentId) {
-			$comment = $this->commentRepository->getComment($commentId);
-		//}
+		//zjištění ID komentáře z URL
+		$commentId = $this->getParameter('commentId');		
+		$comment = $this->commentRepository->getComment($commentId);
+		
 		if ($comment->author->id != $this->user->id) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}		
@@ -140,10 +159,12 @@ class ArticlePresenter extends BasePresenter {
 		$this->template->categories = $this->articleRepository->getAllCategories('article');
 		$page = $this->getParameter('page');
 		$this->category = $this->getParameter('category');
+		
+		//pokud ještě není nastaveno, nastaví parametry pro stránkování
 		if ($this->paginator->itemCount === NULL) {		
-			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator = new Nette\Utils\Paginator();
 			$this->paginator->setItemCount($this->articleRepository->countAll(\BaseDbMapper::COMMON, $this->category));
-			$this->paginator->setItemsPerPage(1); 
+			$this->paginator->setItemsPerPage(5); 
 			$this->paginator->setPage($page);			
 		}
 		$this->params['category'] = $this->category;
@@ -164,10 +185,12 @@ class ArticlePresenter extends BasePresenter {
 		$this->template->categories = $this->articleRepository->getAllCategories('article');
 		$page = $this->getParameter('page');
 		$this->category = $this->getParameter('category');
+		
+		//pokud ještě není nastaveno, nastaví parametry pro stránkování
 		if ($this->paginator->itemCount === NULL) {		
-			$this->paginator = new Nette\Utils\Paginator(); //bez tohoto řádku to hází error na produkci. Proč?
+			$this->paginator = new Nette\Utils\Paginator();
 			$this->paginator->setItemCount($this->articleRepository->countAll(\BaseDbMapper::ADMIN_ONLY, $this->category));
-			$this->paginator->setItemsPerPage(1); 
+			$this->paginator->setItemsPerPage(5); 
 			$this->paginator->setPage($page);			
 		}
 		$this->params['category'] = $this->category;
@@ -208,10 +231,18 @@ class ArticlePresenter extends BasePresenter {
 		$this->template->articles = $this->articleRepository->getArticlesByRace($paginator, $id);		
 	}
 	
+	/**
+	 * Signál pro smazání článku
+	 * 
+	 * @param int $articleId
+	 * @throws Nette\Security\AuthenticationException
+	 * @throws \Race\PermissionException
+	 */
 	public function handleDelete($articleId) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
-		}		
+		}	
+		//mazat článek může autor, admin nebo editor závodu pro svůj závodu
 		$article = $this->articleRepository->getArticle($articleId);
 		if ($article->author->id != $this->user->id 
 				&& !$this->user->isInRole('admin') 
@@ -226,10 +257,20 @@ class ArticlePresenter extends BasePresenter {
 		$this->redirect("Article:");		
 	}
 	
+	/**
+	 * Signál pro smazání komentáře
+	 * 
+	 * @param int $article
+	 * @param int $commentId
+	 * @param int $page
+	 * @throws Nette\Security\AuthenticationException
+	 * @throws \Race\PermissionException
+	 */
 	public function handleDeleteComment($article, $commentId, $page) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		//mazat komentáře může autor, admin, nebo editor závodu pro svůj závod
 		$comment = $this->commentRepository->getComment($commentId);	
 		$art = $this->articleRepository->getArticle($article);
 		if ($comment->author->id != $this->user->id
@@ -270,7 +311,7 @@ class ArticlePresenter extends BasePresenter {
 		$page = $this->getParameter('page');
 		$paginator = new Nette\Utils\Paginator;
 		$paginator->setItemCount($this->commentRepository->countAll($articleId));
-		$paginator->setItemsPerPage(3); 
+		$paginator->setItemsPerPage(5); 
 		$paginator->setPage($page);
 		$this->template->paginator = $paginator;
 		$this->template->actionPaginator = "detail#comments";
@@ -289,7 +330,8 @@ class ArticlePresenter extends BasePresenter {
 		if (!$this->user->isInRole('admin') 
 				&& !($this->user->isInRole('raceManager') && in_array($article->race, $this->user->identity->data["races"]))) {
 			throw new \Race\PermissionException("Nemáte požadovaná oprávnění!");
-		}			
+		}
+		//nastavení výchozích hodnot pro editaci článku
 		$publish = (!is_null($article->published)) ? TRUE : FALSE;			
 		$this['articleForm']['title']->setDefaultValue($article->title);
 		$this['articleForm']['lead']->setDefaultValue($article->lead);

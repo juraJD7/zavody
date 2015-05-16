@@ -12,12 +12,16 @@ class ArticleRepository {
 	
 	const IMAGEPATH = "/img/articles/";
 
-
+	/**
+	 * 
+	 * @param ArticleDbMapper $dbMapper
+	 * @param CommentRepository $commentRepository
+	 */
 	public function __construct(ArticleDbMapper $dbMapper, CommentRepository $commentRepository) {
 		$this->dbMapper = $dbMapper;
 		$this->commentRepository = $commentRepository;
 	}
-
+	
 	public function getArticle($id) {		
 		$article = $this->dbMapper->getArticle($id);
 		$article->repository = $this;
@@ -64,6 +68,15 @@ class ArticleRepository {
 		return $this->dbMapper->getArticlesByRace($this, $paginator, $raceId);
 	}
 	
+	/**
+	 * Vrátí cestu k obrázku článku
+	 * 
+	 * Pokud existuje obrázek s ID článku, vrátí cestu k němu,
+	 * jinak vrátí cestu k výchozímu obrázku
+	 * 
+	 * @param int $articleId
+	 * @return string cesta k souboru
+	 */
 	public function getImage($articleId) {
 		$filename = self::IMAGEPATH . "$articleId" . ".jpg";
 		if (file_exists($filename)) {

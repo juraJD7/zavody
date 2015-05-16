@@ -1,14 +1,28 @@
 <?php
 
 /**
- * Description of Competition
+ * Competition
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class Competition extends Nette\Object {
 	
+	/**
+	 *
+	 * @var int
+	 */
 	private $id;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $name;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $short;
 	
 	public function __construct($id) {

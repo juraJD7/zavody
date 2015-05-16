@@ -92,7 +92,7 @@ class ArticleFormFactory extends BaseFormFactory {
 	{	
 		$values->race = $values->race ?: NULL;		
 		$status = $values->publish ? 1 : 0;
-		$published = $values->publish ? date("Y-m-d H:i:s") : NULL;
+		$dateTime = date("Y-m-d H:i:s");
 		$user = $this->skautIS->usr->UserDetail()->ID;
 		
 		// validace HTML dat
@@ -106,8 +106,8 @@ class ArticleFormFactory extends BaseFormFactory {
 			'title' => $values->title,
 			'lead' => $values->lead,
 			'text' => $cleanText,
-			'modified' => date("Y-m-d H:i:s"),
-			'changed' => date("Y-m-d H:i:s"),
+			'modified' => $dateTime,
+			'changed' => $dateTime,
 			'admin_only' => $values->admin_only,
 			'race' => $values->race,
 			'season' => $this->season
@@ -116,9 +116,12 @@ class ArticleFormFactory extends BaseFormFactory {
 		//uložení nebo aktualizace
 		if($this->id) {
 			$article = $this->database->table('article')->get($this->id);
+			if ($article->status == 0 && $status == 1) {
+				$data['published'] = $dateTime;
+			}
 			$article->update($data);
 		} else {
-			$data['published'] = $published;
+			$data['published'] = $dateTime;
 			$row = $this->database->table('article')->insert($data);
 			$this->id = $row->id;			
 		}

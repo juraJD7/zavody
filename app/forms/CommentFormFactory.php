@@ -65,7 +65,7 @@ class CommentFormFactory extends BaseFormFactory {
 			$article->update($data);
 		} else {
 			$data['posted'] = date("Y-m-d H:i:s");
-			$data['modified'] = NULL;
+			$data['modified'] = $data['posted'];
 			$this->database->table('comment')->insert($data);
 		}	
 		//aktualizace článku pro potřeby řazení podle nejpozdější změny

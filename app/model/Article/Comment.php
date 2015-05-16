@@ -7,14 +7,52 @@
  */
 class Comment extends Nette\Object {
 	
+	/**
+	 *
+	 * @var int 
+	 */
 	private $id;
+	
+	/**
+	 *
+	 * @var int 
+	 */
 	private $article;
+	
+	/**
+	 *
+	 * @var string 
+	 */
 	private $title;
+	
+	/**
+	 *
+	 * @var string 
+	 */
 	private $text;
+	
+	/**
+	 *
+	 * @var User 
+	 */
 	private $author;
+	
+	/**
+	 *
+	 * @var DateTime 
+	 */
 	private $posted;
+	
+	/**
+	 *
+	 * @var DateTime 
+	 */
 	private $modified;
 	
+	/**
+	 *
+	 * @var \CommentRepository 
+	 */
 	private $repository;
 	
 	public function __construct($id) {

@@ -1,16 +1,26 @@
 <?php
 
 /**
- * Description of AdminDbMapper
+ * AdminDbMapper
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
 class AdminDbMapper extends BaseDbMapper {
 	
+	/**
+	 * Vrátí tabulku soutěží
+	 * 
+	 * @return \Nette\Database\Selection
+	 */
 	public function getAllCompetitions() {
 		return $this->database->table('competition');
 	}
 	
+	/**
+	 * Vrátí pole všech ročníky v databázi
+	 * 
+	 * @return \Season[]
+	 */
 	public function getAllSeasons() {
 		$table = $this->database->table('season')
 				->order('id DESC');
@@ -26,6 +36,13 @@ class AdminDbMapper extends BaseDbMapper {
 		return $seasons;
 	}
 	
+	/**
+	 * Vrátí objekt soutěže podle zadaného ID
+	 * 
+	 * @param int $id
+	 * @return \Competition
+	 * @throws Race\DbNotStoredException
+	 */
 	public function getCompetition($id) {
 		$row = $this->database->table('competition')
 				->get($id);
@@ -38,6 +55,10 @@ class AdminDbMapper extends BaseDbMapper {
 		return $competition;
 	}
 	
+	/**
+	 * 
+	 * @return int ID výchozího ročníku
+	 */
 	public function getDefaultSeason() {
 		return $this->database->table('setting')
 				->get('season')

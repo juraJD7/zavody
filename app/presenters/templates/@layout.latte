@@ -85,7 +85,10 @@
 					<li><a n:href="Question:admin">Otázky pro organizátory</a></li>
 					{if $user->isInRole('admin')}
 					<li class="divider"></li>
-					<li><a  n:href="Admin:default">Administrace</a></li>
+					<li><a  n:href="Admin:default">Správa administrátorů</a></li>
+					<li><a  n:href="Admin:categories">Správa kategorií</a></li>
+					<li><a  n:href="Admin:season">Vytvoření nového ročníku</a></li>
+					<li><a  n:href="Admin:whitelist">Povolené typy souborů</a></li>
 					{/if}
 				</ul></li>
 			{/if}

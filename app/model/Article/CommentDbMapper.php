@@ -31,15 +31,16 @@ class CommentDbMapper extends BaseDbMapper {
 	}
 	
 	/**
+	 * Vrátí pole komentářů ke článku
 	 * 
 	 * @param Nette\Utils\Paginator $paginator
 	 * @param CommentRepository $repository
 	 * @param int $articleId
-	 * @return array of Comment
+	 * @return \Comment[]
 	 */
 	public function getComments(Nette\Utils\Paginator $paginator, CommentRepository $repository, $articleId) {
 		$rows = $this->database->table('comment')
-				->order('posted DESC');
+				->order('modified DESC');
 		if(!is_null($articleId)) {
 			$rows = $rows->where('article', $articleId);
 		}
@@ -54,6 +55,7 @@ class CommentDbMapper extends BaseDbMapper {
 	}
 	
 	/**
+	 * Vrátí počet komentářů
 	 * 
 	 * @param int $articleId
 	 * @return int
@@ -69,7 +71,7 @@ class CommentDbMapper extends BaseDbMapper {
 	/**
 	 * 
 	 * @param int $id ID komenráře
-	 * @return int
+	 * @return int počet smazaných řádků, FALSE v případě chyby
 	 */
 	public function delete($id) {
 		return $this->database->table('comment')

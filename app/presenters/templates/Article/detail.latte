@@ -6,10 +6,14 @@
 	<img src="{$article->image}" class="pull-left img-thumbnail">
 	<h4 class="media-heading">Vydal: {$article->author->userName}</h4>
 	<h4 class="media-heading"><small><em>
+	{if $article->status == Article::PUBLISHED}
 		Vydáno: {$article->published|date:'d.m.Y H:i'}
-			{if ($article->published < $article->modified)}
-				, aktualizováno: {$article->modified|date:'d.m.Y H:i'}
-			{/if}
+		{if ($article->published < $article->modified)}
+			, aktualizováno: {$article->modified|date:'d.m.Y H:i'}
+		{/if}
+	{else}
+		NEPUBLIKOVÁNO, poslední uložení: {$article->modified|date:'d.m.Y H:i'}
+	{/if}
 	</em>
 	<br />
 	{if $user->id == $article->author->id || $user->isInRole('admin')}

@@ -34,17 +34,35 @@ class ArticleDbMapper extends BaseDbMapper {
 		return $article;
 	}	
 	
-	public function getArticles(Nette\Utils\Paginator $paginator, ArticleRepository $repository, $adminOnly, $category) {
-		if (!is_null($category) && !empty($category)) {
-			return $this->getArticlesByCategory($repository, $paginator, $adminOnly, $category);
-		}		
+	/**
+	 * Vrátí pole článků, které nepatří k závodu
+	 * 
+	 * @param Nette\Utils\Paginator $paginator omezí výběr na stránku
+	 * @param ArticleRepository $repository
+	 * @param int $adminOnly TRUE vrátí články pro administrátory, FALSE pro účastníky
+	 * @param int $category omezí výběr na kategorii
+	 * @return \Article[]
+	 */
+	public function getArticles(Nette\Utils\Paginator $paginator, ArticleRepository $repository, $adminOnly, $category) {			
+		// výběr publikovaných článků bez vazby na závod z aktuálního ročníku
 		$rows = $this->database->table('article')
 				->where('admin_only', $adminOnly)
 				->where('race', NULL)
 				->where('season', $this->season)
 				->where('status', Article::PUBLISHED)
-				->order('changed DESC')
-				->limit($paginator->getLength(), $paginator->getOffset());	
+				->order('changed DESC');
+		// pokud je zadána kategorie
+		if (!empty($category)) {
+			$join =  $this->database->table('article_category')
+				->where('category_id', $category);				
+			$articleIds = array();
+			foreach ($join as $row) {
+				$articleIds[] = $row->article_id;
+			}
+			$rows = $rows->where('id IN', $articleIds);
+		}
+		//omezení stránkováním
+		$rows = $rows->limit($paginator->getLength(), $paginator->getOffset());	
 		$articles = array();
 		foreach ($rows as $row) {
 			$article = $this->getArticle($row->id);
@@ -54,30 +72,12 @@ class ArticleDbMapper extends BaseDbMapper {
 		return $articles;
 	}
 	
-	public function getArticlesByCategory($repository, $paginator, $adminOnly, $id) {
-		$join =  $this->database->table('article_category')
-				->where('category_id', $id);
-				
-		$articleIds = array();
-		foreach ($join as $row) {
-			$articleIds[] = $row->article_id;
-		}
-		$table = $this->database->table('article')
-				->where('id IN', $articleIds)
-				->where('season', $this->season)
-				->order('changed DESC')
-				->limit($paginator->getLength(), $paginator->getOffset());
-		$articles = array();
-		foreach ($table as $row) {			
-			$article = $this->getArticle($row->id);
-			$article->repository = $repository;
-			if ($article->adminOnly == $adminOnly) {
-				$articles[] = $article;
-			}
-		}
-		return $articles;
-	}
-	
+	/**
+	 * Vrátí kategorie článku
+	 * 
+	 * @param int $id
+	 * @return \Category[]
+	 */
 	public function getCatogoriesByArticle($id) {
 		$join =  $this->database->table('article_category')
 					->where('article_id', $id);
@@ -95,20 +95,22 @@ class ArticleDbMapper extends BaseDbMapper {
 	}
 	
 	/**
+	 * Vrátí počet článků
 	 * 
-	 * @param int $category
+	 * @param int $adminOnly TRUE počítá článka pro organizátory, FALSE pro účastníky
+	 * @param int $category omezení na kategorie
 	 * @return int
 	 */
 	public function countAll($adminOnly, $category = NULL) {
-		if (!is_null($category) && !empty($category)) {
+		if (!empty($category)) {
 			$table = $this->database->table('article_category')
-					->where('category_id',$category);	
+					->where('category_id', $category);	
 			$counter = 0;
 			foreach ($table as $row) {
-				$article = $this->database->table('article')
-					->where('status', Article::PUBLISHED)					
+				$article = $this->database->table('article')									
 					->get($row->article_id);
-				if ($article->admin_only == $adminOnly && $article->season == $this->season) {
+				if ($article->admin_only == $adminOnly && $article->season == $this->season
+						&& $article->status == Article::PUBLISHED && is_null($article->race)) {
 					$counter++;
 				}
 			}
@@ -122,7 +124,12 @@ class ArticleDbMapper extends BaseDbMapper {
 				->count();
 	}
 	
-	
+	/**
+	 * Vrátí počet článků podle autora
+	 * 
+	 * @param int $userId
+	 * @return int
+	 */
 	public function countAllAuthor($userId) {
 		$rows = $this->database->table('article')
 				->where('season', $this->season)
@@ -130,6 +137,12 @@ class ArticleDbMapper extends BaseDbMapper {
 		return $rows->count();
 	}
 	
+	/**
+	 * Vrátí počet článků podle závodu
+	 * 
+	 * @param int $raceId
+	 * @return int
+	 */
 	public function countAllRace($raceId) {
 		$rows = $this->database->table('article')
 				->where('race', $raceId)
@@ -140,7 +153,7 @@ class ArticleDbMapper extends BaseDbMapper {
 	/**
 	 * 
 	 * @param int $id ID řádku
-	 * @return int id smazaného řádku?
+	 * @return int počet smazaných řádků, FALSE pokud selže
 	 */
 	public function delete($id) {
 		$this->database->table('comment')
@@ -151,6 +164,14 @@ class ArticleDbMapper extends BaseDbMapper {
 				delete();
 	}
 	
+	/**
+	 * Vrátí pole článků podle autora
+	 * 
+	 * @param ArticleRepository $repository
+	 * @param \Nette\Utils\Paginator $paginator
+	 * @param int $userId
+	 * @return \Articles[]
+	 */
 	public function getArticlesByAuthor(ArticleRepository $repository, $paginator, $userId) {
 		$rows = $this->database->table('article')
 				->where('author', $userId)
@@ -166,6 +187,14 @@ class ArticleDbMapper extends BaseDbMapper {
 		return $articles;
 	}
 	
+	/**
+	 * Vrátí pole článků podle závodu
+	 * 
+	 * @param ArticleRepository $repository
+	 * @param \Nette\Utils\Paginator $paginator
+	 * @param int $raceId
+	 * @return \Articles[]
+	 */
 	public function getArticlesByRace(ArticleRepository $repository, $paginator, $raceId) {
 		$rows = $this->database->table('article')
 				->where('race', $raceId)

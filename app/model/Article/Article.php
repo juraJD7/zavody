@@ -10,26 +10,83 @@ class Article extends Nette\Object {
 	const STORED = 0;
 	const PUBLISHED = 1;
 
+	/**
+	 *
+	 * @var int
+	 */
 	private $id;
+	
+	/**
+	 *
+	 * @var User
+	 */
 	private $author;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $title;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $lead;
+	
+	/**
+	 *
+	 * @var sting
+	 */
 	private $text;
-	private $image;
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $status;
+	
+	/**
+	 *
+	 * @var \DateTime
+	 */
 	private $modified;
+	
+	/**
+	 *
+	 * @var \DateTime
+	 */
 	private $published;
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $season;
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $race;
+	
+	/**
+	 *
+	 * @var int
+	 */
 	private $adminOnly;
 	
+	/**
+	 *
+	 * @var \ArticleRepository
+	 */
 	private $repository;
 
 	public function __construct($id) {
 		$this->id = $id;
 	}
 	
-	public function setRepository($repository) {
+	public function setRepository(ArticleRepository $repository) {
 		$this->repository = $repository;
 	}
 

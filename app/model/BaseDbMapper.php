@@ -46,6 +46,12 @@ class BaseDbMapper {
 		
 	}
 	
+	/**
+	 * Vrátí všechny kategorie, nebo všechny kategorie pro zadanou agendu
+	 * 
+	 * @param int $type druh agendy
+	 * @return \Category[]
+	 */
 	public function getAllCategories($type = NULL) {
 		$table = $this->database->table('category');
 		if (!is_null($type)) {
@@ -64,7 +70,13 @@ class BaseDbMapper {
 		return $categories;
 	}
 	
+	/**
+	 * Smaže kategorii
+	 * 
+	 * @param int $id
+	 */
 	public function deleteCategory($id) {
+		//zrušení kategorie ve všech agendách
 		$this->database->table('article_category')
 			->where('category_id', $id)
 			->delete();
@@ -74,6 +86,7 @@ class BaseDbMapper {
 		$this->database->table('category_question')
 			->where('category_id', $id)
 			->delete();
+		//smazání kategorie
 		$this->database->table('category')
 			->where('id', $id)
 			->delete();
