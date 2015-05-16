@@ -1,0 +1,56 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Export účastníků</title>
+    <style> 
+		.table td {
+			padding: 10px;
+			text-align: center;
+		}
+    </style>
+</head>
+<body>
+	<div style="width: 100%; text-align: right">Exportováno: {time()|date:'d.m.Y H:i'}, Autor: {$user->userName}</div>
+	<hr />
+	<h1>Export ze závodu {$race->name}</h1>
+	
+	<table>
+		<tr>
+			<td>Závod: </td><td>{$race->name}</td>
+		</tr>
+		<tr>
+			<td>Druh kola: </td><td>{$race->round->name}</td>
+		</tr>
+		<tr>
+			<td>Datum: </td><td>{$race->date|date:'d.m.Y'}</td>
+		</tr>
+		<tr>
+			<td>Místo: </td><td>{$race->place}</td>
+		</tr>
+		<tr>
+			<td>Organizátor: </td><td>{$race->organizer->displayName}</td>
+		</tr>
+	</table>
+		<h3>Účastníci závodu</h3>
+	<table class="table">
+		<tr>
+			<th>Hlídka</th>
+			<th>Účastník</th>			
+			<th>Datum narození</th>
+			<th>Role v závodě</th>
+		</tr>
+		{foreach $watchs as $watch}
+			{foreach $watch->getMembers($race) as $member}
+				<tr>
+					<td>{$watch->name}</td>
+					<td>{$member->displayName}</td>			
+					<td>{$member->birthday|date:'d.m.Y'}</td>
+					<td>{$member->getRoleName($race->id)}</td>
+				</tr>
+			{/foreach}
+		{/foreach}
+		
+	</table>
+	
+</body>
+</html>

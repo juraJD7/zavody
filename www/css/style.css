@@ -70,3 +70,6 @@ form .error {
 	color: #D00;
 	font-weight: bold;
 }
+select {
+	min-width: 100px;
+}

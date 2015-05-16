@@ -98,7 +98,7 @@
 {if $race->description}
 <p>
 	<h3>Další informace:</h3>
-	{$race->description}
+	{$race->description|noescape}
 </p>
 {/if}
 <hr />

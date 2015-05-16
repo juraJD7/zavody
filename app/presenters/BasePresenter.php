@@ -82,6 +82,10 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	}
 	
 	public function seasonFormSucceeded($form, $values) {
+		$this->loginRefresh();
+	}
+	
+	protected function loginRefresh() {
 		if ($this->user->isLoggedIn()) {
 			$userDetail = $this->skautIS->user->UserDetail();		
 			$this->user->login($userDetail);
@@ -89,7 +93,6 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 			$this->userRepository->getUser($userDetail->ID); // aktualizuje udaje o uživateli
 		}
 	}
-
 
 	/**
 	 * @return \Form

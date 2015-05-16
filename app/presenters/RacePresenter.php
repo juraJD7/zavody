@@ -64,6 +64,7 @@ class RacePresenter extends BasePresenter {
 	
 	private $watchs;
 	private $raceId;
+	private $editors = array();
 
 	public function createComponentRaceForm() {
 		if (!$this->user->isLoggedIn()) {
@@ -71,8 +72,10 @@ class RacePresenter extends BasePresenter {
 		}	
 		$raceId = $this->getParameter('id');
 		$this->raceFormFactory->setId($raceId);
+		$this->raceFormFactory->setEditors($this->editors);
 		$form = $this->raceFormFactory->create();
 		$form->onSuccess[] = function () {
+			$this->loginRefresh();
 			$this->flashMessage("Závod byl založen.");
 			$this->redirect("Race:");
 		};
@@ -210,6 +213,17 @@ class RacePresenter extends BasePresenter {
 			}
 		}		
 	}
+	
+	public function actionExportParticipants($raceId) {
+		$template = $this->createTemplate();
+		$template->setFile(__DIR__ . "/templates/Export/participants.latte");
+		$template->race = $this->raceRepository->getRace($raceId);
+		$template->watchs = $this->watchRepository->getWatchs($raceId);
+		
+		$pdf = new \Joseki\Application\Responses\PdfResponse($template);
+		$pdf->setSaveMode(\Joseki\Application\Responses\PdfResponse::DOWNLOAD);
+		$this->sendResponse($pdf);
+	}
 
 	public function renderCreate() {
 		if (!$this->user->isLoggedIn()) {
@@ -270,9 +284,14 @@ class RacePresenter extends BasePresenter {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
 		}
 		$race = $this->raceRepository->getRace($id);			
-		$this->template->editors = $this->raceRepository->getEditors($id);
+		$this->editors = $this->raceRepository->getEditors($id);
+		$editorsArray = array();
+		foreach ($this->editors as $editor) {
+			$editorsArray[] = $editor->id;
+		}
 		$this->template->race = $race;			
-		$this["raceForm"]->setDefaults($this->raceRepository->getDataForForm($id));		
+		$this["raceForm"]->setDefaults($this->raceRepository->getDataForForm($id));
+		$this["raceForm"]["editors_input"]->setDefaultValue($editorsArray);
 	}
 	
 	public function handleDeleteWatch($watchId, $raceId) {

@@ -319,7 +319,7 @@ class RaceFormFactory extends BaseFormFactory {
 	 * Nastaví editory závodu (včetně autora)
 	 * 
 	 * @param array $editors
-	 * @param int $race
+	 * @param int $raceId
 	 */
 	public function setNewEditors($editors, $raceId) {
 		$this->database->table('editor_race')
@@ -348,6 +348,9 @@ class RaceFormFactory extends BaseFormFactory {
 		$users = array();
 		foreach ($isUsers as $isUser) {			
 			$users[$isUser->ID] = "$isUser->UserName ($isUser->DisplayName)";
+		}		
+		foreach ($this->editors as $editor) {			
+			$users[$editor->id] = "$editor->userName ($editor->personName)";
 		}
 		return $users;
 	}
