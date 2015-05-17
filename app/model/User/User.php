@@ -16,13 +16,60 @@ class User extends Nette\Object {
 	 */
 	private $repository;
 	
-	private $id; //ID_User from SkautIS
+	/**
+	 * ID_User ze SkautISu
+	 * 
+	 * @var int 
+	 */
+	private $id;
+	
+	/**
+	 * 
+	 * 
+	 * @var string 
+	 */
 	private $userName;
-	private $personId; //ID_Person from SkautIS
+	
+	/**
+	 * ID_Person ze SkautISu
+	 * 
+	 * @var int 
+	 */
+	private $personId;	
+	
+	/**
+	 * 
+	 * 
+	 * @var string 
+	 */
 	private $firstName;
+	
+	/**
+	 * 
+	 * 
+	 * @var string 
+	 */
 	private $lastName;
+	
+	/**
+	 * 
+	 * 
+	 * @var string 
+	 */
 	private $nickName;
+	
+	/**
+	 * 
+	 * 
+	 * @var string 
+	 */
 	private $email;
+	
+	/**
+	 * TRUE pokud je uživatel administrátorem aplikaci
+	 * 
+	 * @var bool 
+	 */
 	private $admin;
 	
 	public function __construct($id) {

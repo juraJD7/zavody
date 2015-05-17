@@ -101,7 +101,8 @@ class MembersFormFactory extends BaseFormFactory {
 			$form->getPresenter()->redirect("Watch:detail", $this->id);
 		}
 		// zpracování formuláře
-		$values = $form->getHttpData();		
+		$values = $form->getHttpData();
+		unset($values["_token_"]);
 		$section = $this->session->getSection('watch');
 		// uložení hlídky
 		if ($form["save"]->isSubmittedBy()) {			

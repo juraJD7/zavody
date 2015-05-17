@@ -182,7 +182,8 @@ class RaceFormFactory extends BaseFormFactory {
 		}		
 		$this->setSubordinateRaces($values->region, $values->round, $raceId);
 		//nastavení editorů závodu
-		$this->setNewEditors($editors, $raceId);
+		$race = $this->raceRepository->getRace($raceId);
+		$this->setNewEditors($editors, $race);
 	}
 	
 	/**
@@ -264,7 +265,11 @@ class RaceFormFactory extends BaseFormFactory {
 		foreach ($this->unitRepository->getUnits($types) as $unit) {
 			$subordinate[$unit->id] = $unit->displayName;
 		}
-		$units = $myUnit + $subordinate;
+		if ($this->id) {
+			$race = $this->raceRepository->getRace($this->id);
+			$subordinate[$race->organizer->id] = $race->organizer->displayName;
+		}
+		$units = $myUnit + $subordinate;		
 		return $units;
 	}
 	/**
@@ -320,21 +325,22 @@ class RaceFormFactory extends BaseFormFactory {
 	 * Nastaví editory závodu (včetně autora)
 	 * 
 	 * @param array $editors
-	 * @param int $raceId
+	 * @param Race $race
 	 */
-	public function setNewEditors($editors, $raceId) {
+	public function setNewEditors($editors, \Race $race) {
 		$this->database->table('editor_race')
-				->where('race_id', $raceId)
+				->where('race_id', $race->id)
 				->delete();
 		if (!in_array($this->user->id, $editors)) {
 			$editors[] = $this->user->id;
 		}
+		$editors[] = $race->author->id;
 		foreach ($editors as $editor) {
 			$this->userRepository->getUser($editor); // uložení editora, popř. aktualizace údajů z ISu
 			$this->database->table('editor_race')
 				->insert(array(
 					"user_id" => $editor,
-					"race_id" => $raceId
+					"race_id" => $race->id
 				));
 		}		
 	}

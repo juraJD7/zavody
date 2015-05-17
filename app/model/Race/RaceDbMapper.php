@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of RaceDbMapper
+ * RaceDbMapper
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -23,6 +23,7 @@ class RaceDbMapper extends BaseDbMapper {
 	}
 	
 	/**
+	 * Vyrobí z továrny instanci třídy WatchRepository;
 	 * 
 	 * @return WatchRepository
 	 */
@@ -31,6 +32,7 @@ class RaceDbMapper extends BaseDbMapper {
 	}
 
 	/**
+	 * Vrátí závod
 	 * 
 	 * @param int $id
 	 * @return Race
@@ -43,6 +45,13 @@ class RaceDbMapper extends BaseDbMapper {
 		return $this->loadFromActiveRow($row);
 	}
 	
+	/**
+	 * Vrátí pole s počtem závodů pro každý kraj
+	 * 
+	 * Klíčem pole je ID regionu, hodnout počet závodů
+	 * 
+	 * @return int[] Počet závodů v jednotlivých regionech
+	 */
 	public function getNumRaces() {
 		$regions = $this->database->table('region');
 		$numRaces = array();
@@ -58,6 +67,7 @@ class RaceDbMapper extends BaseDbMapper {
 
 
 	/**
+	 * Vytvoří závod z řádku databáze
 	 * 
 	 * @param Nette\Database\Table\ActiveRow $row
 	 * @return \Race
@@ -83,7 +93,9 @@ class RaceDbMapper extends BaseDbMapper {
 	}
 	
 	/**
+	 * Vrátí celostátní kolo pro aktuální ročník
 	 * 
+	 * @param RaceRepository $repository
 	 * @param int $season
 	 * @return Race
 	 */
@@ -101,6 +113,7 @@ class RaceDbMapper extends BaseDbMapper {
 	}
 	
 	/**
+	 * Vrátí seznam krajů
 	 * 
 	 * @return Nette\Database\Selection
 	 */
@@ -128,6 +141,13 @@ class RaceDbMapper extends BaseDbMapper {
 		return $races;
 	}
 	
+	/**
+	 * Vrátí závody, kterých se účastní zadaná hlídka
+	 * 
+	 * @param RaceRepository $repository
+	 * @param int $watchId ID hlídky
+	 * @return Race[]
+	 */
 	public function getRacesByWatch(RaceRepository $repository, $watchId) {
 		$result = $this->database->table('race_watch')
 				->where('watch_id', $watchId);
@@ -143,6 +163,7 @@ class RaceDbMapper extends BaseDbMapper {
 	}
 	
 	/**
+	 * Vrátí seznam závodů, ke kterým se lze přihlásit
 	 * 
 	 * @param RaceRepository $repository
 	 * @param int $season
@@ -163,6 +184,7 @@ class RaceDbMapper extends BaseDbMapper {
 	}
 
 	/**
+	 * Vrátí záznam o druhu kola
 	 * 
 	 * @param int $id
 	 * @return \Nette\Database\ActiveRow
@@ -173,6 +195,9 @@ class RaceDbMapper extends BaseDbMapper {
 	} 
 	
 	/**
+	 * Vrátí jméno ročníku
+	 * 
+	 * Jméno je tvořeno názvem soutěže a rokem konání
 	 * 
 	 * @param int $seasonId
 	 * @return \Nette\Database\ActiveRow
@@ -183,20 +208,33 @@ class RaceDbMapper extends BaseDbMapper {
 		return "$competition $season->year";
 	}
 	
+	/**
+	 * Vrátí záznam o kraji
+	 * 
+	 * @param int $id ID kraje
+	 * @return \Nette\Database\ActiveRow
+	 */
 	public function getRegion($id) {
 		$region = $this->database->table('race')->get($id)->region;		
 		return $this->database->table('region')->get($region);
 	}
 	
+	/**
+	 * Vrátí záznam o povolenem rozsahu členů v závodě
+	 * 
+	 * @param int $id ID závodu
+	 * @return \Nette\Database\ActiveRow
+	 */
 	public function getMembersRange($id) {
 		$range = $this->database->table('race')->get($id)->members_range;
 		return $this->database->table('members_range')->get($range);
 	}
 	
 	/**
+	 * Vrátí editory závodu
 	 * 
-	 * @param int $id ID race
-	 * @return array of \User
+	 * @param int $id ID závodu
+	 * @return User[]
 	 */
 	public function getEditors($id) {
 		$result = $this->database->table('editor_race')->where('race_id', $id);
@@ -207,21 +245,29 @@ class RaceDbMapper extends BaseDbMapper {
 		return $editors;
 	}
 	
+	/**
+	 * Vrátí uživatele, který založil závodu
+	 * 
+	 * @param int $id ID závodu
+	 * @return User
+	 */
 	public function getAuthor($id) {
 		$userId = $this->database->table('race')->get($id)->author;
 		return $this->userRepository->getUser($userId);
 	}
 
 	/**
+	 * Vrátí ID navazujícího závodu
 	 * 
-	 * @param int id zavodu
-	 * @return int id postupového závodu
+	 * @param int ID závodu
+	 * @return int ID navazujícího závodu
 	 */
 	public function getAdvance($id) {		
 		return $this->database->table('race')->get($id)->advance;		
 	}
 	
 	/**
+	 * Vrátí záznam o postupovém klíči závodu
 	 * 
 	 * @param int $raceId
 	 * @return \Nette\Database\ActiveRow
@@ -255,37 +301,46 @@ class RaceDbMapper extends BaseDbMapper {
 		return $this->unitRepository->getUnit($unitId);
 	}
 	
+	/**
+	 * Vrátí nejzašší možné datum narození pro rádce
+	 * 
+	 * @param int $season ID ročníku
+	 * @return DateTime
+	 */	
 	public function getGuideAge($season) {
 		return $this->database->table('season')
 				->get($season)
 				->guide_age;
 	}
 	
+	/**
+	 * Vrátí nejzašší možné datum narození pro rádce
+	 * 
+	 * @param int $season ID ročníku
+	 * @return DateTime
+	 */	
 	public function getRunnerAge($season) {
 		return $this->database->table('season')
 				->get($season)
 				->runner_age;
 	}
 	
-	public function getMinRunner($membersRange) {
-		return $this->database->table('members_range')
-				->get($membersRange)
-				->min;
-	}
-	
-	public function getMaxRunner($membersRange) {
-		return $this->database->table('members_range')
-				->get($membersRange)
-				->max;
-	}
-	
+	/**
+	 * Vrátí počet hlídek v závodě
+	 * 
+	 * @param int $raceId ID závodu
+	 * @param string $category Název kategorie, omezí výběr pouze na danou kategorii
+	 * @return int
+	 */
 	public function getNumWatchs($raceId, $category) {
+		//výběr potvrzených hlídek závodu
 		$rows = $this->database->table('race_watch')
 				->where('race_id', $raceId)
 				->where('confirmed', TRUE);
 		if (is_null($category)) {
 			return $rows->count();
 		} else {
+			//pokud je omezeno kategorií, zjistí se kategorie při shodě je navýšen počet
 			$counter = 0;			
 			foreach ($rows as $row) {				
 				$watch = $this->getWatchRepository()->getWatch($row->watch_id);
@@ -298,12 +353,24 @@ class RaceDbMapper extends BaseDbMapper {
 		}
 	}
 	
+	/**
+	 * Vrátí potvrzovací token závodu
+	 * 
+	 * @param int $raceId
+	 * @return string
+	 */
 	public function getToken($raceId) {
 		return $this->database->table('race')
 				->get($raceId)
 				->token;
 	}
 	
+	/**
+	 * Uloží do databáze token k potvrzení výsledků a zároveň nastaví příznak výsledků jako nepotvrzené
+	 * 
+	 * @param int $raceId
+	 * @param string $token
+	 */
 	public function setToken($raceId, $token) {
 		$this->database->table('race')
 				->where('id', $raceId)
@@ -322,6 +389,13 @@ class RaceDbMapper extends BaseDbMapper {
 				));		
 	}
 	
+	/**
+	 * Vrátí pole závodů v aktuálním ročníku, kde je zadaný uživatel editorem
+	 * 
+	 * @param RaceRepository $repository
+	 * @param int $userId ID uživatele	
+	 * @return Race[]
+	 */
 	public function getRacesByEditor(RaceRepository $repository, $userId) {
 		$rows = $this->database->table('editor_race')
 				->where('user_id', $userId);				
@@ -336,6 +410,13 @@ class RaceDbMapper extends BaseDbMapper {
 		return $races;
 	}
 	
+	/**
+	 * Vrátí pole závodů, které organizuje zadaná jednotka v aktuálním ročníku
+	 * 
+	 * @param RaceRepository $repository
+	 * @param int $unitId ID jednotky
+	 * @return Race[]
+	 */
 	public function getRacesByOrganizer(RaceRepository $repository, $unitId) {
 		$rows = $this->database->table('race')
 				->where('organizer', $unitId)
@@ -349,6 +430,13 @@ class RaceDbMapper extends BaseDbMapper {
 		return $races;
 	}
 	
+	/**
+	 * Vrátí pole závodů v aktuálním ročníku, kterého se účastní zadaná osoba
+	 * 
+	 * @param RaceRepository $repository
+	 * @param int $personId ID jednotky
+	 * @return Race[]
+	 */
 	public function getRacesByParticipant(RaceRepository $repository, $personId) {
 		$rows = $this->database->table('participant')
 				->where('person_id', $personId);
@@ -367,6 +455,14 @@ class RaceDbMapper extends BaseDbMapper {
 		return $races;
 	}	
 	
+	/**
+	 * Vrátí závod, ze kterého hlídka postoupila do zadaného kola
+	 * 
+	 * @param int $watchId ID hlídky
+	 * @param Race $race navazující závod
+	 * @return Race přecházející závod
+	 * @throws LogicException
+	 */
 	public function getPrevRace($watchId, Race $race) {
 		$table = $this->database->table('race_watch')
 				->where('watch_id', $watchId);		
@@ -380,11 +476,19 @@ class RaceDbMapper extends BaseDbMapper {
 		throw new LogicException("Nenalezen předchozí závod hlídky");
 	}
 	
+	/**
+	 * Smaže postupující hlídky závodu z navazujícího kola
+	 * 
+	 * @param int $prevId ID předcházejícího závodu hlídky
+	 * @param int $advanceId ID navazujícího závodu hlídy, ze kterého jsou hlídky a členové mazáni
+	 */
 	public function deleteAdvancedWatchs($prevId, $advanceId) {
+		//zjištění postupujících hlídek
 		$join = $this->database->table('race_watch')
 				->where('race_id', $prevId)
 				->where('advance', TRUE);
 		foreach ($join as $row) {
+			//smazání všech členů hlídky z navazujího závodu
 			$participants = $this->database->table('participant')
 					->where('watch', $row->watch_id);
 			foreach ($participants as $participant) {
@@ -393,6 +497,7 @@ class RaceDbMapper extends BaseDbMapper {
 						->where('race_id', $advanceId)
 						->delete();
 			}
+			//smazání hlídky z navazujího závodu
 			$this->database->table('race_watch')
 					->where('race_id', $advanceId)
 					->where('watch_id', $row->watch_id)

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of RaceRepository
+ * RaceRepository
  *
  * @author Jiří Doušek <405245@mail.mini.cz>
  */
@@ -71,7 +71,13 @@ class RaceRepository {
 	public function getMembersRange($id) {
 		return $this->getDbMapper()->getMembersRange($id);
 	}
-
+	
+	/**
+	 * Vrátí navazující závod, do kterého se postuje ze zadaného kola
+	 * 
+	 * @param int $id ID závodu, ze kterého se hledá postup
+	 * @return \Race navazující závod
+	 */
 	public function getAdvance($id) {
 		$advanceId = $this->getDbMapper()->getAdvance($id);
 		if ($advanceId) {
@@ -109,14 +115,6 @@ class RaceRepository {
 	
 	public function getRunnerAge($season) {
 		return $this->getDbMapper()->getRunnerAge($season);
-	}
-	
-	public function getMinRunner($membersRange) {
-		return $this->getDbMapper()->getMinRunner($membersRange);
-	}
-	
-	public function getMaxRunner($membersRange) {
-		return $this->getDbMapper()->getMaxRunner($membersRange);
 	}
 	
 	public function getNumWatchs($raceId, $category = NULL) {

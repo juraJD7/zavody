@@ -17,6 +17,13 @@ class UserDbMapper {
 		$this->database = $database;		
 	}
 	
+	/**
+	 * Vrátí uživatele
+	 * 
+	 * @param int $id ID uživatele
+	 * @return User
+	 * @throws Race\DbNotStoredException
+	 */
 	public function getUser($id) {
 		$row = $this->database->table('user')->get($id);
 		if(!$row) {
@@ -25,6 +32,12 @@ class UserDbMapper {
 		return $this->loadUserFromActiveRow($row);
 	}
 	
+	/**
+	 * Vytvoří uživatele z řádku databáze
+	 * 
+	 * @param Nette\Database\ActiveRow $row
+	 * @return \User
+	 */
 	public function loadUserFromActiveRow($row) {
 		$user = new User($row->id_user);
 		$user->userName = $row->username;
@@ -37,7 +50,13 @@ class UserDbMapper {
 		return $user;
 	}
 
-
+	/**
+	 * Uloží uživatele do databáze
+	 * 
+	 * V případě existujícího záznamu pouze aktualizuje data
+	 * 
+	 * @param User $user
+	 */
 	public function saveUser(User $user) {
 		$data = array(
 			"id_user" => $user->id,
@@ -59,8 +78,9 @@ class UserDbMapper {
 	}
 	
 	/**
+	 * Vrátí, jestli je uživatel adminstrátorem
 	 * 
-	 * @param int $id
+	 * @param int $id ID uživatele
 	 */
 	public function isAdmin($id) {
 		$row = $this->database->table('user')->get($id);
@@ -70,6 +90,12 @@ class UserDbMapper {
 		return $row->is_admin;
 	}
 	
+	/**
+	 * Vrátí všechny uživatele v databázi, kteří nejsou administrátory
+	 * 
+	 * @param UserRepository $repository
+	 * @return User[]
+	 */
 	public function loadNonAdminUsers(UserRepository $repository) {
 		$table = $this->database->table('user')
 				->where('is_admin', FALSE);
@@ -82,6 +108,12 @@ class UserDbMapper {
 		return $users;
 	}
 	
+	/**
+	 * Vrátí všechny adminstrátory aplikace
+	 * 
+	 * @param UserRepository $repository
+	 * @return User[]
+	 */
 	public function getAdmins(UserRepository $repository) {
 		$table = $this->database->table('user')
 				->where('is_admin', TRUE);

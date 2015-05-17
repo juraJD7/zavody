@@ -101,7 +101,8 @@ class WatchFormFactory extends BaseFormFactory {
 			$this->session->getSection("watch")->remove();
 			$form->getPresenter()->redirect("Race:");
 		}
-		$values = $form->getHttpData();		
+		$values = $form->getHttpData();
+		unset($values["_token_"]);
 		if ($this->id) {
 			$row = $this->database->table('watch')
 					->where('id', $this->id);

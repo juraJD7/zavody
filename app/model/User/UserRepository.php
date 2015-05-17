@@ -27,12 +27,14 @@ class UserRepository {
 			$user->admin = $this->dbMapper->isAdmin($user->id);
 			$this->dbMapper->saveUser($user);
 			} catch (Skautis\Wsdl\PermissionException $ex) {
+				//pokud nelze načíst data z ISu zkusí se načíst z databáze
 				$user = $this->dbMapper->getUser($id);
 			}
 		} else {
 			try {
 				$user = $this->dbMapper->getUser($id);
 			} catch (Race\DbNotStoredException $ex) {
+				//bez přihlášení nejsou data dostupná, uživatel se musí přihlásit.
 				throw new Nette\Security\AuthenticationException("Pro zobrazení záznamu se musíte přihlásit");
 			}
 		}		

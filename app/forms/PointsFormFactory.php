@@ -78,12 +78,13 @@ class PointsFormFactory extends BaseFormFactory {
 
 	public function formSucceeded(Form $form)
 	{
-		$values = $form->getHttpData();			
+		$values = $form->getHttpData();				
 		$race = $this->raceRepository->getRace($this->race);
 		//vynulují se staré postupy (a odhlásí hlídky z postupových závodů)
 		$race->deleteAdvancedWatchs();		
 		unset($values["send"]);
 		unset($values["do"]);
+		unset($values["_token_"]);
 		//proměnné pro pamatování aktuálního pořadí
 		$femaleOrder=0;
 		$maleOrder=0;
