@@ -2,11 +2,12 @@
 
 <h1>Správa ročníků</h1>
 
+<p>Tučně se zobrazuje ročník, který je nastaven jako výchozí.</p>
 
 <table class="table table-bordered">
 	
 	<tr>
-		<th>Rok</th><th>Soutěž</th><th>Max. věk závodníků</th><th>Max. věk rádců</th>
+		<th>Rok</th><th>Soutěž</th><th>Max. věk závodníků</th><th>Max. věk rádců</th><th>Akce</th>
 	</tr>
 	{foreach $seasons as $season}
 		<tr n:class="$defaultSeason == $season->id ? bold">
@@ -14,6 +15,7 @@
 			<td>{$season->competition->short}</td>
 			<td>{$season->runnerAge|date:'d.m.Y'}</td>
 			<td>{$season->guideAge|date:'d.m.Y'}</td>
+			<td><a n:href="makeDefaultSeason! $season->id">Označit jako výchozí</a></td>
 	{/foreach}
 	
 </table>

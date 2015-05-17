@@ -182,4 +182,12 @@ class AdminPresenter extends BasePresenter {
 		$this->template->seasons = $this->adminRepository->getAllSeasons();
 		$this->template->defaultSeason = $this->adminRepository->getDefaultSeason();		
 	}
+	
+	/**
+	 * Nastaví výchozí ročník v databázi
+	 */
+	public function handleMakeDefaultSeason($id) {
+		$this->adminRepository->makeDefaultSeason($id);
+		$this->redrawControl();
+	}
 }

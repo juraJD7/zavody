@@ -64,4 +64,13 @@ class AdminDbMapper extends BaseDbMapper {
 				->get('season')
 				->value;
 	}
+	
+	/**
+	 * Nastaví výchozí ročník v databázi
+	 */
+	public function makeDefaultSeason($id) {
+		$this->database->table('setting')
+				->where('property', 'season')
+				->update(array("value" => $id));
+	}
 }

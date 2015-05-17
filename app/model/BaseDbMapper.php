@@ -39,7 +39,11 @@ class BaseDbMapper {
 		$this->database = $database;		
 		$this->userRepository = $userRepository;
 		$this->unitRepository = $unitRepository;
-		$this->season = $_COOKIE["season"];
+		if (isset($_COOKIE["season"])) {
+			$this->season = $_COOKIE["season"];
+		} else {
+			$this->season = $this->database->table('setting')->get('season')->value;					
+		}
 		$this->competition = $this->database->table('season')
 				->get($this->season)
 				->competition;

@@ -65,4 +65,11 @@ class AdminRepository {
 	public function getDefaultSeason() {
 		return $this->dbMapper->getDefaultSeason();
 	}
+	
+	/**
+	 * Nastaví výchozí ročník v databázi
+	 */
+	public function makeDefaultSeason($id) {
+		$this->dbMapper->makeDefaultSeason($id);
+	}
 }

@@ -32,7 +32,11 @@ class BaseFormFactory extends Nette\Object
 	{
 		$this->skautIS = $skautIS;
 		$this->database = $database;
-		$this->season = $_COOKIE["season"];
+		if (isset($_COOKIE["season"])) {
+			$this->season = $_COOKIE["season"];
+		} else {
+			$this->season = $this->database->table('setting')->get('season')->value;					
+		}
 	}
 	
 	/**
