@@ -20,17 +20,29 @@ class UnitRepository {
 		$this->dbMapper = $dbMapper;
 	}
 	
+	/**
+	 * Vrátí jednotku
+	 * 
+	 * Pokud je uživatel přihlášen, pokusí se načíst jednotku z ISu. Pokud selže,
+	 * nebo pokud není uživatel přihlášen, zkusí načíst data z databáze.
+	 * 
+	 * @param int $id
+	 * @return Unit
+	 * @throws Nette\Security\AuthenticationException
+	 */
 	public function getUnit($id) {		
 		if ($this->isMapper->isLoggedIn()) {
 			try {
 				$unit = $this->isMapper->getUnit($id);				
-			} catch (Skautis\Wsdl\PermissionException $ex) {				
+			} catch (Skautis\Wsdl\PermissionException $ex) {
+				//pokud nelze načíst data z ISu zkusí se načíst z databáze
 				$unit = $this->dbMapper->getUnit($id);
 			}
 		} else {
 			try {
 				$unit = $this->dbMapper->getUnit($id);
 			} catch (Race\DbNotStoredException $ex) {
+				//bez přihlášení nejsou data dostupná, uživatel se musí přihlásit.
 				throw new Nette\Security\AuthenticationException("Pro zobrazení záznamu se musíte přihlásit");
 			}
 		}		
@@ -51,9 +63,11 @@ class UnitRepository {
 	}
 	
 	/**
+	 * Vrátí jednotky daného typu
 	 * 
-	 * @param array $type Typ jednotek, které se mají zobrazit, prázdné pole zobrazí všechny
-	 * @return int $parentUnit ID nadřízené jednotky, null použije jako default ID jednotky přihlášeného uživatele
+	 * @param array $type Typ jednotek, které se mají zobrazit; prázdné pole zobrazí všechny
+	 * @param int $parentUnit ID nadřízené jednotky, null použije jako default ID jednotky přihlášeného uživatele
+	 * $return Unit[]
 	 */
 	public function getUnits($type = array(), $parentUnit = NULL) {
 		return $this->isMapper->getUnits($this, $type, $parentUnit);
@@ -63,6 +77,12 @@ class UnitRepository {
 		return $this->dbMapper->save($unit);
 	}
 	
+	/**
+	 * Vrátí nadřízenou jednotku
+	 * 
+	 * @param int $unitId
+	 * @return Unit
+	 */
 	public function getUnitParent($unitId) {
 		$idParent = $this->isMapper->getUnitParentId($unitId);
 		return $this->getUnit($idParent);

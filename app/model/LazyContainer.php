@@ -19,6 +19,15 @@ class LazyContainer extends Nette\Object {
 	
 	private $watchDbMapperFactory;
 	
+	/**
+	 * Konstruktor, ve kterém se vytváří všechny továrny na třídy
+	 * 
+	 * 
+	 * @param \Nette\Database\Context $database
+	 * @param UserRepository $userRepository
+	 * @param UnitRepository $unitRepository
+	 * @param PersonIsMapper $isMapper
+	 */
 	public function __construct(\Nette\Database\Context $database, UserRepository $userRepository, UnitRepository $unitRepository, PersonIsMapper $isMapper){
 			$this->watchRepositoryFactory = $this->factory(function() use($unitRepository, $userRepository) {
 					return new WatchRepository($this->raceRepositoryFactory, $this->personRepositoryFactory, $unitRepository, $userRepository, $this->watchDbMapperFactory);
@@ -41,6 +50,9 @@ class LazyContainer extends Nette\Object {
 			
 	}
 	
+	/**
+	 * Obecná továrna na třídy
+	 */	
 	private function factory($create){
        $created = false;
        $instance = null;
@@ -52,6 +64,10 @@ class LazyContainer extends Nette\Object {
                return $instance;
 		};
 	}
+	
+	/**
+	 * Gettery jednotlivých tříd
+	 */
 	
 	public function getWatchRepository(){
 		return call_user_func($this->watchRepositoryFactory);

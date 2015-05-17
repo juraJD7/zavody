@@ -110,7 +110,7 @@ class QuestionPresenter extends BasePresenter {
 		if ($this->paginator->itemCount === NULL) {		
 			$this->paginator = new Nette\Utils\Paginator();
 			$this->paginator->setItemCount($this->questionRepository->countAll(\BaseDbMapper::COMMON, $this->category));
-			$this->paginator->setItemsPerPage(1); 
+			$this->paginator->setItemsPerPage(10); 
 			$this->paginator->setPage($page);			
 		}
 		

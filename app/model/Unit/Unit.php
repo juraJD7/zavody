@@ -13,14 +13,52 @@ class Unit extends \Nette\Object {
 	 */
 	private $repository;
 	
+	/**
+	 *
+	 * @var int
+	 */
 	private $id;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $displayName;
-	private $registrationNumber;	
+	
+	/**
+	 *
+	 * @var string
+	 */
+	private $registrationNumber;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $unitType;
 	
-	private $unitParent;		
+	/**
+	 *
+	 * @var Unit
+	 */
+	private $unitParent;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $email;
+	
+	/**
+	 *
+	 * @var string
+	 */
 	private $telephone;
+	
+	/**
+	 *
+	 * @var Unit[]
+	 */
 	private $subordinateUnits = array();
 	
 	public function __construct($id) {

@@ -44,23 +44,28 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 		
 	public function startup() {
 		parent::startup();			
-			
-		if($this->skautIS->getUser()->isLoggedIn()) {			
+		
+		//zobrazení odkazu pro přihlášení / odhlášení
+		if($this->skautIS->getUser()->isLoggedIn()) {
 			$this->template->url = $this->link('Homepage:logout');
 			$this->template->text = "Odhlásit se";
 			$id = $this->skautIS->getUser()->getLoginId();
+			//prodlužování přihlášení ISu
 			$this->skautIS->usr->LoginUpdateRefresh(array("ID" => $id));
 		} else {
 			$this->user->logout(TRUE);
 			$this->template->url = $this->skautIS->getLoginUrl($this->link('//this'));
 			$this->template->text = "Přihlásit se";			
-		}			
+		}	
+		//nastacení seson do presenteru i šablony
 		$this->setSeason();	
 		$this->template->season = $this->season;
 		
 	}
 	
 	/**
+	 * Formulář pro přepínání ročníků
+	 * 
 	 * @return \Form
 	 */
 	public function createComponentSeasonForm() {
@@ -95,6 +100,8 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	}
 
 	/**
+	 * Formulář pro změnu skautIS role
+	 * 
 	 * @return \Form
 	 */
 	public function createComponentRoleForm() {
@@ -113,6 +120,9 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 		return $form;
 	}
 	
+	/**
+	 * Uložení ročníku do cookies s platností 1 týden
+	 */
 	private function setSeason() {
 		$defaultSeason = $this->database->table('setting')->get('season')->value;
 		if (!isset($_COOKIE['season'])) {				
@@ -130,6 +140,9 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 		}
 	}
 	
+	/**
+	 * Signál pro zpracování změny skautISRole
+	 */
 	public function handleChangeISRole() {
 		$roleId = $this->getHttpRequest()->getPost('roleId');		
 		$this->user->updateSkautISRole($roleId);

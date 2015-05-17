@@ -73,3 +73,8 @@ form .error {
 select {
 	min-width: 100px;
 }
+
+#s2id_frm-watchForm-troop, #s2id_frm-watchForm-group {
+	padding: 0px;
+	height: 100%;
+}

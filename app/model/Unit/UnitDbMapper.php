@@ -13,10 +13,21 @@ class UnitDbMapper {
 	 */
 	protected $database;
 	
+	/**
+	 * 
+	 * @param \Nette\Database\Context $database
+	 */
 	public function __construct(\Nette\Database\Context $database) {		
 		$this->database = $database;		
 	}
 	
+	/**
+	 * Vrátí jednotku
+	 * 
+	 * @param int $id
+	 * @return \Unit
+	 * @throws Race\DbNotStoredException
+	 */
 	public function getUnit($id) {
 		$row = $this->database->table('unit')->get($id);
 		if(!$row) {
@@ -31,7 +42,12 @@ class UnitDbMapper {
 		return $unit;
 	}
 
-
+	/**
+	 * Uloží zadanou hlídku do databáze
+	 * 
+	 * @param Unit $unit
+	 * @return int Počet ovlivněných řádků
+	 */
 	public function save(Unit $unit) {
 		$data = array(
 			"id" => (int) $unit->id,
