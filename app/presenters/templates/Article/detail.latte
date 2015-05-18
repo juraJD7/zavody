@@ -3,7 +3,7 @@
 <div class="panel panel-default">
 	<h3>{$article->title}</h3>
 	<div>
-	<img src="{$article->image}" class="pull-left img-thumbnail">
+	<img src="{$article->image}" class="pull-left img-thumbnail" height="180" width="171" alt="Článek {$article->title}">
 	<h4 class="media-heading">Vydal: {$article->author->userName}</h4>
 	<h4 class="media-heading"><small><em>
 	{if $article->status == Article::PUBLISHED}
