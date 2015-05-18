@@ -148,8 +148,8 @@ class PersonDbMapper extends BaseDbMapper {
 	 */
 	public function getSexName($sexId) {
 		//zjištění soutěže
-		$id = $this->database->table('competition')
-				->get($this->season)->id;
+		$id = $this->database->table('season')
+				->get($this->season)->competition;
 		$competition = $this->database->table('competition')
 				->get($id);
 		//pohlaví na základě ID
