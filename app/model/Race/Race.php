@@ -390,7 +390,7 @@ class Race extends \Nette\Object {
 	
 	public function getMaxRunner() {
 		$this->getMembersRange();
-		return $this->membersRange->min;
+		return $this->membersRange->max;
 	}
 
 	public function getNumWatchs($category = NULL) {		

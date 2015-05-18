@@ -34,7 +34,7 @@ class Photo extends \Nette\Object {
 	/**
 	 * True, pokud se zobrazuje ve veřejné galerii
 	 * 
-	 * @var bool 
+	 * @var boolean
 	 */
 	private $public;
 	

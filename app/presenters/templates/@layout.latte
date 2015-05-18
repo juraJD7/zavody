@@ -17,7 +17,6 @@
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="{$basePath}/tinymce/tinymce.min.js"></script>
 	<script type="text/javascript" src="{$basePath}/js/scroll-sneak.js"></script>
-	<script type="text/javascript" src="{$basePath}/js/multiselect.js"></script>
 	<script type="text/javascript" src="{$basePath}/js/nette.ajax.js"></script>
 	<script type="text/javascript">
 	tinyMCE.init({
@@ -57,7 +56,7 @@
 	{snippet flashes}
 	<div n:foreach="$flashes as $flash" n:class="flash, $flash->type">{$flash->message}</div>
 	{/snippet}
-	
+	<!-- MENU START -->
 	    <div class="blog-masthead">
       <div class="container">
         <nav class="blog-nav">
@@ -99,7 +98,7 @@
         </nav>
       </div>
     </div>
-
+	<!-- MENU KONEC -->
     <div class="container">
 
       <div class="blog-header">

@@ -74,13 +74,13 @@ class WatchFormFactory extends BaseFormFactory {
 				->setPrompt('-- vyber středisko --')
 				->setAttribute('class', 'js-example-basic-single')
 				->setRequired('Vyber prosím středisko');
-			$form->addSelect("group", "Oddíl:", $this->loadGroups())
+			$form->addSelect("group", "Oddíl *:", $this->loadGroups($form["troop"]))
 				->setPrompt('-- vyber oddíl --')
 				->setAttribute('class', 'js-example-basic-single');			
 		}
 		$form->addHidden("author", $this->user->getUserDetail()->ID);
 		$form->addText("name", "Název hlídky *:")
-			->setRequired();		
+			->setRequired();
 		$form->addText("town","Obec:");
 		$form->addText("email_leader", "E-mail na vůdce oddílu *:")
 			->setRequired()
@@ -93,9 +93,19 @@ class WatchFormFactory extends BaseFormFactory {
 			->setValidationScope(FALSE);
 		
 		$form->onSuccess[] = array($this, 'formSucceeded');
+		$form->onValidate[] = array($this, 'validateGroup');
 		return $form;
 	}
 	
+	public function validateGroup($form) {
+		$values = $form->getHttpData();
+		if (empty($values["group"])) {			
+			$form->addError("Je nutné vyplnit oddíl.");
+			$form->getPresenter()->redrawControl();
+		}
+	}
+
+
 	public function formSucceeded(Form $form) {	
 		if ($form["cancel"]->isSubmittedBy()) {
 			$this->session->getSection("watch")->remove();
@@ -140,7 +150,8 @@ class WatchFormFactory extends BaseFormFactory {
 		return $troops;
 	}
 	
-	public function loadGroups() {		
+	public function loadGroups($troop) {
+		//dump($troop);exit;
 		if (isset($this->troop)) {			
 			$units = $this->troop->getSubordinateUnits();
 			$groups = array();

@@ -68,7 +68,7 @@ class User extends Nette\Object {
 	/**
 	 * TRUE pokud je uživatel administrátorem aplikaci
 	 * 
-	 * @var bool 
+	 * @var boolean
 	 */
 	private $admin;
 	

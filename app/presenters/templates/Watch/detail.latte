@@ -52,11 +52,15 @@
 			</tbody>
 		</table>
 	</fieldset>
-					
+	{if $watch->author->id == $user->id || ($watch->group->id == $user->unit->id && $user->isOfficial()) || 
+	($watch->troop->id == $user->unit->id && $user->isOfficial())}				
 	<a class="btn btn-default active" n:href="Watch:editMembers $watch->id, $race->id">Upravit členy</a>
+	{/if}
 	{if ($watch->canEdit($user) || $race->canEdit($user->id))&& $race->applicationDeadline < date('Y-m-d')}	
 	<a class="btn btn-default active" n:href="deleteWatch! $watch->id, $race->id">Odhlásit hlídku ze závodu</a>
 	{/if}
+	<br />
+	<br />
 {/foreach}
 <br />
 <br />

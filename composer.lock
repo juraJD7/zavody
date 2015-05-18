@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "01cf1b97d17c32ff1cdbeac61b81d28a",
+    "hash": "41fb41b1601b4f39cc353e75914cb177",
     "packages": [
         {
             "name": "dg/adminer-custom",
@@ -314,64 +314,6 @@
                 "utf-8"
             ],
             "time": "2014-05-16 07:18:10"
-        },
-        {
-            "name": "nella/forms-datetime",
-            "version": "v2.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nella/forms-datetime.git",
-                "reference": "e7afe1d2e5355f7f7f8b44949451460cf249a224"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nella/forms-datetime/zipball/e7afe1d2e5355f7f7f8b44949451460cf249a224",
-                "reference": "e7afe1d2e5355f7f7f8b44949451460cf249a224",
-                "shasum": ""
-            },
-            "require": {
-                "nette/forms": "~2.2,<2.4.0",
-                "php": ">=5.5.0"
-            },
-            "require-dev": {
-                "jakub-onderka/php-console-highlighter": "~0.3.1",
-                "jakub-onderka/php-parallel-lint": "~0.8.0",
-                "nella/coding-standard": "~2.0.0",
-                "nette/tester": "~1.4.0",
-                "satooshi/php-coveralls": "dev-master#2fbf803"
-            },
-            "suggest": {
-                "latte/latte": "For manual rendering support"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Nella\\Forms\\DateTime\\": "src/Nella/Forms/DateTime"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Patrik Votoček",
-                    "email": "patrik@votocek.cz",
-                    "homepage": "http://patrik.votocek.cz",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Date/DateTime control for Nette Forms.",
-            "homepage": "http://doc.nellafw.org/forms/datetime",
-            "keywords": [
-                "Forms",
-                "control",
-                "date",
-                "datetime",
-                "input",
-                "nette"
-            ],
-            "time": "2015-04-20 11:43:03"
         },
         {
             "name": "nette/application",
@@ -1789,6 +1731,64 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "nella/forms-datetime",
+            "version": "v2.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nella/forms-datetime.git",
+                "reference": "e7afe1d2e5355f7f7f8b44949451460cf249a224"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nella/forms-datetime/zipball/e7afe1d2e5355f7f7f8b44949451460cf249a224",
+                "reference": "e7afe1d2e5355f7f7f8b44949451460cf249a224",
+                "shasum": ""
+            },
+            "require": {
+                "nette/forms": "~2.2,<2.4.0",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "jakub-onderka/php-console-highlighter": "~0.3.1",
+                "jakub-onderka/php-parallel-lint": "~0.8.0",
+                "nella/coding-standard": "~2.0.0",
+                "nette/tester": "~1.4.0",
+                "satooshi/php-coveralls": "dev-master#2fbf803"
+            },
+            "suggest": {
+                "latte/latte": "For manual rendering support"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Nella\\Forms\\DateTime\\": "src/Nella/Forms/DateTime"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Patrik Votoček",
+                    "email": "patrik@votocek.cz",
+                    "homepage": "http://patrik.votocek.cz",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Date/DateTime control for Nette Forms.",
+            "homepage": "http://doc.nellafw.org/forms/datetime",
+            "keywords": [
+                "Forms",
+                "control",
+                "date",
+                "datetime",
+                "input",
+                "nette"
+            ],
+            "time": "2015-04-20 11:43:03"
+        },
         {
             "name": "nette/tester",
             "version": "v1.4.0",

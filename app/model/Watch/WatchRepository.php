@@ -83,6 +83,13 @@ class WatchRepository extends Nette\Object {
 		return $this->getDbMapper()->getUnit($id, $type);
 	}	
 	
+	/**
+	 * Vrátí členy hlídky
+	 * 
+	 * @param int $watchId
+	 * @param Race $race omezí výběr členů na konkrétní závod
+	 * @return Person[]
+	 */
 	public function getMembers($watchId, Race $race = null) {
 		if (is_null($race)) {
 			$raceId = null;
@@ -92,8 +99,16 @@ class WatchRepository extends Nette\Object {
 		return $this->getPersonRepository()->getPersonsByWatch($watchId, $raceId);
 	}
 	
+	/**
+	 * Vrátí závody, kterých se hlídka účastní
+	 * 
+	 * @param int $watchId
+	 * @return Race[]
+	 */
 	public function getRaces($watchId) {
+		//získá ID závodů, kterých se účastní hlídka
 		$result = $this->getDbMapper()->getRaces($watchId);
+		// načtení závodů
 		$races = array();
 		foreach ($result as $id) {
 			$races[] = $this->getRaceRepository()->getRace($id);
@@ -131,7 +146,8 @@ class WatchRepository extends Nette\Object {
 	public function createWatchFromSession(Nette\Http\SessionSection $section) {
 		if (!$section->offsetExists("basic")) {
 			throw new SessionExpiredException("Platnost údajů vypršela.");
-		}		
+		}
+		//záskání základních údajů ze session
 		$basic = $section->basic;
 		$watch = new Watch();
 		$watch->author = $this->userRepository->getUser($basic["author"]);
@@ -143,7 +159,7 @@ class WatchRepository extends Nette\Object {
 		$watch->town = $basic["town"];
 		$watch->emailLeader = $basic["email_leader"];
 		$watch->emailGuide = $basic["email_guide"];
-		
+		//načtení členů hlídky jako účastníků závodu a přidání do hlídky
 		$members = ($section->members) ? $section->members : array();
 		foreach ($members as $key => $value) {
 			$member = $this->getPersonRepository()->getPerson($key);
@@ -154,6 +170,13 @@ class WatchRepository extends Nette\Object {
 		return $watch;
 	}
 	
+	/**
+	 * Vrátí hlídku ve formě vhodné pro formulář k úpravě
+	 * 
+	 * @param Watch $watch
+	 * @param int $raceId
+	 * @return array
+	 */
 	public function getDataForForm(Watch $watch, $raceId = NULL) {
 		if (is_null($raceId)) {
 			$races = $watch->getRaces();			
@@ -180,6 +203,15 @@ class WatchRepository extends Nette\Object {
 		return $this->getDbMapper()->deleteAllMembers($watchId, $raceId);
 	}
 	
+	/**
+	 * Ověří, zda může být osoba členem hlídky s danou rolí
+	 * 
+	 * @param int $personId ID osoby ze skautISu
+	 * @param int $roleId ID role v závodě
+	 * @param Race $race 
+	 * @param int $watchId ID hlídky
+	 * @return boolean
+	 */
 	public function validateMember($personId, $roleId, $race, $watchId = NULL) {
 		return $this->getDbMapper()->validateMember($personId, $roleId, $race, $watchId);
 	}
@@ -188,13 +220,26 @@ class WatchRepository extends Nette\Object {
 		$this->getDbMapper()->fixCategory($watchId, $category);
 	}
 	
+	/**
+	 * Provede postup hlídky do dalšího kola
+	 * 
+	 * @param Watch $watch Postupující hlídka
+	 * @param Race $race Kolo, ze kterého hlídka postupuje
+	 */
 	public function processAdvance(Watch $watch, Race $race) {
 		$this->getDbMapper()->processAdvance($watch, $race);
 	}
 	
+	/**
+	 * Vrátí token pro potvrzení účasti hlídky v závodě
+	 * 
+	 * @param int $watchId
+	 * @param int $raceId
+	 * @return string
+	 */
 	public function getToken($watchId, $raceId) {
 		return $this->getDbMapper()->getToken($watchId, $raceId);
-	}
+	}	
 	
 	public function setToken($watchId, $raceId, $token) {
 		$this->getDbMapper()->setToken($watchId, $raceId, $token);

@@ -54,7 +54,8 @@ class WatchPresenter extends BasePresenter {
 	public function createComponentWatchForm() {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
-		}			
+		}
+		//nastavení parametrů továrny
 		$watchId = $this->getParameter('id');
 		$this->watchFormFactory->setId($watchId);
 		$raceId = $this->getParameter('race');
@@ -63,9 +64,11 @@ class WatchPresenter extends BasePresenter {
 		$form = $this->watchFormFactory->create();
 		$form->onSuccess[] = function () {				
 			$watchId = $this->getParameter('id');
+			//při vytváření hlídky -> přechod na další krok
 			if ($this["watchForm"]["send"]->isSubmittedBy()) {
 				$this->redirect("Watch:members");
 			}
+			// editace hlídky -> po uložení rovnou zobrazí detail hlídky
 			if ($this["watchForm"]["save"]->isSubmittedBy()) {					
 				$this->redirect("Watch:detail", $watchId);
 			}
@@ -77,6 +80,7 @@ class WatchPresenter extends BasePresenter {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		//nastavení parametrů pro továrnu
 		$watchId = $this->getParameter('watchId');
 		$this->membersFormFactory->setId($watchId);
 		$this->raceId = $this->getParameter('raceId');
@@ -86,13 +90,17 @@ class WatchPresenter extends BasePresenter {
 		$form->onSuccess[] = function () {
 			$watchId = $this->getParameter('watchId');
 			$this->redrawControl("members");
+			//invalidace flash zpráv pro zobrazení nových zpráv ajaxem
 			$this->redrawControl("flashes");
+			// při zakládání hlídky - přechod na další krok
 			if ($this["membersForm"]["send"]->isSubmittedBy()) {
 				$this->redirect("Watch:review");
 			}
+			// při přímé editaci členů - po uložení přesměrování na detail hlídky
 			if ($this["membersForm"]["save"]->isSubmittedBy()) {					
 				$this->redirect("Watch:detail", $watchId);
 			}
+			// při vytváření hlídky - přechod na předchozí krok
 			if ($this["membersForm"]["preview"]->isSubmittedBy()) {
 				$this->redirect("Watch:create");
 			}
@@ -100,14 +108,14 @@ class WatchPresenter extends BasePresenter {
 		return $form;		
 	}
 	
-	public function setStep($step) {
-		$this->step = $step;
-	}
-
 	public function renderCreate($race) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
-		}		
+		}			
+		if ($this["watchForm"]->hasErrors()) {
+			$this->troop = $this["watchForm"]["troop"]->getValue();
+		}
+		//pokud existuje záznam v session (např. při kroku zpět při přihlašování), načte výchozí hodnoty
 		if ($this->getSession()->hasSection('watch')) {				
 			$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));	
 						$data = $this->watchRepository->getDataForForm($watch);
@@ -119,10 +127,13 @@ class WatchPresenter extends BasePresenter {
 			}
 			$this["watchForm"]->setDefaults($data);
 			
-		}			
+		}		
 		$this->template->form = $this->template->_form = $this['watchForm'];		
 	}
 	
+	/**
+	 * Načtení oddílů do formuláře při změně střediska v kroku 1 přihlašování
+	 */
 	public function handleTroop() {
 		if($this->isAjax()) {
 			$unitID = $this->getHttpRequest()->getPost('unitID');
@@ -131,16 +142,25 @@ class WatchPresenter extends BasePresenter {
 		}
 	}
 	
+	/**
+	 * Načtení členů zvolené jednotky v kroku 2 přihlašování
+	 */
 	public function handleLoadPersons() {
 		if($this->isAjax()) {			
 			$unitID = $this->getHttpRequest()->getPost('unitID');		
 			$members = $this->personRepository->getPersonsByUnit($unitID);						
 			$this->template->persons = $members;
+			//seznam dostupných rolí pro výběr
 			$this->template->roles = $this->personRepository->getRoles();
 			$this->redrawControl("persons");			
 		}
 	}
 	
+	/**
+	 * Smaže člena z vybraných členů v kroku 2 přihlašování 
+	 * 
+	 * @param int $memberId
+	 */
 	public function handleDeleteMember($memberId) {
 		if($this->isAjax()) {
 			$section = $this->getSession("watch");
@@ -150,15 +170,23 @@ class WatchPresenter extends BasePresenter {
 		}
 	}
 	
+	/**
+	 * Smaže všechnyvybané členy v kroku 2 přihlašování 
+	 */
 	public function handleDeleteAllMembers() {
 		if($this->isAjax()) {
 			$section = $this->getSession("watch");
-			unset($section->members);
-			unset($section->roles);
+			$section->members = array();
+			$section->roles = array();
 			$this->redrawControl("members");			
 		}
 	}
 	
+	/**
+	 * Vytvoří hlídku ze session a uloží do databáze
+	 * 
+	 * @param type $raceId
+	 */
 	public function handleSave($raceId) {
 		$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));
 		$race = $this->raceRepository->getRace($raceId);
@@ -173,12 +201,18 @@ class WatchPresenter extends BasePresenter {
 		}
 	}
 	
+	/**
+	 * Stránka pro potvrzení účasti hlídky vedoucím oddílu
+	 * 
+	 * Nevyžaduje přihlášení do skautISu
+	 */
 	public function renderConfirm() {
 		$watchId = $this->getParameter('watchId');
 		$token = $this->getParameter('token');
 		$watch = $this->watchRepository->getWatch($watchId);
 		$success = $watch->confirm($token);
 		$this->template->watch = $watch;
+		//informace o úspěšném či neúspěšném potvrzení se projeví v šabloně
 		if ($success == 1) {
 			$this->template->success = TRUE;
 		} else {
@@ -186,20 +220,28 @@ class WatchPresenter extends BasePresenter {
 		}		
 	}
 	
+	/**
+	 * Stránka zobrazí všechny hlídky přihlášeného uživatele
+	 * 
+	 * @throws Nette\Security\AuthenticationException
+	 */
 	public function renderMy() {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
-		//všechny, které založil akt. uživatel		
+		//všechny hlídky, které založil přihlášený uživatel		
 		$author = $this->watchRepository->getWatchsByAuthor($this->user->id);	
-		//pro činovníky / administrátory střediska / oddílu
+		//hlídky podle jednotky pro činovníky oddílu či střediska
 		$administrator = array();
 		if ($this->user->isOfficial()) {
 			$administrator = $this->watchRepository->getWatchsByUnit($this->skautIS->getUser()->getUnitId());
 		}
-		//jsem účastníkem
+		//hlídky, kde je uživatel účastníkem
 		$participant = $this->watchRepository->getWatchsByParticipant($this->user->id);		
 		$this->template->watchs = $author + $administrator + $participant;
+		// seřazení hlídek a přidělení rolí uživatele v jednotlivých hlídkách,
+		// správce hlídky má přednost před rolí činovníka dané jednotky a ta má přednost
+		// před rolí běžného účastníka hlídky
 		krsort($this->template->watchs);
 		$roles = array();
 		foreach (array_keys($this->template->watchs) as $key) {
@@ -214,13 +256,21 @@ class WatchPresenter extends BasePresenter {
 		$this->template->roles = $roles;		
 	}
 	
+	/**
+	 * Zašle potvrzovací email s údaji o hlídce vedoucímu oddílu
+	 * 
+	 * @param Race $race
+	 * @param Watch $watch
+	 */
 	private function sendConfirmMail($race, $watch) {
+		//vytvoření šablony emailu s parametry
 		$latte = new \Latte\Engine;
 		$params = array(
 			"watch" => $watch,
 			"raceTitle" => $race->title,
 			"token" => $watch->getToken($race->id)
 		);
+		//vytovření zprávy a odeslání
 		$mail = new Message();
 		$mail->setFrom('Web skautských závodů <405245@mail.muni.cz>')
 				->addTo($watch->emailLeader)
@@ -228,14 +278,23 @@ class WatchPresenter extends BasePresenter {
 		$mailer = new SendmailMailer;
 		$mailer->send($mail);
 	}
-
+	
+	/**
+	 * Přihlašovací proces - krok 2, přidávání členů
+	 * 
+	 * @param int $watchId ID hlídky
+	 * @param int $raceId ID závodu, do kterého se hlídka přihlašuje 
+	 * @throws Nette\Security\AuthenticationException
+	 */
 	public function renderMembers($watchId, $raceId) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
+		//vytvoření seznamu již přidaných členů ze session
 		$this->template->members = ($this->getSession('watch')->members) 
 				? $this->getSession('watch')->members
 				: array();
+		//přidělení rolí jednotlivým vybraným členům ze session
 		$roles = array();		
 		foreach ($this->template->members as $key => $value) {
 			$rolesSession = $this->getSession('watch')->roles;
@@ -244,14 +303,21 @@ class WatchPresenter extends BasePresenter {
 		$this->template->rolesPicked = $roles;
 	}
 	
+	/**
+	 * Úprava členů hlídky v zadaném závodě
+	 * 
+	 * @param int $watchId ID hlídky
+	 * @param int $raceId ID závodu, kterého se změny členů týkají
+	 * @throws Nette\Security\AuthenticationException
+	 * @throws \Race\PermissionException
+	 */
 	public function renderEditMembers($watchId, $raceId) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 		$watch = $this->watchRepository->getWatch($watchId);
-		if (!$this->user->isInRole('admin') && 
-				!($this->user->isInRole('raceManager') && $watch->isInRace($raceId))
-				&& ($watch->author->id != $this->user->id)
+		//upravovat může činovník oddílu či střediska hlídky nebo autor hlídky
+		if (($watch->author->id != $this->user->id)
 				&& !($this->skautIS->getUser()->getUnitId() == $watch->group->id && $this->user->isOfficial()) 
 				&& !($this->skautIS->getUser()->getUnitId() == $watch->troop->id && $this->user->isOfficial())) {
 			throw new \Race\PermissionException("Nemáte oprávnění k této akci");
@@ -261,6 +327,7 @@ class WatchPresenter extends BasePresenter {
 		$race = $this->raceRepository->getRace($raceId);								
 		$this->template->watch = $watch;
 		$this->template->race = $race;
+		//pokud uživatelé nejsou v session, načteme je z hlídky, která je editována
 		if (!isset($section->members)) {
 			$roles = array();
 			$section->members = array();
@@ -268,8 +335,10 @@ class WatchPresenter extends BasePresenter {
 			foreach ($watch->getMembers($race) as $member) {
 				$section->members[$member->personId] = $member->displayName;
 				$section->roles[$member->personId] = $member->getRoleId($raceId);
+				$section->units[$member->personId] = $member->unit->id;
 			}
-		}		
+		}	
+		//uložení členů a jejich rolí do šablony pro jejich zobrazení
 		$this->template->members = $section->members;
 		$roles = array();
 		foreach ($this->template->members as $key => $value) {
@@ -279,6 +348,11 @@ class WatchPresenter extends BasePresenter {
 		$this->template->rolesPicked = $roles;				
 	}
 	
+	/**
+	 * Zobrazí přehled údajů z přihlašovaní hlídky, vč. soutěžní kateogire a případného odůvodnění u kategorie nesoutěžní
+	 * 
+	 * @throws Nette\Security\AuthenticationException
+	 */
 	public function renderReview() {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
@@ -289,11 +363,20 @@ class WatchPresenter extends BasePresenter {
 		}
 	}
 	
+	/**
+	 * Zobrazí možnost úpravy společných parametrů hlídky pro všehcny její závody
+	 * 
+	 * @param int $id ID hlídky
+	 * @throws Nette\Security\AuthenticationException
+	 * @throws \Race\PermissionException
+	 */
 	public function renderEdit($id) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 		$watch = $this->watchRepository->getWatch($id);
+		//upravit hlídku může pouze administrátor, editor závodu, kterého se hlídka účastní,
+		//autor hlídky a činovník jejího oddílu nebo střediska
 		if (!$this->user->isInRole('admin') && 
 				!($this->user->isInRole('raceManager') && $watch->isInRaces($this->user->identity->data["races"]))
 				&& ($watch->author->id != $this->user->id)
@@ -310,11 +393,20 @@ class WatchPresenter extends BasePresenter {
 		$this->template->form = $this->template->_form = $this['watchForm'];			
 	}
 	
+	/**
+	 * Zobrazí detail hlídky
+	 * 
+	 * @param int $id
+	 * @throws Nette\Security\AuthenticationException
+	 * @throws \Race\PermissionException
+	 */
 	public function renderDetail($id) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
 		}
 		$watch = $this->watchRepository->getWatch($id);
+		//zobrazit detail hlídky může pouze administrátor, editor závodu, kterého se hlídka účastní,
+		//autor hlídky a činovník jejího oddílu nebo střediska
 		if (!$this->user->isInRole('admin') && 
 				!($this->user->isInRole('raceManager') && $watch->isInRaces($this->user->identity->data["races"]))
 				&& ($watch->author->id != $this->user->id)
@@ -328,12 +420,20 @@ class WatchPresenter extends BasePresenter {
 			
 	}	
 	
+	/**
+	 * Smaže hlídku ze závodu
+	 * 
+	 * @param int $watchId
+	 * @param int $raceId
+	 */
 	public function handleDeleteWatch($watchId, $raceId) {
 		if ($this->isAjax()) {
 			$race = $this->raceRepository->getRace($raceId);
 			if ($race->applicationDeadline < date('Y-m-d')) {
 				$res = $this->watchRepository->deleteWatch($watchId, $raceId);
-				$advancedRaces = array('K', 'C');				
+				$advancedRaces = array('K', 'C');
+				//pokud byla smazána hlídka z navazujícího závodu, zruší postup v předcházejícím závodě
+				//a umožní postup jiné hlídce
 				if ($res && in_array($race->round->short, $advancedRaces)) {
 					$prevRace = $this->raceRepository->getPrevRace($watchId, $race);
 					$watch = $this->watchRepository->getWatch($watchId);
@@ -345,6 +445,9 @@ class WatchPresenter extends BasePresenter {
 		
 	}
 	
+	/**
+	 * Zruší rozpracované přihlašování hlídky a vymaže session
+	 */
 	public function handleCancelWatch() {
 		$this->session->getSection("watch")->remove();
 		$this->redirect("Race:");

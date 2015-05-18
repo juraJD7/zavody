@@ -334,7 +334,9 @@ class RaceFormFactory extends BaseFormFactory {
 		if (!in_array($this->user->id, $editors)) {
 			$editors[] = $this->user->id;
 		}
-		$editors[] = $race->author->id;
+		if (!in_array($race->author->id, $editors)) {
+			$editors[] = $race->author->id;
+		}
 		foreach ($editors as $editor) {
 			$this->userRepository->getUser($editor); // uložení editora, popř. aktualizace údajů z ISu
 			$this->database->table('editor_race')

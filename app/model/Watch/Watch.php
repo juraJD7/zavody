@@ -13,21 +13,84 @@ class Watch extends Nette\Object {
 	
 	private $repository;
 	
+	/**
+	 *
+	 * @var int 
+	 */
 	private $id;
-	private $name;
-	private $author;
-	private $group;	
-	private $troop;	
-	private $town; //obec?
-	private $emailLeader;
-	private $emailGuide; //radce
-	private $races = array();
-	private $category;
-	private $nonCompetitiveReason;
 	
 	/**
 	 *
-	 * @var array Person
+	 * @var string 
+	 */
+	private $name;
+	
+	/**
+	 *
+	 * @var User 
+	 */
+	private $author;
+	
+	/**
+	 * Středisko hlídky
+	 * 
+	 * @var Unit 
+	 */
+	private $group;
+	
+	/**
+	 * Oddíl hlídky
+	 * 
+	 * @var Unit 
+	 */
+	private $troop;
+	
+	/**
+	 * Obec hlídky
+	 * 
+	 * @var string 
+	 */
+	private $town;
+	
+	/**
+	 * Email na vůdce oddílu
+	 * 
+	 * @var string 
+	 */
+	private $emailLeader;
+	
+	/**
+	 * Email na rádce hlídky
+	 * 
+	 * @var string 
+	 */
+	private $emailGuide;
+	
+	/**
+	 * pole závodů, kterých se hlídka účastní
+	 * 
+	 * @var Race[] 
+	 */
+	private $races = array();
+	
+	/**
+	 * soutěžní kategorie
+	 * 
+	 * @var string
+	 */
+	private $category;
+	
+	/**
+	 * V případě nesoutěžní hlídky důvod, proč není soutěžní
+	 * 
+	 * @var string
+	 */
+	private $nonCompetitiveReason;
+	
+	/**
+	 * pole členů hlídky napříč všemi koly
+	 * 
+	 * @var Person[]
 	 */
 	private $members = array();	
 	
@@ -121,11 +184,20 @@ class Watch extends Nette\Object {
 		array_push($this->races, $race);
 	}
 	
+	/**
+	 * Vrátí počet soutěžících členů v hlídce v daném závodě
+	 * 
+	 * Jako soutěžící jsou počítání rádci a účastníci
+	 * 
+	 * @param Race $race
+	 * @return int
+	 */
 	public function getNumRunners(Race $race) {
 		$participants = $this->getMembers($race);
 		$counter = 0;
 		foreach ($participants as $participant) {
-			if ($participant->getRoleId($race->id) == Person::TYPE_GUIDE || $participant->getRoleId($race->id) == Person::TYPE_RUNNER) { // ucastnik nebo radce
+			// ucastnik nebo radce se počítá jako soutěžící
+			if ($participant->getRoleId($race->id) == Person::TYPE_GUIDE || $participant->getRoleId($race->id) == Person::TYPE_RUNNER) { 
 				$counter++;
 			}
 		}
@@ -153,7 +225,16 @@ class Watch extends Nette\Object {
 		}
 	}
 	
-	private function countParticipants($participants, Race $race) {
+	/**
+	 * Spočítá členy v družině a podle počtu členů a jejich pohlaví vrátí kategorii
+	 * 
+	 * V případě nesoutěžní kategorie uloží do atributu důvod
+	 * 
+	 * @param type $participants
+	 * @param Race $race
+	 * @return type
+	 */
+	public function countParticipants($participants, Race $race) {
 		$runner = 0;
 		$guide = 0;
 		$escort = 0;
@@ -173,6 +254,7 @@ class Watch extends Nette\Object {
 				}
 			}
 		}		
+		// ověření, zda hlídka splňuje pravidla pro soutěžní hlídku
 		if ($guide > 1) {
 			$this->nonCompetitiveReason = "Počet rádců překročen, maximum je 1. Zbytek označ jako doprovod";
 			return Watch::CATEGORY_NONCOMPETIVE;
@@ -185,13 +267,23 @@ class Watch extends Nette\Object {
 			$this->nonCompetitiveReason = "Počet členů je menší než minimum pro tento závod (" . $race->minRunner . ")";
 			return Watch::CATEGORY_NONCOMPETIVE;
 		}		
+		// hlídka je soutěžní
+		// v případě rovnosti pohlaví je hlídka dívčí
 		if ($male > $female) {
 			return Watch::CATEGORY_MALE;
 		} else {
 			return Watch::CATEGORY_FEMALE;
 		}
 	}
-
+	
+	/**
+	 * Nastaví kategorii napevno, poté již nelze (v dalších závodech) měnit
+	 * 
+	 * V případě, že je již kategorie nastavena, vyhodí výjmku - kategorie nelze změnit
+	 * 
+	 * @param string $category
+	 * @throws LogicException
+	 */
 	public function setCategory($category) {
 		if (is_null($this->category)) {
 			$this->category = $category;
@@ -212,6 +304,12 @@ class Watch extends Nette\Object {
 		return $this->repository->getOrder($this->id, $raceId);
 	}
 	
+	/**
+	 * Vrátí informaci o postupu v textové podobě
+	 * 
+	 * @param type $raceId
+	 * @return string
+	 */
 	public function getAdvance($raceId) {
 		$advance = $this->repository->getAdvance($this->id, $raceId);
 		if ($advance) {
@@ -220,10 +318,23 @@ class Watch extends Nette\Object {
 		return "Ne";
 	}
 	
+	/**
+	 * Vrátí, zda je hlídka potvrzená k účasti v závodě
+	 * 
+	 * @param int $raceId
+	 * @return boolean
+	 */
 	public function isConfirmed($raceId) {
 		return $this->repository->isConfirmed($this->id, $raceId);
 	}	
 	
+	/**
+	 * Přidá člena do hlídky, pokud je účasníkem al. jednoho ze závodů hlídky a 
+	 * není již členem jiné hlídky
+	 * 
+	 * @param Person $member
+	 * @throws LogicException
+	 */
 	public function addMember(Person $member) {
 		$isInRace = FALSE;
 		foreach ($member->races as $raceId) {
@@ -242,7 +353,7 @@ class Watch extends Nette\Object {
 	/**
 	 * 
 	 * @param Race $race
-	 * @return array Person
+	 * @return Person[]
 	 */
 	public function getMembers($race = null) {		
 		if (empty($this->members)) {			
@@ -261,7 +372,12 @@ class Watch extends Nette\Object {
 		return $members;		
 	}
 
-
+	/**
+	 * Vrátí, zda je hlídka účastníkem závodu
+	 * 
+	 * @param Race $raceId
+	 * @return boolean
+	 */
 	public function isInRace($raceId) {
 		$this->getRaces();
 		foreach ($this->races as $race) {
@@ -272,6 +388,12 @@ class Watch extends Nette\Object {
 		return FALSE;
 	}
 	
+	/**
+	 * Vrátí, zda je hlídka účastníkem jednoho ze zadaných závodů
+	 * 
+	 * @param Race[] $raceArray
+	 * @return boolean
+	 */
 	public function isInRaces($raceArray) {
 		$this->getRaces();
 		foreach ($this->races as $race) {
@@ -287,24 +409,48 @@ class Watch extends Nette\Object {
 		return $this->nonCompetitiveReason;
 	}
 	
+	/**
+	 * Smaže členy hlídky
+	 * 
+	 * @param int $raceId ID závodu, na který je omezen výběr pro smazání
+	 */
 	public function deleteAllMembers($raceId = NULL) {
 		if ($this->repository->deleteAllMembers($this->id, $raceId)) {
 			$this->members = array();
 		}
 	}
 	
+	/**
+	 * Uloží změny ve hlídce
+	 */
 	public function save() {
 		$this->repository->save($this);
 	}
 	
+	/**
+	 * Nastaví kategorii napevno
+	 */
 	public function fixCategory() {
 		$this->repository->fixCategory($this->id, $this->getCategory());
 	}
 	
+	/**
+	 * Vykoná postup hlídky
+	 * 
+	 * Přidá do navazujícího závodu hlídku i všechny její členy, které lze poté upravit
+	 * 
+	 * @param Race $race
+	 */
 	public function processAdvance(Race $race) {
 		$this->repository->processAdvance($this, $race);
 	}
 	
+	/**
+	 * Vrátí token pro potvrzení přihlášení hlídky na závod vedoucím oddílu
+	 * 
+	 * @param int $raceId ID závodu, kam se hlídka přihlašuje
+	 * @return $string
+	 */
 	public function getToken($raceId) {
 		return $this->repository->getToken($this->id, $raceId);
 	}
@@ -313,10 +459,21 @@ class Watch extends Nette\Object {
 		$this->repository->setToken($this->id, $raceId, $token);
 	}
 	
+	/**
+	 * Potvrdí účast hlídky v závodě
+	 * 
+	 * @param string $token
+	 * @return boolean
+	 */
 	public function confirm($token) {
 		return $this->repository->confirm($this->id, $token);
 	}
 	
+	/**
+	 * Vrátí název ročníku, kterého se hlídka účastnila
+	 * 
+	 * @return string
+	 */
 	public function getSeasonName() {
 		if ($this->getRaces()) {
 			return $this->repository->getSeasonName($this->races[0]->season);
@@ -324,23 +481,34 @@ class Watch extends Nette\Object {
 		return NULL;
 	}
 	
+	/**
+	 * Ověří, zda přihlášený uživatel může upravovat hlídku
+	 * 
+	 * @param Nette\Security\LoggedUser $user
+	 * @return boolean
+	 */
 	public function canEdit(Nette\Security\LoggedUser $user) {
+		//uživatel je administrátorem
 		if ($user->isInRole('admin')) {
 			return TRUE;
 		}
+		//nebo je činovníkem střediska či oddílu hlídky
 		if (($this->troop == $user->getUnit() || $this->group == $user->getUnit())
 				&& $user->isOfficial()) {
 			return TRUE;
 		}
+		//nebo je editorem závodu, kterého se hlídka účastní
 		foreach ($user->identity->data["races"] as $raceId) {
 			if ($user->isInRole('raceManager') && $this->isInRace($raceId)) {
 				return TRUE;
 			}
 		}
+		//nebo hlídku založil
 		$this->getAuthor();
 		if ($this->author->id == $user->id) {
 			return TRUE;
 		}
+		// v ostatních případech nemůže upravovat
 		return FALSE;
 		
 	}

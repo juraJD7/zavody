@@ -34,7 +34,11 @@ class PersonRepository {
 	 * @param int $personId
 	 */
 	public function getPerson($personId) {
-		$person = $this->isMapper->getPerson($personId);
+		try {
+			$person = $this->isMapper->getPerson($personId);
+		} catch (Exception $ex) {
+			$person = $this->getDbMapper()->getPerson($personId);
+		}
 		$person->repository = $this;
 		return $person;
 	}

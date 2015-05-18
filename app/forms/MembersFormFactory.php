@@ -105,14 +105,15 @@ class MembersFormFactory extends BaseFormFactory {
 		unset($values["_token_"]);
 		$section = $this->session->getSection('watch');
 		// uložení hlídky
-		if ($form["save"]->isSubmittedBy()) {			
-			$watch = $this->watchRepository->getWatch($this->id);			
+		if ($form["save"]->isSubmittedBy()) {
+			$watch = $this->watchRepository->getWatch($this->id);
 			$watch->deleteAllMembers($this->race);				
 			if (isset($section->members)) {					
 				foreach ($section->members as $key => $value) {					
 					$member = $this->personRepository->getPerson($key);
 					$member->unit = $this->unitRepository->getUnit($section->units[$key]);
 					$member->addRace($this->race, $section->roles[$key]);
+					$watch->members;
 					$watch->addMember($member);					
 				}	
 				//kontrola, zda není hlídka v jiné kategorii, než byla v předchozím závodě
@@ -165,10 +166,10 @@ class MembersFormFactory extends BaseFormFactory {
 	}
 	
 	public function checkCategory(\Watch $watch) {
-		$watchCategory = $watch->category;
+		$race = $this->raceRepository->getRace($this->race);
+		$watchCategory = $watch->countParticipants($watch->getMembers($race), $race);
 		$dbCategory = $this->database->table('watch')
 				->get($watch->id)->category;
-		
 		if ($dbCategory == null
 			|| $watchCategory == \Watch::CATEGORY_NONCOMPETIVE
 			|| $dbCategory == $watchCategory) {
