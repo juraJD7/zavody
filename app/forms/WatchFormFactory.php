@@ -74,16 +74,16 @@ class WatchFormFactory extends BaseFormFactory {
 				->setPrompt('-- vyber středisko --')
 				->setAttribute('class', 'js-example-basic-single')
 				->setRequired('Vyber prosím středisko');
-			$form->addSelect("group", "Oddíl *:", $this->loadGroups($form["troop"]))
+			$form->addSelect("group", "Oddíl *:", $this->loadGroups())
 				->setPrompt('-- vyber oddíl --')
 				->setAttribute('class', 'js-example-basic-single');			
 		}
 		$form->addHidden("author", $this->user->getUserDetail()->ID);
 		$form->addText("name", "Název hlídky *:")
-			->setRequired();
+			->setRequired("Je nutné vyplni název hlídky.");
 		$form->addText("town","Obec:");
 		$form->addText("email_leader", "E-mail na vůdce oddílu *:")
-			->setRequired()
+			->setRequired("Je nutné vyplnit kontakt na vůdce oddílu.")
 			->addRule(Form::EMAIL, "E-mailová adresa není platná");
 		$form->addText("email_guide", "E-mail na rádce družiny:")
 			->addRule(Form::EMAIL, "E-mailová adresa není platná");
@@ -98,10 +98,11 @@ class WatchFormFactory extends BaseFormFactory {
 	}
 	
 	public function validateGroup($form) {
-		$values = $form->getHttpData();
-		if (empty($values["group"])) {			
-			$form->addError("Je nutné vyplnit oddíl.");
-			$form->getPresenter()->redrawControl();
+		if (!$this->id) {
+			$values = $form->getHttpData();
+			if (empty($values["group"])) {			
+				$form->addError("Je nutné vyplnit oddíl.");
+			}
 		}
 	}
 
@@ -150,8 +151,7 @@ class WatchFormFactory extends BaseFormFactory {
 		return $troops;
 	}
 	
-	public function loadGroups($troop) {
-		//dump($troop);exit;
+	public function loadGroups() {		
 		if (isset($this->troop)) {			
 			$units = $this->troop->getSubordinateUnits();
 			$groups = array();

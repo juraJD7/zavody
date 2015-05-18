@@ -133,6 +133,9 @@ class FileDbMapper extends BaseDbMapper {
 		//smazání všech nově nepovolených souborů
 		foreach ($files as $file) {
 			unlink (\FileRepository::BASEDIR . $file->path);
+			$this->database->table('category_file')
+					->where('file_id', $file->id)
+					->delete();
 		}
 		$files->delete();
 		//smazání druhu souboru

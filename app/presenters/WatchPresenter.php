@@ -111,20 +111,35 @@ class WatchPresenter extends BasePresenter {
 	public function renderCreate($race) {
 		if (!$this->user->isLoggedIn()) {
 			throw new Nette\Security\AuthenticationException("Pro tuto akci je nutné se přihlásit");
-		}			
-		if ($this["watchForm"]->hasErrors()) {
-			$this->troop = $this["watchForm"]["troop"]->getValue();
-		}
+		}		
+		if ($this["watchForm"]->hasErrors() && !$this["watchForm"]["group"]->value) {
+			$this->troop = $this["watchForm"]["troop"]->value;
+			if (!empty($this->troop)) {
+				$troop = $this->unitRepository->getUnit($this->troop);				
+				$units = $troop->getSubordinateUnits();
+				$groups = array();
+				foreach ($units as $unit) {
+					$groups[$unit->id] = $unit->displayName;
+				}
+				$this["watchForm"]["group"]->setItems($groups);
+			}
+		}		
 		//pokud existuje záznam v session (např. při kroku zpět při přihlašování), načte výchozí hodnoty
 		if ($this->getSession()->hasSection('watch')) {				
 			$watch = $this->watchRepository->createWatchFromSession($this->getSession('watch'));	
-						$data = $this->watchRepository->getDataForForm($watch);
+				$data = $this->watchRepository->getDataForForm($watch);				
 			if ($this->troop) {
 				unset($data["group"]);
 			}
 			if (!$this->troop) {
 				$this->troop = $watch->troop;				
 			}
+			$units = $this->troop->getSubordinateUnits();
+				$groups = array();
+				foreach ($units as $unit) {
+					$groups[$unit->id] = $unit->displayName;
+				}
+				$this["watchForm"]["group"]->setItems($groups);
 			$this["watchForm"]->setDefaults($data);
 			
 		}		
